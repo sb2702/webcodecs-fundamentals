@@ -8,6 +8,7 @@ export default defineConfig({
 		starlight({
 			title: 'WebCodecs Fundamentals',
 			description: 'The missing manual for the WebCodecs API - from basics to production patterns.',
+			tableOfContents: false,
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/yourusername/webcodecs-fundamentals' }
 			],
