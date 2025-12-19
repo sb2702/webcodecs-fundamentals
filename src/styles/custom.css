@@ -8,6 +8,11 @@
   display: none;
 }
 
+/* Override hairline color */
+:root {
+  --sl-color-hairline: transparent; /* or any color you prefer */
+}
+
 /* Set default theme to light */
 :root {
   color-scheme: light;
