@@ -3,4 +3,7 @@ title: VideoFrame
 description: Why WebCodecs is harder than it looks
 ---
 
-TBD
+-- Image
+-- Metadata
+
+It 

@@ -32,6 +32,16 @@ export default defineConfig({
 					],
 				},
 
+
+				{
+					label: 'Core Concepts',
+					items: [
+						{ label: 'CPU vs GPU', slug: 'concepts/cpu-vs-gpu' },
+						{ label: 'Offscreen vs Main thread', slug: 'concepts/threading' },
+						{ label: 'File Handling', slug: 'concepts/file-handling' },
+					],
+				},
+
 				{
 					label: 'Basics',
 					items: [
@@ -58,14 +68,7 @@ export default defineConfig({
 						{ label: 'Playback', slug: 'audio/web-audio' },
 					],
 				},
-				{
-					label: 'Core Concepts',
-					items: [
-						{ label: 'CPU vs GPU Memory', slug: 'concepts/cpu-vs-gpu' },
-						{ label: 'Threading Model', slug: 'concepts/threading' },
-						{ label: 'File Handling', slug: 'concepts/file-handling' },
-					],
-				},
+
 				{
 					label: 'Design Patterns',
 					items: [
