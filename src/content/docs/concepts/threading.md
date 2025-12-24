@@ -1,6 +1,8 @@
 ---
-title: Threading Model
+title: Offscreen Processing
 description: Main thread vs workers and transferable objects
 ---
 
-TBD
+- file fetching
+- communication with graphics card
+- DOM recalulations

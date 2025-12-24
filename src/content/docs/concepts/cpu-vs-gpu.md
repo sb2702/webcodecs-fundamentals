@@ -5,6 +5,8 @@ description: Understanding ImageData vs VideoFrame
 
 Before even getting to WebCodecs, I want to cover some very important core concepts that most guides don't talk about, which lots of demo pages from reputable open source projects like [MediaBunny](https://mediabunny.dev/) and [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/image_segmenter) ignore, but which are absolutely critical to building performant video processing applications in the web.
 
+The first concept is the distinction between CPU and the GPU, and how data flows between them during video processing operations.
+
 
 #### Most devices have graphics cards
 
@@ -146,6 +148,8 @@ Finally, muxing is the mirror image of demuxing, taking `EncodedVideoChunk` data
 
 For the best performance, **don't needlessly shuffle data back and forth between the CPU, GPU and Hard Disk**, there are real perfomance penalties for each data transfer operation.
 
+This is especially important for `VideoFrame` objects - they reside in GPU memory. Outside of encoding/decoding, please try to keep any operations involving `VideoFrame` objects on the graphics card (via methods like `createImageBitmap`), and avoid reading `VideoFrame` data to the CPU with operations like `copyTo`.
 
-The reason to go through all this trouble to understand the CPU vs the GPU, where each data type resides, and what the data flows look like, is to explain why this guide will make specific recommendations on which methods to use (like `importExternalTexture`) and which not to use (like `drawImage`), and why we're recommending certain best practices, to follow the above princple.
+
+The reason to go through all this trouble to understand the CPU vs the GPU, where each data type resides, and what the data flows look like, is to explain why this guide will make specific recommendations on which methods to use (like `importExternalTexture`) and which not to use (like `drawImage`), and why we're recommending certain best practices, to follow the above princples.
 
