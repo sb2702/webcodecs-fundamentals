@@ -3,6 +3,9 @@ title: File Handling
 description: Streams, buffers, and file system handles
 ---
 
+To many this may be obvious
+
+
 - Small files can be read in RAM
 
 - WebRTC/Streaing, video usually never touches disk
