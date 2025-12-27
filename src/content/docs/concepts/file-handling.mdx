@@ -1,0 +1,771 @@
+---
+title: File Handling
+description: Streams, buffers, and file system handles
+---
+
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+Video files can be large [[citation needed](https://xkcd.com/285/)], ranging from 2-5GB per hour of typical 1080p video, though my own applications occasionally see uploads larger than 20GB. You should expect to work with large files if you are building user-facing applications to edit video or transcode content.  
+
+
+If you do work with such large files, there are some extra practical things you need to keep in mind that aren't directly related to WebCodecs, but which are still necessary for managing a video processing application.
+
+
+
+### File Object ###
+
+If users supply a video file to your web application (e.g. through an 'Upload' button), you are almost certainly going to be working with `File` objects.  You might either load a file using `<input>` or `showOpenFilePicker`
+
+
+<Tabs>
+
+  <TabItem label="Input">
+  ```html
+  <input type="file" id="file-selector">
+  ```
+
+  ```typescript
+const fileSelector = < HTMLInputElement> document.getElementById('file-selector');
+fileSelector.addEventListener('change', (event: Event) => {
+    const file = <File> event.target.files[0];
+});
+
+```
+  
+  </TabItem>
+
+  <TabItem label="filePicker">
+    ```typescript
+  const [fileHandle] = await window.showOpenFilePicker({});
+  const file = <File> await fileHandle.getFile();
+  ```
+  </TabItem>
+</Tabs>
+
+However you get your `File`, this is a *reference* to an actual file on the user's hard disk, and does not itself contain the contents of the file in memory. 
+
+This is actually pretty helpful because you can directly pass a `File` object to a worker thread without without copying a bunch of data, and can do the CPU intensive work of reading files in the worker thread.
+
+```typescript
+worker.postMessage({"file": <File> file}); // This is totally fine
+```
+
+When sending a `File` between threads, there is no need to 'transfer' it, as the `File` is just a reference and sending it is essentially an efficient zero-copy operation, you can send a 100 GB `File` object to a worker thread on a low-end netbook and it'd be fine, because you're only passing the reference which is less than a few kilobytes of data.
+
+When you do actually want to read the data, you hava some options for how to read it; You can directly read the file in one go as an `ArrayBuffer` (simple, faster),  or you can read the file in a using a `ReadableStream` (more complex, better control over memory).
+
+<Tabs>
+
+  <TabItem label="ArrayBuffer">
+
+  ```javascript
+
+  const arrayBuffer = await file.arrayBuffer();
+
+```
+  
+  </TabItem>
+
+  <TabItem label="Streaming">
+    ```javascript
+
+  const stream = file.stream(); // Get a ReadableStream
+  const reader = stream.getReader(); // Get a reader to lock the stream
+
+  while (true) {
+      const { done, value } = await reader.read(); // Read data chunks
+      if (done) break;
+      // value => the next chunk of the file 
+  }
+
+  ```
+  </TabItem>
+</Tabs>
+
+
+`ArrayBuffer` is certainly easier to work with, but **Chromium browsers have a hard limit of 2GB for a single `ArrayBuffer` object**, so if you ever need to handle videos larger than 2GB, you would need a file streaming implementation.
+
+
+In either case, it's only during this second file reading step that data actually moves from hard disk to cpu.
+
+<video width="640" height="480" loop muted autoplay>
+  <source src="/src/assets/content/basics/cpu/file-read.webm" type="video/webm" />
+  Your browser does not support the video tag.
+</video>
+
+
+### Reading large files
+
+
+If you are decoding video, you will need to demux the file. For MP4 files specifically, to even begin demuxing, the demuxer library (e.g. [MediaBunny](https://mediabunny.dev/), [MP4Box.js](https://github.com/gpac/mp4box.js)) needs to find the [moov atom](https://developer.apple.com/documentation/quicktime-file-format/movie_atom), which is often at the end of the file.
+
+You will therefore often need to read through the entire file once to even begin to demux it, and reading through a full 5GB video on a low-end netbook to find the moov atom can take over 1 minute, which is important to keep in mind when designing UI.
+
+**Media Bunny**
+
+Fortunately, if you use [MediaBunny](https://github.com/Vanilagy/mediabunny), that library will handle File streaming by default, so won't have to implement it yourself. If you look at the following example:
+
+```typescript
+
+import { VideoSampleSink, Input, BlobSource, MP4 } from 'mediabunny';
+
+async function decodeFile(file: File){
+
+    const input = new Input({
+        formats: [MP4],
+        source: new BlobSource(file),
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const videoTrack = await input.getPrimaryVideoTrack();
+    const sink = new VideoSampleSink(videoTrack);
+    for await (const sample of sink.samples()) {
+	    sample.draw(ctx, 0, 0);
+    }
+}
+```
+
+MediaBunny internally will read a Readable stream from the `BlobSource` and read the file in chunks efficiently, without you needing to worry about the details. 
+
+
+**Manual Implementation**
+
+If you did want to manage the details yourself, I will provide the code I use in my production apps which are a wrapper around [MP4Box](https://github.com/gpac/mp4box.js), which might serve as a guide for your own manual implementation (though I'd recommend MediaBunny for most cases).
+
+
+<details>
+  <summary>Manual Large File Reading</summary>
+
+
+  ```typescript
+
+import MP4Box, {
+    MP4File,
+    MP4Info,
+    MP4MediaTrack,
+    MP4ArrayBuffer,
+    MP4Sample,
+    MP4Track,
+    DataStream,
+  } from "mp4box";
+  
+  // Types
+  export interface TrackData {
+    duration: number;
+    audio?: AudioTrackData;
+    video?: VideoTrackData;
+  }
+  
+  export interface AudioTrackData {
+    codec: string;
+    sampleRate: number;
+    numberOfChannels: number;
+  }
+  
+  export interface VideoTrackData {
+    codec: string;
+    codedHeight: number;
+    codedWidth: number;
+    description: Uint8Array;
+    frameRate: number;
+  }
+  
+  export interface MP4Data {
+    mp4: MP4File;
+    trackData: TrackData;
+    info: MP4Info;
+  }
+  
+  // Constants
+  const CHUNK_SIZE = 100; // Samples per extraction batch
+  const FRAME_RATE_THRESHOLD = 0.5; // Seconds tolerance for frame rate calculation
+  const DURATION_BUFFER = 0.1; // Prevent reading beyond actual duration
+  
+  /**
+   * Extract codec description box from MP4 track.
+   * Handles avcC (H.264), hvcC (HEVC), vpcC (VP8/VP9), and av1C (AV1).
+   */
+  function extractCodecDescription(
+    mp4: MP4File,
+    track: MP4MediaTrack
+  ): Uint8Array {
+    const trak = mp4.getTrackById(track.id);
+  
+    for (const entry of trak.mdia.minf.stbl.stsd.entries) {
+      const box = entry.avcC || entry.hvcC || entry.vpcC || entry.av1C;
+      if (box) {
+        const stream = new DataStream(
+          undefined,
+          0,
+          DataStream.BIG_ENDIAN
+        );
+        box.write(stream);
+        // Skip 8-byte box header (4 bytes size + 4 bytes type)
+        return new Uint8Array(stream.buffer, 8);
+      }
+    }
+  
+    throw new Error(
+      "Codec description box (avcC, hvcC, vpcC, or av1C) not found"
+    );
+  }
+  
+  /**
+   * Extract track metadata from MP4 file.
+   * Returns duration, codec, dimensions, and frame rate for both audio and video.
+   */
+  function extractTrackData(mp4: MP4File, info: MP4Info): TrackData {
+    const trackData: TrackData = {
+      duration: info.duration / info.timescale,
+    };
+  
+    // Video track
+    if (info.videoTracks.length > 0) {
+      const videoTrack = info.videoTracks[0];
+      const sampleDurationInSeconds =
+        videoTrack.samples_duration / videoTrack.timescale;
+  
+      trackData.video = {
+        codec: videoTrack.codec,
+        codedHeight: videoTrack.video.height,
+        codedWidth: videoTrack.video.width,
+        description: extractCodecDescription(mp4, videoTrack),
+        frameRate: videoTrack.nb_samples / sampleDurationInSeconds,
+      };
+    }
+  
+    // Audio track
+    if (info.audioTracks.length > 0) {
+      const audioTrack = info.audioTracks[0];
+      const sampleRate =
+        audioTrack.audio?.sample_rate ?? audioTrack.timescale;
+      const channelCount = audioTrack.audio?.channel_count ?? 2;
+  
+      trackData.audio = {
+        codec: audioTrack.codec,
+        sampleRate,
+        numberOfChannels: channelCount,
+      };
+    }
+  
+    return trackData;
+  }
+  
+  /**
+   * Stream an MP4 file and extract metadata.
+   * Reads file in chunks and reports progress via postMessage.
+   * Resolves when MP4Box signals readiness.
+   */
+  async function parseMP4Metadata(file: File): Promise<MP4Data> {
+    return new Promise((resolve, reject) => {
+      const reader = file.stream().getReader();
+      let offset = 0;
+      const mp4 = MP4Box.createFile(false);
+      let metadataReady = false;
+  
+      mp4.onReady = (info: MP4Info) => {
+        metadataReady = true;
+        const trackData = extractTrackData(mp4, info);
+        resolve({ info, trackData, mp4 });
+      };
+  
+      mp4.onError = (err: unknown) => {
+        reject(
+          new Error(
+            `MP4Box parsing error: ${err instanceof Error ? err.message : String(err)}`
+          )
+        );
+      };
+  
+      const readNextChunk = async (): Promise<void> => {
+        try {
+          const { done, value } = await reader.read();
+  
+          if (done) {
+            if (!metadataReady) {
+              throw new Error("Invalid MP4 file: metadata not available");
+            }
+            mp4.flush();
+            return;
+          }
+  
+          if (metadataReady) {
+            // Once metadata is ready, stop reading more chunks
+            reader.releaseLock();
+            mp4.flush();
+            return;
+          }
+  
+          const buffer = value.buffer as MP4ArrayBuffer;
+          buffer.fileStart = offset;
+          offset += value.length;
+  
+          // Report progress
+          postMessage({
+            request_id: "load_progress",
+            res: offset / file.size,
+          });
+  
+          mp4.appendBuffer(buffer);
+  
+          // Continue reading
+          if (offset < file.size) {
+            return readNextChunk();
+          } else {
+            mp4.flush();
+            if (!metadataReady) {
+              throw new Error("Invalid MP4 file: metadata not available");
+            }
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+  
+      readNextChunk().catch(reject);
+    });
+  }
+  
+  /**
+   * Extract encoded samples (audio or video) from a time range.
+   * Uses MP4Box's extraction API to get chunks efficiently.
+   * Handles message passing for progress reporting.
+   */
+  async function extractEncodedSegment(
+    file: File,
+    mp4Data: MP4Data,
+    trackType: "audio" | "video",
+    startTime: number,
+    endTime: number
+  ): Promise<EncodedVideoChunk[] | EncodedAudioChunk[]> {
+    const { mp4, info } = mp4Data;
+  
+    return new Promise((resolve, reject) => {
+      let fileOffset = 0;
+      let extractionFinished = false;
+      let trackId = 0;
+  
+      const EncodedChunk =
+        trackType === "audio" ? EncodedAudioChunk : EncodedVideoChunk;
+      const chunks: (EncodedVideoChunk | EncodedAudioChunk)[] = [];
+  
+      // Find the appropriate track
+      const selectedTrack =
+        trackType === "audio"
+          ? info.audioTracks[0] ?? null
+          : info.videoTracks[0] ?? null;
+  
+      if (!selectedTrack) {
+        resolve([]);
+        return;
+      }
+  
+      trackId = selectedTrack.id;
+  
+      // Normalize time bounds
+      const maxDuration = info.duration / info.timescale - DURATION_BUFFER;
+      const normalizedEnd = Math.min(endTime || maxDuration, maxDuration);
+  
+      // Clear previous extraction options for all tracks
+      for (const trackIdStr in info.tracks) {
+        const track = info.tracks[trackIdStr];
+        mp4.unsetExtractionOptions(track.id);
+      }
+  
+      // Set up sample extraction callback
+      mp4.onSamples = (id: number, _user: unknown, samples: MP4Sample[]) => {
+        for (const sample of samples) {
+          const sampleTime = sample.cts / sample.timescale;
+  
+          // Only include samples within the requested time range
+          if (sampleTime < normalizedEnd) {
+            chunks.push(
+              new EncodedChunk({
+                type: sample.is_sync ? "key" : "delta",
+                timestamp: Math.round(1e6 * sampleTime),
+                duration: Math.round(
+                  1e6 * (sample.duration / sample.timescale)
+                ),
+                data: sample.data,
+              })
+            );
+          }
+        }
+  
+        // Release processed samples to free memory
+        if (samples.length > 0) {
+          mp4.releaseUsedSamples(trackId, samples[samples.length - 1].number);
+        }
+  
+        // Check if we've reached the end
+        if (chunks.length > 0) {
+          const lastChunk = chunks[chunks.length - 1];
+          const lastChunkTime = lastChunk.timestamp / 1e6;
+  
+          if (
+            Math.abs(lastChunkTime - normalizedEnd) < FRAME_RATE_THRESHOLD ||
+            lastChunkTime > normalizedEnd
+          ) {
+            extractionFinished = true;
+            mp4.stop();
+            mp4.flush();
+            resolve(chunks);
+          }
+        }
+      };
+  
+      mp4.onError = (err: unknown) => {
+        reject(
+          new Error(
+            `Extraction error: ${err instanceof Error ? err.message : String(err)}`
+          )
+        );
+      };
+  
+      // Configure extraction: request 100 samples at a time
+      mp4.setExtractionOptions(trackId, null, { nbSamples: CHUNK_SIZE });
+  
+      // Seek to start position
+      const seekResult = mp4.seek(startTime, true);
+  
+      // Stream the file starting from seek position
+      const contentReader = file
+        .slice(seekResult.offset)
+        .stream()
+        .getReader();
+      fileOffset = seekResult.offset;
+  
+      const readNextSegment = async (): Promise<void> => {
+        try {
+          const { done, value } = await contentReader.read();
+  
+          if (done || extractionFinished) {
+            contentReader.releaseLock();
+            mp4.flush();
+            return;
+          }
+  
+          const buffer = value.buffer as MP4ArrayBuffer;
+          buffer.fileStart = fileOffset;
+          fileOffset += value.length;
+  
+          mp4.appendBuffer(buffer);
+          return readNextSegment();
+        } catch (error) {
+          reject(error);
+        }
+      };
+  
+      mp4.start();
+      readNextSegment().catch(reject);
+    });
+  }
+  
+  // Cache for parsed MP4 data to avoid re-parsing the same file
+  let cachedMP4Data: MP4Data | null = null;
+ 
+  /**
+   * Extract encoded samples from an MP4 file.
+   * Caches parsed metadata to avoid re-parsing on multiple extractions.
+   * @param file - The MP4 file to extract from
+   * @param trackType - "audio" or "video"
+   * @param startTime - Start time in seconds
+   * @param endTime - End time in seconds (0 or undefined = entire track)
+   */
+  export async function extractMP4Segment(
+    file: File,
+    trackType: "audio" | "video",
+    startTime: number,
+    endTime: number
+  ): Promise<EncodedVideoChunk[] | EncodedAudioChunk[]> {
+    // Parse metadata if not cached or file changed
+    if (!cachedMP4Data) {
+      cachedMP4Data = await parseMP4Metadata(file);
+    }
+  
+    return extractEncodedSegment(file, cachedMP4Data, trackType, startTime, endTime);
+  }
+
+  ```
+</details>
+
+
+The key thing with the manual implementation is to read the video meta data first (moov atom for MP4s), which will provide all the info to know where in the overall binary data corresponding to specific video frame is located, and then use a `ReadableStream` to start reading from the appropriate offset, read the `File` in chunks of say 5 minutes.
+
+
+
+### Writing large files
+
+If instead you are writing to large files, you will also run into the 2GB `ArrayBuffer` limit, and the solution is also to use Streams, but writing works a little differently compared to reading a file as a stream.
+
+
+The primary way to mux media files is via MediaBunny (or [it's predecessor](https://github.com/Vanilagy/mp4-muxer)), so if you want to write an MP4 file with WebCodecs, your script might look something like this:
+
+```typescript
+import { BlobSource, BufferTarget, Input, MP4, Mp4OutputFormat, Output, QUALITY_HIGH, VideoSampleSink, VideoSampleSource } from 'mediabunny';
+
+async function transcodeFile(file: File): Promise<Blob> {
+
+      const input = new Input({
+        formats: [MP4],
+        source: new BlobSource(file),
+      });
+
+      const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new BufferTarget(),
+      });
+
+      const videoSource = new VideoSampleSource({ codec: 'avc'});
+      output.addVideoTrack(videoSource, { frameRate: 30 });
+      await output.start();
+
+      const videoTrack = await input.getPrimaryVideoTrack();
+      const sink = new VideoSampleSink(videoTrack);
+      
+      for await (const sample of sink.samples()) {
+        videoSource.add(sample);
+      }
+
+      await output.finalize();
+      const buffer = (output.target as BufferTarget).buffer;
+      return new Blob([buffer], { type: 'video/mp4' });
+
+}
+```
+
+Unfortunately this code will fail if you are writing a particularly big video file because again,  **Chromium browsers have a hard limit of 2GB for a single `ArrayBuffer` object**.
+
+
+If you are lazy, here is a quick hack to work around this:
+
+#### InMemory Storage hack
+
+While perhaps a bit of a hack, if your files might be larger than 2GB but lower than a user's typical actual RAM (8GB to 16GB), you can get away with the following `InMemoryStorage` class which will take advantage of the fact that while individual `ArrayBuffer` objects have a hard 2GB limit, a `Blob` object can be made of many different `ArrayBufer` objects, and so we use the [Stream API](https://developer.mozilla.org/en-US/docs/Web/API/WritableStream) to write the file in chunks (each a `Uint8Array`) and then return a blob out of the component chunks.
+
+<details>
+  <summary>In Memory Storage</summary>
+
+```typescript
+
+
+/**
+ * In-memory storage system that stores data in fixed-size chunks
+ * and efficiently handles overlapping writes.
+ */
+class InMemoryStorage {
+    private chunks = new Map<number, Uint8Array>();
+    private _chunkSize: number;
+    private _size = 0;
+
+    /**
+     * Create a new InMemoryStorage instance
+     * @param chunkSize Size of each chunk in bytes (default: 10MB)
+     */
+    constructor(chunkSize: number = 10 * 1024 * 1024) {
+        this._chunkSize = chunkSize;
+    }
+
+    /**
+     * Write data to storage, handling overlaps efficiently
+     * @param data Data to write
+     * @param position Position to write at
+     */
+    write(data: Uint8Array, position: number): void {
+        // Update the total size
+        this._size = Math.max(this._size, position + data.byteLength);
+        
+        // Calculate the starting and ending chunk indices
+        const startChunkIndex = Math.floor(position / this._chunkSize);
+        const endChunkIndex = Math.floor((position + data.byteLength - 1) / this._chunkSize);
+        // For each affected chunk
+        for (let chunkIndex = startChunkIndex; chunkIndex <= endChunkIndex; chunkIndex++) {
+            // Calculate the chunk's boundaries
+            const chunkStart = chunkIndex * this._chunkSize;
+            const chunkEnd = chunkStart + this._chunkSize;
+            
+            // Calculate overlap between data and this chunk
+            const overlapStart = Math.max(position, chunkStart);
+            const overlapEnd = Math.min(position + data.byteLength, chunkEnd);
+            const overlapSize = overlapEnd - overlapStart;
+            
+            // Skip if no actual overlap
+            if (overlapSize <= 0) continue;
+            
+            // Create or get the chunk
+            let chunk: Uint8Array;
+            if (!this.chunks.has(chunkIndex)) {
+                // Create a new chunk filled with zeros
+                chunk = new Uint8Array(this._chunkSize);
+                this.chunks.set(chunkIndex, chunk);
+            } else {
+                chunk = this.chunks.get(chunkIndex)!;
+            }
+            
+            // Calculate offsets for copying
+            const targetOffset = overlapStart - chunkStart;
+            const sourceOffset = overlapStart - position;
+            
+            // Copy the data
+            for (let i = 0; i < overlapSize; i++) {
+                chunk[targetOffset + i] = data[sourceOffset + i];
+            }
+        }
+    }
+
+    /**
+     * Get the total size of data written
+     */
+    get size(): number {
+        return this._size;
+    }
+
+    /**
+     * Convert all stored chunks to a single Blob
+     * @param type MIME type for the Blob
+     */
+    toBlob(type: string = "application/octet-stream"): Blob {
+        if (this.chunks.size === 0) {
+            return new Blob([], { type });
+        }
+
+        // Get all chunk indices and sort them
+        const chunkIndices = Array.from(this.chunks.keys()).sort((a, b) => a - b);
+        
+        // Create an array of chunks to use for the Blob
+        const blobChunks: Uint8Array[] = [];
+        
+        for (let i = 0; i < chunkIndices.length; i++) {
+            const chunkIndex = chunkIndices[i];
+            const chunk = this.chunks.get(chunkIndex)!;
+            
+            // Handle the last chunk specially - it might need truncation
+            if (i === chunkIndices.length - 1) {
+                const remainingBytes = this._size - (chunkIndex * this._chunkSize);
+                if (remainingBytes < this._chunkSize) {
+                    // Truncate the last chunk to the correct size
+                    blobChunks.push(chunk.slice(0, remainingBytes));
+                } else {
+                    blobChunks.push(chunk);
+                }
+            } else {
+                blobChunks.push(chunk);
+            }
+        }
+        
+        return new Blob(blobChunks, { type });
+    }
+}
+
+```
+
+
+</details>
+
+Your transcoding script would then use MediaBunny's `StreamTarget` class instead of the `BufferTarget`, an you can write out much larger files.
+
+```typescript
+import { BlobSource, StreamTarget, StreamTargetChunk, Input, MP4, Mp4OutputFormat, Output, QUALITY_HIGH, VideoSampleSink, VideoSampleSource } from 'mediabunny';
+
+async function transcodeFile(file: File): Promise<Blob> {
+
+      const input = new Input({
+        formats: [MP4],
+        source: new BlobSource(file),
+      });
+
+      const memoryStorage = new InMemoryStorage();
+
+      const writable = new WritableStream({
+          write(chunk: StreamTargetChunk) {
+            memoryStorage.write(chunk.data, chunk.position);
+          }
+      });
+
+      const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new StreamTarget(writable),
+      });
+
+      const videoSource = new VideoSampleSource({ codec: 'avc'});
+      output.addVideoTrack(videoSource, { frameRate: 30 });
+      await output.start();
+
+      const videoTrack = await input.getPrimaryVideoTrack();
+      const sink = new VideoSampleSink(videoTrack);
+      
+      for await (const sample of sink.samples()) {
+        videoSource.add(sample);
+      }
+
+      await output.finalize();
+   
+      return memoryStorage.toBlob("video/mp4")
+
+}
+```
+
+#### FileSystemFileHandle
+
+
+The above is a bit of a hack, and while simple in order to keep things in memory, it can crash a user's computer if the target video approaches the devices's available memory. 
+
+The proper way to handle writing large files would be to use the [FileSystem API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API), whereby you ask the user for permision to save the target file to disk:
+
+```javascript
+
+const handle = await window.showSaveFilePicker({
+    startIn: 'downloads',
+    suggestedName: 'the-best-video-ever.mp4',
+    types: [{
+        description: 'Video File',
+        accept: {'video/mp4' :['.mp4']}
+    }],
+});
+
+```
+You can pass the handle for that file to a worker thread and to your transcode/processing function
+
+``` javascript
+
+async function transcodeFile(file: File, outputHandle: FileSystemFileHandle) {
+
+      const input = new Input({
+        formats: [MP4],
+        source: new BlobSource(file),
+      });
+
+      const writable  = await outputHandle.createWritable();
+
+      const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new StreamTarget(writable),
+      });
+
+      const videoSource = new VideoSampleSource({ codec: 'avc'});
+      output.addVideoTrack(videoSource, { frameRate: 30 });
+      await output.start();
+
+      const videoTrack = await input.getPrimaryVideoTrack();
+      const sink = new VideoSampleSink(videoTrack);
+      
+      for await (const sample of sink.samples()) {
+        videoSource.add(sample);
+      }
+
+      await output.finalize();
+
+}
+```
+
+While this will add an extra UI prompt up-front asking the user where they want to store the file, this will gracefully handle for files which could bigger than the user's available memory, and would write to disk in chunks, as part of the video processing loop instead of afterwards.
+
+
+
+
+
+
