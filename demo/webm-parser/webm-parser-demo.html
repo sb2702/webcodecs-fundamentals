@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebM Parser Demo</title>
-  <script src="webm-parser/src/index.js" type="module" ></script>
+  <script src="https://cdn.jsdelivr.net/npm/ts-ebml@3.0.2/dist/EBML.min.js"></script>
+
+
+
 </head>
 <body>
   <h1>WebM Parser Demo</h1>
@@ -34,25 +37,19 @@
 
   <script>
 
+    console.log("ebml", EBML)
 
-    
+
+    const decoder = new EBML.Decoder();
+
+    console.log("Decoder", decoder)
+
     function parseWebMFile(buffer) {
-
-      console.log("Buffer");
-
-      console.log(buffer)
-
+      const data = new Uint8Array(buffer);
+      const ebmlElms = decoder.decode(buffer);
+      console.log(ebmlElms);
 
 
-      const webm = new WebM();
-
-      webm.parse(new Uint8Array(buffer));
-
-      console.log("WebM");
-      console.log(webm)
-
-      
- 
     }
 
 
