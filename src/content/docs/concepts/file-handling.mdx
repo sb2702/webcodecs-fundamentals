@@ -728,7 +728,10 @@ const handle = await window.showSaveFilePicker({
 });
 
 ```
-You can pass the handle for that file to a worker thread and to your transcode/processing function
+
+This returns a `FileSystemFileHandle` object, which, like a `File` object, is just a reference to a file on the user's device, and doesn't actually contain file data. Unlike a `File` object though, a `FileSystemFileHandle` created this way is not "read-only", you can also write files to the user's disk.
+
+You can pass the handle for that file to a worker thread (this is essentially a zero-copy operation just like sending a `File` object) and you can pass it to your transcode/processing function.
 
 ``` javascript
 
@@ -763,6 +766,8 @@ async function transcodeFile(file: File, outputHandle: FileSystemFileHandle) {
 ```
 
 While this will add an extra UI prompt up-front asking the user where they want to store the file, this will gracefully handle for files which could bigger than the user's available memory, and would write to disk in chunks, as part of the video processing loop instead of afterwards.
+
+When using Streams, you could transcode a 20GB file to a 40GB on a $200 netbook within the browser without crashing, and logs from my [free upscaling tool](https://free.upscaler.video) inicate this isn't theoretical or pendantic, real users actually do upload incredibly large files, it just takes a while to process.
 
 
 
