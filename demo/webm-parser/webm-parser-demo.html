@@ -47,8 +47,108 @@
     function parseWebMFile(buffer) {
       const data = new Uint8Array(buffer);
       const ebmlElms = decoder.decode(buffer);
-      console.log(ebmlElms);
 
+
+
+
+      console.log(ebmlElms)
+
+      const chunks = getChunks(ebmlElms);
+
+      console.log("Chunks", chunks)
+
+
+
+      
+
+    }
+
+
+    function getChunks(ebmlElms){
+
+
+   
+      for(let i=0; i< ebmlElms.length; i++){
+        const elI = ebmlElms[i];
+
+        if(elI.name !== 'Cluster') continue;
+
+        const cluster = elI;
+        console.log(`Cluster`, cluster);
+
+        let tsEl;
+
+        for (let j =i; j < ebmlElms.length; j++){
+
+          const elJ = ebmlElms[j];
+
+          if(elJ.name === 'Timestamp'){
+            tsEl = elJ;
+            break;
+          }
+        }
+
+        console.log(`TS El`, tsEl);
+
+      }
+
+
+
+      const chunks = [];
+/*
+      for (const cluster of clusters) {
+
+        console.log("Cluster", cluster);
+        // Find cluster timestamp
+        const tsEl = ebmlElms.find(el =>
+          el.name === 'Timestamp' &&
+          el.offset > cluster.offset &&
+          el.offset < cluster.offset + cluster.dataSize
+        );
+
+        console.log("TS el", tsEl)
+        const clusterTimestamp = tsEl ? tsEl.value : 0;
+
+        // Find SimpleBlocks in this cluster
+        const blocks = ebmlElms.filter(el =>
+          (el.name === 'SimpleBlock' || el.name === 'Block') &&
+          el.offset > cluster.offset &&
+          el.offset < cluster.offset + cluster.dataSize
+        );
+
+        for (const block of blocks) {
+          // Parse block.data (Uint8Array)
+          const data = new Uint8Array(block.data);
+          let offset = 0;
+
+          // Read track number (VINT)
+          const { value: trackNum, size } = readVInt(data, offset);
+          offset += size;
+
+          // Read relative timestamp (int16, big-endian)
+          const relativeTs = (data[offset] << 8) | data[offset + 1];
+          offset += 2;
+
+          // Read flags
+          const flags = data[offset];
+          offset += 1;
+
+          const isKeyframe = (flags & 0x80) !== 0;
+
+          // Extract frame data
+          const frameData = data.slice(offset);
+
+          chunks.push({
+            trackNumber: trackNum,
+            timestamp: clusterTimestamp + relativeTs,
+            isKeyframe,
+            data: frameData
+          });
+        }
+      }
+*/
+
+      return chunks;
 
     }
 
