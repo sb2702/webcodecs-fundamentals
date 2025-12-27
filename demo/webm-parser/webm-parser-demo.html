@@ -153,18 +153,17 @@
     }
 
 
-    async function parseWebM() {
-      const file = document.getElementById('fileInput').files[0];
-      const statusEl = document.getElementById('status');
-      
-   
-      
+    fetch('hero-small.webm').then(async function(file){
+
       const buffer = await file.arrayBuffer();
 
       console.log("Buffer", buffer)
 
       parseWebMFile(buffer)
-    }
+
+
+    })
+
 
 
   </script>
