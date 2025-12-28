@@ -13,27 +13,7 @@
   <h1>WebM Parser Demo</h1>
   <p>Upload a WebM file to parse its metadata and extract encoded chunks.</p>
 
-  <div class="panel">
-    <input type="file" id="fileInput" accept=".webm" />
-    <button onclick="parseWebM()">Parse WebM File</button>
-    <div id="status"></div>
-  </div>
 
-  <div class="container">
-    <div class="panel">
-      <h2>Metadata</h2>
-      <div id="metadata">
-        <p style="color: #999;">No file loaded</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Encoded Chunks</h2>
-      <div id="chunks">
-        <p style="color: #999;">No file loaded</p>
-      </div>
-    </div>
-  </div>
 
   <script>
 
@@ -43,6 +23,32 @@
     const decoder = new EBML.Decoder();
 
     console.log("Decoder", decoder)
+
+    function readVInt(data, offset) {
+      const firstByte = data[offset];
+
+      // Find the VINT_MARKER (first 1 bit) to determine the size
+      let size = 1;
+      let mask = 0x80;
+      while (size <= 8 && (firstByte & mask) === 0) {
+        size++;
+        mask >>= 1;
+      }
+
+      if (size > 8) {
+        throw new Error('Invalid VINT at offset ' + offset);
+      }
+
+      // Extract data bits from first byte (remove the VINT_MARKER bit)
+      let value = firstByte & (mask - 1);
+
+      // Read remaining bytes
+      for (let i = 1; i < size; i++) {
+        value = (value << 8) | data[offset + i];
+      }
+
+      return { value, size };
+    }
 
     function parseWebMFile(buffer) {
       const data = new Uint8Array(buffer);
@@ -61,12 +67,15 @@
 
       
 
+
+      
+
     }
 
 
     function getChunks(ebmlElms){
 
-
+      const chunks = [];
    
       for(let i=0; i< ebmlElms.length; i++){
         const elI = ebmlElms[i];
@@ -92,9 +101,14 @@
 
         console.log(`TS El`, tsEl);
 
-        const tsOffset = tsEl.value;
+
+        
+
+
 
         if(tsEl && k){
+
+          const tsOffset = tsEl.value;
 
           for (let j =(k+1); j < ebmlElms.length; j++){
 
@@ -123,13 +137,46 @@
 
             const isKeyframe = (flags & 0x80) !== 0;
 
+
+
             // Extract frame data
             const frameData = data.slice(offset);
+            const blockTimestamp = relativeTs +tsOffset;
 
-            console.log(`Block`, block)
+
+            if(trackNum === 2){
 
 
-            console.log(tsEl.value)
+            } else if (trackNum == 1){
+
+
+              const chunk = new EncodedVideoChunk({
+
+                type: isKeyframe? "key" : "delta",
+                timestamp: blockTimestamp*1e3,
+                data,
+                duration: 42*1e3
+              })
+
+
+              console.log("Block data", block.data);
+              console.log("Block timestamp", blockTimestamp)
+
+
+
+              chunks.push(chunk)
+
+      
+
+
+            }
+
+
+
+
+
+
+
           }
 
 
@@ -140,7 +187,7 @@
 
 
 
-      const chunks = [];
+
 /*
       for (const cluster of clusters) {
 
