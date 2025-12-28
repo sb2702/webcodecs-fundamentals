@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EncodedVideoChunk vs VideoFrame Throughput</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      width: 100%;
+    }
+    .stats {
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .stats div {
+      margin: 4px 0;
+    }
+    .highlight {
+      font-weight: bold;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>EncodedVideoChunk vs VideoFrame Throughput Comparison</h1>
+  <p>Comparing data transfer overhead: encoded chunks vs raw video frames between workers</p>
+
+  <div class="container">
+    <div class="panel">
+      <h2>Encoded Pipeline (Worker → Encoder → Main → Decoder → Canvas)</h2>
+      <canvas id="encodedCanvas" width="320" height="240"></canvas>
+      <div class="stats">
+        <div>Frames: <span id="encodedFrames" class="highlight">0</span></div>
+        <div>Data transferred: <span id="encodedData" class="highlight">0 KB</span></div>
+        <div>Throughput: <span id="encodedThroughput" class="highlight">0 KB/s</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Raw Pipeline (Worker → VideoFrame → Main → Worker → Canvas)</h2>
+      <canvas id="rawCanvas" width="320" height="240"></canvas>
+      <div class="stats">
+        <div>Frames: <span id="rawFrames" class="highlight">0</span></div>
+        <div>Data transferred: <span id="rawData" class="highlight">0 KB</span></div>
+        <div>Throughput: <span id="rawThroughput" class="highlight">0 KB/s</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    const encodedCanvas = document.getElementById('encodedCanvas');
+    const rawCanvas = document.getElementById('rawCanvas');
+
+    const encodedFramesEl = document.getElementById('encodedFrames');
+    const encodedDataEl = document.getElementById('encodedData');
+    const encodedThroughputEl = document.getElementById('encodedThroughput');
+
+    const rawFramesEl = document.getElementById('rawFrames');
+    const rawDataEl = document.getElementById('rawData');
+    const rawThroughputEl = document.getElementById('rawThroughput');
+
+    let encodedStats = { frames: 0, bytesTransferred: 0, startTime: Date.now() };
+    let rawStats = { frames: 0, bytesTransferred: 0, startTime: Date.now() };
+
+    // Transfer canvas control to workers
+    const encodedOffscreen = encodedCanvas.transferControlToOffscreen();
+    const rawOffscreen = rawCanvas.transferControlToOffscreen();
+
+    // Create workers
+    const encoderWorker = new Worker('./encoder-worker.js');
+    const decoderWorker = new Worker('./decoder-worker.js');
+    const rawSourceWorker = new Worker('./raw-source-worker.js');
+    const rawRendererWorker = new Worker('./raw-renderer-worker.js');
+
+    // Setup decoder worker with canvas
+    decoderWorker.postMessage({ type: 'init', canvas: encodedOffscreen }, [encodedOffscreen]);
+
+    // Setup raw renderer worker with canvas
+    rawRendererWorker.postMessage({ type: 'init', canvas: rawOffscreen }, [rawOffscreen]);
+
+    // Encoder worker sends chunks to main thread
+    encoderWorker.addEventListener('message', (e) => {
+      if (e.data.type === 'chunk') {
+        const chunk = e.data.chunk;
+        encodedStats.frames++;
+        encodedStats.bytesTransferred += chunk.byteLength;
+
+        // Forward to decoder worker
+        decoderWorker.postMessage({ type: 'decode', chunk });
+
+        updateEncodedStats();
+      }
+    });
+
+    // Raw source worker sends VideoFrames
+    rawSourceWorker.addEventListener('message', (e) => {
+      if (e.data.type === 'frame') {
+        const frame = e.data.frame;
+
+
+        rawStats.frames++;
+        // VideoFrame size estimate: width * height * 4 bytes (RGBA)
+        rawStats.bytesTransferred += frame.codedWidth * frame.codedHeight * 4;
+
+        // Forward to renderer worker
+        rawRendererWorker.postMessage({ type: 'render', frame }, [frame]);
+
+        updateRawStats();
+      }
+    });
+
+    function updateEncodedStats() {
+      const elapsed = (Date.now() - encodedStats.startTime) / 1000;
+      encodedFramesEl.textContent = encodedStats.frames;
+      encodedDataEl.textContent = (encodedStats.bytesTransferred / 1024).toFixed(2) + ' KB';
+      encodedThroughputEl.textContent = (encodedStats.bytesTransferred / 1024 / elapsed).toFixed(2) + ' KB/s';
+    }
+
+    function updateRawStats() {
+      const elapsed = (Date.now() - rawStats.startTime) / 1000;
+      rawFramesEl.textContent = rawStats.frames;
+      rawDataEl.textContent = (rawStats.bytesTransferred / 1024).toFixed(2) + ' KB';
+      rawThroughputEl.textContent = (rawStats.bytesTransferred / 1024 / elapsed).toFixed(2) + ' KB/s';
+    }
+
+    // Start both workers
+    encoderWorker.postMessage({ type: 'start' });
+    rawSourceWorker.postMessage({ type: 'start' });
+  </script>
+</body>
+</html>
