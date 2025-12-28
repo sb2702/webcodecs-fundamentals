@@ -103,6 +103,11 @@
 
       console.log(ebmlElms)
 
+
+      const tracks = getTrackInfo(ebmlElms);
+
+      console.log(`Tracks`, tracks)
+
       const chunks = getChunks(ebmlElms);
 
       console.log("Chunks", chunks)
@@ -122,6 +127,41 @@
       
 
     }
+
+    function getTrackInfo(ebmlElms) {
+        const tracks = [];
+
+        for (let i = 0; i < ebmlElms.length; i++) {
+          const el = ebmlElms[i];
+
+          if (el.name === 'TrackEntry') {
+            const track = {};
+
+            // Find elements within this track entry
+            for (let j = i + 1; j < ebmlElms.length; j++) {
+              const trackEl = ebmlElms[j];
+
+              // Stop when we hit another TrackEntry or leave the track scope
+              if (trackEl.name === 'TrackEntry') break;
+
+              if (trackEl.name === 'TrackNumber') {
+                track.trackNumber = trackEl.value;
+              } else if (trackEl.name === 'CodecID') {
+                track.codecId = trackEl.value;
+              } else if (trackEl.name === 'TrackType') {
+                track.trackType = trackEl.value; // 1=video, 2=audio
+              } else if (trackEl.name === 'CodecPrivate') {
+                track.codecPrivate = trackEl.data; // Configuration data for decoder
+              }
+            }
+
+            tracks.push(track);
+          }
+        }
+
+      return tracks;
+  }
+
 
     function getDescription(ebmlElms){
 
@@ -223,9 +263,6 @@
                 duration: 42*1e3
               })
 
-              console.log(isKeyframe)
-              console.log("Data", data)
-              
 
 
 
@@ -253,59 +290,6 @@
 
 
 
-
-/*
-      for (const cluster of clusters) {
-
-        console.log("Cluster", cluster);
-        // Find cluster timestamp
-        const tsEl = ebmlElms.find(el =>
-          el.name === 'Timestamp' &&
-          el.offset > cluster.offset &&
-          el.offset < cluster.offset + cluster.dataSize
-        );
-
-        console.log("TS el", tsEl)
-        const clusterTimestamp = tsEl ? tsEl.value : 0;
-
-        // Find SimpleBlocks in this cluster
-        const blocks = ebmlElms.filter(el =>
-          (el.name === 'SimpleBlock' || el.name === 'Block') &&
-          el.offset > cluster.offset &&
-          el.offset < cluster.offset + cluster.dataSize
-        );
-
-        for (const block of blocks) {
-          // Parse block.data (Uint8Array)
-          const data = new Uint8Array(block.data);
-          let offset = 0;
-
-          // Read track number (VINT)
-          const { value: trackNum, size } = readVInt(data, offset);
-          offset += size;
-
-          // Read relative timestamp (int16, big-endian)
-          const relativeTs = (data[offset] << 8) | data[offset + 1];
-          offset += 2;
-
-          // Read flags
-          const flags = data[offset];
-          offset += 1;
-
-          const isKeyframe = (flags & 0x80) !== 0;
-
-          // Extract frame data
-          const frameData = data.slice(offset);
-
-          chunks.push({
-            trackNumber: trackNum,
-            timestamp: clusterTimestamp + relativeTs,
-            isKeyframe,
-            data: frameData
-          });
-        }
-      }
-*/
 
       return chunks;
 
