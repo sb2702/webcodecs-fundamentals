@@ -79,7 +79,7 @@
       decoder.configure({
 
         codec: 'vp09.00.10.08',
-        description: desc
+        //description: desc
       })
 
       for(chunk of chunks){
@@ -106,19 +106,22 @@
 
       const tracks = getTrackInfo(ebmlElms);
 
-      console.log(`Tracks`, tracks)
+      console.log(`Tracks`, tracks);
 
-      const chunks = getChunks(ebmlElms);
+
+      const videoTrack = tracks.filter((track)=>track.type=== 'video')[0];
+
+      console.log(`Track`, videoTrack)
+
+
+      const chunks = getChunks(ebmlElms, videoTrack);
+
+
+    
 
       console.log("Chunks", chunks)
 
-
-
-      const desc = getDescription(ebmlElms)
-
-
-
-      decode(chunks, desc);
+      decode(chunks);
 
 
       
@@ -149,13 +152,17 @@
               } else if (trackEl.name === 'CodecID') {
                 track.codecId = trackEl.value;
               } else if (trackEl.name === 'TrackType') {
-                track.trackType = trackEl.value; // 1=video, 2=audio
+                if (trackEl.value==1) track.type ='video'; // 1=video, 2=audio
+                else if(trackEl.value === 2) track.type = 'audio';
               } else if (trackEl.name === 'CodecPrivate') {
                 track.codecPrivate = trackEl.data; // Configuration data for decoder
               }
             }
 
-            tracks.push(track);
+            if(track.trackNumber){
+              tracks.push(track);
+            }
+           
           }
         }
 
@@ -163,22 +170,10 @@
   }
 
 
-    function getDescription(ebmlElms){
-
-      for(let i=0; i< ebmlElms.length; i++){
-        const elI = ebmlElms[i];
-
-        if(elI.name === 'CodecPrivate'){
-
-          return elI.value;
-        }
-
-      }
-
-    }
 
 
-    function getChunks(ebmlElms){
+
+    function getChunks(ebmlElms, track){
 
       const chunks = [];
    
@@ -188,7 +183,6 @@
         if(elI.name !== 'Cluster') continue;
 
         const cluster = elI;
-        console.log(`Cluster`, cluster);
 
         let tsEl;
         let k;
@@ -203,13 +197,6 @@
             break;
           }
         }
-
-        console.log(`TS El`, tsEl);
-
-
-        
-
-
 
         if(tsEl && k){
 
@@ -249,35 +236,20 @@
             const blockTimestamp = relativeTs +tsOffset;
 
 
-            if(trackNum === 2){
-
-
-            } else if (trackNum == 1){
-
+            if(trackNum === track.trackNumber){
 
               const chunk = new EncodedVideoChunk({
 
-                type: isKeyframe? "key" : "delta",
-                timestamp: blockTimestamp*1e3,
-                data: frameData,
-                duration: 42*1e3
+              type: isKeyframe? "key" : "delta",
+              timestamp: blockTimestamp*1e3,
+              data: frameData,
+              duration: 42*1e3
               })
-
-
-
-
 
               chunks.push(chunk)
 
-      
-
 
             }
-
-
-
-
-
 
 
           }
