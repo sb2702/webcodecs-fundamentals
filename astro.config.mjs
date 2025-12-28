@@ -46,11 +46,10 @@ export default defineConfig({
 					label: 'Basics',
 					items: [
 						{ label: 'VideoFrame', slug: 'basics/video-frame' },
-		
-						{ label: 'EncodedvideoChunk', slug: 'basics/encoded-video-chunk' },
-						{ label: 'Codecs', slug: 'basics/codecs' },
+						{ label: 'EncodedVideoChunk', slug: 'basics/encoded-video-chunk' },
 						{ label: 'Muxing', slug: 'basics/muxing' },
 						{ label: 'Containers', slug: 'basics/containers' },
+						{ label: 'Codecs', slug: 'basics/codecs' },		
 						{ label: 'Decoder', slug: 'basics/decoder' },
 						{ label: 'Encoder', slug: 'basics/encoder' },
 						{ label: 'Rendering', slug: 'basics/rendering' },

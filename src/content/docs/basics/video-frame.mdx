@@ -9,7 +9,7 @@ Video is essentially just a series of images (called frames) with timestamps, in
 
 ![](/src/assets/content/basics/video-frames/bbb-fames.png)
 
-The javascript `VideoFrame` class, likewise, is represented as a combination of pixel data (like RGB values) and some metadata (including the timestamp). <mark>Keep in mind that VideoFrame and other WebCodecs interfaces represent time in microseconds.</mark>
+The javascript `VideoFrame` class,  likewise, is represented as a combination of pixel data (like RGB values) and some metadata (including the timestamp). <mark>Keep in mind that VideoFrame and other WebCodecs interfaces represent time in microseconds.</mark>
 ![](/src//assets//content//basics/video-frames/video-frame.svg)
 
 
@@ -20,7 +20,7 @@ An `EncodedVideoChunk` can't directly be used to render or display an image, but
 
 ![](/src/assets/content/basics/what-is-webcodecs/simplified.svg)
 
-The whole point of WebCodecs is to facilitate the transformation between `EncodedVideoChunk` and `VideoFrame` objects, and and you would use `VideoFrame` objects when you need access to the raw video data (e.g. rendering a video to a canvas).
+These two classes (`VideoFrame` and `EncodedVideoChunk`) are the backbone of WebCodecs, the whole point of WebCodecs is to facilitate the transformation between `EncodedVideoChunk` and `VideoFrame` objects, and and you would use `VideoFrame` objects when you need access to the raw video data (e.g. rendering a video to a canvas).
 
 
 ### Getting VideoFrames
