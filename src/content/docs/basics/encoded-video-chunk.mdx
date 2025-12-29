@@ -6,7 +6,7 @@ description: EncodedVideoChunk
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 
-The `EncodedVideoChunk` class, the other main type in WebCodecs, repesents the compressed (or "encoded") version of a single `VideoFrame`
+The `EncodedVideoChunk` class, the other main type in WebCodecs, repesents the compressed (or "encoded") version of a single `VideoFrame` ([mostly](#sequence-matters)).
 
 ![](/src/assets/content/basics/chunks/encoded-chunk.svg)
 
@@ -16,7 +16,7 @@ Unlike a `VideoFrame`, an `EncodedVideoChunk` objects can't be directly rendered
 
 
 
-### Compession, not muxing
+### Compression, not muxing
 
 <mark>EncodedVideoChunks are not by themselves video files </mark>. 
 
@@ -41,13 +41,11 @@ You might think "that's annoying", as if WebCodecs doesn't provide a complete so
 
 <br/>
 
-<small>Also, WebCodecs is a low-level API, don't expect hand-holding. Use MediaBunny if you want easy-mode.</small>
+<small>Also, WebCodecs is a low-level API so it's intentionally minimal. Use MediaBunny for easy-mode.</small>
 
 ### Why compression is still helpful
 
 When streaming video data, you don't even need muxing or a video file; the `EncodedVideoChunk` is useful by itself as-is. 
-
-
 
 ##### Sending raw video
 
@@ -57,9 +55,16 @@ Consider the following mock example of streaming video a canvas in one worker to
 <iframe src="/demo/encoded-chunk-throughput/raw-pipeline.html" width="800" height="350" frameBorder="0"  style="height: 380px;"
 ></iframe>
 
-Here is the pseudocode for the two workers (full code [here](./tbd))
 
-<Tabs>
+
+
+<details>
+  <summary>Source Code</summary>
+
+Here is the pseudocode for the two workers (full code [here](./tbd))
+  <Tabs>
+
+  
 
   <TabItem label="Worker1">
 
@@ -95,6 +100,21 @@ self.addEventListener('message', (e) => {
 </Tabs>
 
 
+  </details>
+
+
+
+
+
+
+Here's a quick animation to visualize the data flow:
+
+<video width="640" height="480" loop muted autoplay>
+  <source src="/src/assets/content/basics/chunks/raw-frames-animation.webm" type="video/webm" />
+  Your browser does not support the video tag.
+</video>
+
+
 When sending raw uncompressed 320x240 video, we are sending about 9000 kilobytes per second or 72 Megabits / second, which is around the same bitrate you'd expect for studio-quality 4K video used by professional editors, and about as fast as real-world fiber-optic connections can realistically handle. 
 
 
@@ -108,9 +128,10 @@ Let's take the same exact example, but now we encode the video chunks before sen
 ></iframe>
 
 
+<details>
+  <summary>Source Code</summary>
 
-
-Here is the pseudo code for the two workers (full code [here](./tbd)):
+  Here is the pseudo code for the two workers (full code [here](./tbd)):
 
 <Tabs>
 
@@ -161,16 +182,9 @@ self.addEventListener('message', (e) => {
   </TabItem>
 </Tabs>
 
+</details>
 
-As you can see, encoding the video reduces the bandwidth by 100x (9000 kB/s vs 9 kB/s). 
-
-#### Visualizing the difference
-
-
-<video width="640" height="480" loop muted autoplay>
-  <source src="/src/assets/content/basics/chunks/raw-frames-animation.webm" type="video/webm" />
-  Your browser does not support the video tag.
-</video>
+Here's what the deta flow looks like when adding in the encoder/decoder.
 
 <video width="640" height="480" loop muted autoplay>
   <source src="/src/assets/content/basics/chunks/encoded-chunks-animation.webm" type="video/webm" />
@@ -179,11 +193,215 @@ As you can see, encoding the video reduces the bandwidth by 100x (9000 kB/s vs 9
 
 
 
-
+As you can see, encoding the video reduces the bandwidth by 100x (9000 kB/s vs 9 kB/s). 
 
 In the real world, if you are actually streaming 4K video, the raw stream would be ~7 Gigabits per second (no home internet connection would be able to keep up), while an encoded stream would be around 10 Megabits per second, which is again, ~100x smaller, and something that many home internet connections would handle without issue.
 
 
 
 
-## Key Frames
+### Key Frames
+
+We won't get into *how* these compression algorithms actually work (see [here] if want to learn more), but a core feature of all the major compression algorithms (codecs) supported by web browsers is that they don't encode each video frame independently, but instead encode the differences between frames.
+
+Consider again one of the simplest possible videos:
+
+<br/>
+
+<img src="/src/assets/content/basics/codecs/bouncing-ball.gif" alt="drawing"  style="margin:auto;" width="300"/>
+
+
+If you look at any two consecutive frames, these frames are pretty similar, with most of the pixels actually being identical.
+
+![](/src/assets/content/basics/chunks/frame-diff-1.png)
+
+You might be able to imagine how, with some clever engineering, you could formulate a way to calculate just the difference between these frames (e.g. what changes from frame 1 to frame 2).
+
+![](/src/assets/content/basics/chunks/frame-diff-2.png)
+
+That way you don't actually need to even store frame 2, you just need to store the first frame, and then store the difference between frame 1 and frame 2 to be able to reconstruct frame 2.
+
+![](/src/assets/content/basics/chunks/frame-diff-3.png)
+
+To send a full video, you could send the first frame (called a *key frame*), and then just keep sending "frame differences" (called *delta frames*)
+
+![](/src/assets/content/basics/chunks/frame-diff-4.png)
+
+This is exacly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames [[do the study, make the citation](./tbd))].
+
+The `EncodedVideoChunk` represents this property via the `type` attribute, with *key frames* having a `key` type, and delta frames having a `delta type`
+
+```typescript
+
+const chunks = <EncodedVideoChunk[]> await demux(<File> file);
+
+console.log(chunks[0].type); //"key"
+console.log(chunks[1].type); //"delta"
+console.log(chunks[2].type); //"delta"
+```
+
+Typically, videos will add in a fresh key frame every 30 to 60 frames, though this is something you can control in the `VideoEncoder`.
+
+#### Sequence matters
+
+An important consequence is that you can't just decode a *delta frame* by itself. To reconstruct a *delta frame*, you need to decode every single frame, in order, from the previous *key frame* up until the *delta frame* you want to decode, and we'll cover this later in [playback design](../../patterns/playback)
+
+
+So while there is a 1:1 correspondence between each `EncodedVideoChunk` and each `VideoFrame` in a file in WebCodecs, where decoding 100 `EncodedVideoChunk` objects will result in 100 `VideoFrame` objects, and encoding 100 `VideoFrame` objects will result in 100 `EncodedVidoChunk` objects, you can't deal with an `EncodedVideoChunk` in isolation in the way you can with a `VideoFrame`.
+
+You need to work with `EncodedVideoChunk` objects as a sequence, and when decoding, you need to decode them in the exact correct order.
+
+
+
+### Getting Encoded Video Chunks
+
+You can get an `EncodedVideoChunk` by either encoding a video or demuxing a source file.
+
+##### Encoding
+
+`VideoEncoder` will naturally just give you `EncodedVideoFrame` objects read to use, you never have to construct them.
+
+```typescript
+
+const encoder = new VideoEncoder({
+    output: function(chunk: EncodedVideoChunk){
+      //Do something
+    },
+    error: function(e){console.log(e)}
+});
+encoder.configure(/*config*/)
+
+for await (const frame of getFrame()){ // however you get frames
+  encoder.encode(frame);
+  frame.close();
+}
+
+
+```
+
+
+
+##### Demuxing
+
+Demuxing libraries will also give you formatted `EncodedVideoChunk` objects. Here's how to do it in MediaBunny.
+
+```typescript
+
+import { EncodedPacketSink, Input, ALL_FORMATS, BlobSource } from 'mediabunny';
+
+const input = new Input({
+	formats: ALL_FORMATS,
+	source: new BlobSource(<File> file),
+});
+
+const videoTrack = await input.getPrimaryVideoTrack();
+const sink = new EncodedPacketSink(videoTrack);
+
+for await (const packet of sink.packets()) {
+	const chunk = <EncodedVideoChunk> packet.toEncodedVideoChunk();
+}
+```
+
+There are other demuxing libraries, we'll go into more detail[in the next section](../muxing)
+
+
+
+##### Manual Construction
+
+If you **know what you are doing**, you can manually create valid `EncodedVideoChunk` objects by hand via a the `new EncodedvideoChunk()` constructor.  Manual construction might look something like this:
+
+```typescript
+const [sampleDataOffset, sampleDataLength] = calculateSampleDataOffset(0); //First sample
+const sampleData = file.slice(sampleDataOffset, sampleDataLength);
+
+const isKeyFrameFlag  = <Boolean> getIsKeyFrame(sampleData);
+const timeStamp =  <Number> getTimeStamp(sampleData);
+const frameData = <Uint8Array> getFrameData(sampleData);
+const duration = <Number> getDuration(sampleData);
+
+const chunk = new EncodedVideoChunk({
+    type: isKeyframe ? "key" : "delta",
+    timestamp: timeStamp * 1e3,
+    data: frameData,
+    duration: duration * 1e3
+});
+```
+
+Where for a file you'd typically have to build a parsing function for each container (WebM, MP4) to get this info. We'll cover manual parsing (and why you probably shouldn't do it) [in the next section](../muxing).
+
+Alternatively, if you are streaming video, you and know you are working with WebCodecs, and controlling the source and destination, you don't need fancy muxing or demuxing, you can just pass build your own custom markup / schema to keep track the meta data (`type`, `timestamp`, `duration`) and data (`Uint8Array`) associated with each `EncodedVideoChunk`).
+
+
+### Using Encoded Video Chunks
+
+You can use `EncodedVideoChunk` objects by decoding them, muxing them, or manually processing them.
+
+##### Decoding
+
+
+
+```typescript
+const chunks = <EncodedVideoChunk[]> await getChunks(file);
+
+const decoder = new VideoDecoder({
+    output(frame: VideoFrame) {
+        //Do something with the frame
+    },
+    error(e) {}
+});
+
+decoder.configure(/* Decoder config */);
+
+for (const chunk of chunks){
+    deocder.decode(chunks)
+}
+```
+
+##### Muxing
+
+You can also use chunks to mux to a file, and each muxing library has their own API.
+
+
+```typescript
+// This is psuedocode
+const chunks = <EncodedVideoChunk[]> await getChunks(file);
+
+const muxer = new ExampleMuxer(/**configuration */);
+
+for (const chunk of chunks){
+  muxer.addVideoChunk(chunk);
+}
+
+const arrayBuffer =  muxer.finish();
+
+const blob = new Blob([arrayBuffer], {type: 'video/mp4'})
+
+```
+
+Again, we'll cover muxing [in the next section](../muxing).
+
+
+
+##### Manual Processing
+
+Finally, for more control you can manually extract the data from an `EncodedVideoChunk` and send them somewhere else (like over a network, for streaming)
+
+
+```typescript
+const destinationBuffer = new Uint8Array(chunk.byteLength);
+chunk.copyTo(destinationBuffer);
+
+sendSomewhere({
+  data: <Uint8Array> destinationBuffer,
+  type: chunk.type,
+  duration: chunk.duration,  //don't forget this is in microseconds
+  timestamp: chunk.timestamp //also in microseconds
+})
+
+```
+
+You could theoretically stream this data (the actual buffer and meta) over a network to a browser instance and reconstruct the `EncodedVideoChunk` using the manual construction method.
+
+
+
+
