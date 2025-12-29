@@ -102,6 +102,16 @@ export default defineConfig({
 						{ label: 'Codec Compatibility', slug: 'troubleshooting/codec-compatibility' },
 					],
 				},
+
+				{
+					label: 'Datasets',
+					items: [
+						{ label: 'About', slug: 'datasets/intro' },
+						{ label: 'Codec Support', slug: 'datasets/codec-support' },
+						{ label: 'Encode/Decode Performance', slug: 'datasets/performance' },
+						{ label: 'Key Frames vs Delta frames', slug: 'datasets/key-delta' },
+					],
+				},
 			],
 		}),
 	],
