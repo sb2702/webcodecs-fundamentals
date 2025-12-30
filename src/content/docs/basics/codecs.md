@@ -88,32 +88,119 @@ Instead, you need a fully qualified *codec string* such as: `vp09.00.10.08` whic
 Even more unhelpfully, W3C doesn't keep a list of valid codec strings[[1](https://www.w3.org/TR/webcodecs-codec-registry/#video-codec-registry)].
 
 
-If you just want to encode a video and get on with your life, here's the quick & easy list of codec strings to maximize compatability.
+If you just want to encode a video and get on with your life, here's a quick & easy list of codec strings to maximize compatability.
 
 ##### h264
-* 
-* 
-* 
-*
+*  'avc1.42001f' - base profile, most comptable, supports up to 720p
+*  'avc1.42003e' - base profile, level 6.2 (supports up to 8k)
+*  'avc1.4d0034' - main profile, level 5.2 (supports up to 4K)   
+*  'avc1.64003e' - high profile - level 6.2 (supports up to 8k)
+
+
+
 ##### vp9
-* 
-*
-*
-*
+* 'vp9.00.10.08.00' - basic, most compatible, level 1
+* 'vp9.00.61.08.00' - level 6 
+* 'vp9.00.50.08.00' - level 5  
+* 'vp9.00.40.08.00' - level 4  
+
+
 
 ###  How to choose a codec string
 
 
 #### MediaBunny
 
-// Does let you just specify codec
+The easiest way is to use [MediaBunny](https://mediabunny.dev), where you don't have to choose a codec string. MediaBunny handles this for you internally.
 
 
-#### "Good Enough"
+```javascript
 
-AVC
+import { Output, Mp4OutputFormat,
+BufferTarget, VideoSampleSource, VideoSample} from 'mediabunny';
 
-VP9
+const output = new Output({
+    format: new Mp4OutputFormat(),
+    target: new BufferTarget(),
+});
+
+const videoSource = new VideoSampleSource({   
+    codec: 'avc', // You just specify avc/h264, MediaBunny handles codec string
+    bitrate: QUALITY_HIGH,
+});
+
+output.addVideoTrack(videoSource, { frameRate: 30 });
+
+for (const frame of frames){
+    videoSource.add(new VideoSample(frame))
+}
+
+```
+
+
+#### Good enough option
+
+If you don't want to ue MediaBunny, and just want some code that works and mimimizes the chance of issues,  you can also just specify a bunch of options (best quality /least supported to worst quality/best supported), and pick the first one that is supported.
+
+##### H264
+
+```javascript
+
+let codec_string;
+
+const codecs =['avc1.64003e', 'avc1.4d0034',  'avc1.42003e', 'avc1.42001f'];
+
+for(const test_codec of codecs){
+
+    const videoEncoderConfig = {
+        codec: test_codec,
+        width,
+        height,
+        bitrate,
+        framerate
+    };
+
+    const isSupported = await VideoEncoder.isConfigSupported(videoEncoderConfig);
+
+    if(isSupported.supported){
+        codec_string = test_codec;
+        break;
+    }
+}
+
+
+```
+
+##### VP9
+
+
+```javascript
+
+let codec_string;
+
+const codecs =['avc1.64003e', 'avc1.4d0034',  'avc1.42003e', 'avc1.42001f'];
+
+for(const test_codec of codecs){
+
+    const videoEncoderConfig = {
+        codec: test_codec,
+        width,
+        height,
+        bitrate,
+        framerate
+    };
+
+    const isSupported = await VideoEncoder.isConfigSupported(videoEncoderConfig);
+
+    if(isSupported.supported){
+        codec_string = test_codec;
+        break;
+    }
+}
+
+
+```
+
 
 ####  Look up
 

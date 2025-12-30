@@ -4,6 +4,14 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	server: {
+	
+	        allowedHosts: ['katana.ngrok.dev', 'localhost', '192.168.1.100'],
+		host: true,
+		headers: {
+			'Access-Control-Allow-Origin': '*'
+		}
+	},
 	integrations: [
 		starlight({
 			title: 'WebCodecs Fundamentals',

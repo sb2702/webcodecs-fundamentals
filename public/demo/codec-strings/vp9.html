@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VP9 Codec String Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: 400;
+            margin-bottom: 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .device-info {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #ddd;
+        }
+
+        .result-card.supported {
+            border-left-color: #28a745;
+            background: #f0fff4;
+        }
+
+        .result-card.unsupported {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .codec-string {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            word-break: break-all;
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 3px;
+        }
+
+        .codec-details {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .codec-detail-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .codec-detail-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .resolutions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .resolution-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .resolution-tag.yes {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .resolution-tag.no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status.supported {
+            color: #28a745;
+        }
+
+        .status.unsupported {
+            color: #dc3545;
+        }
+
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .export-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .export-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .export-section button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VP9 Codec String Compatibility Tester</h1>
+        <p class="subtitle">Test VP9 profile/level/bit-depth combinations across devices</p>
+
+        <div class="note">
+            <strong>Note:</strong> VP9 codec strings include profile, level, bit depth, chroma subsampling, and color information. This tester generates all valid combinations based on your selections. Common configurations are pre-selected.
+        </div>
+
+        <div class="device-info" id="deviceInfo">
+            Loading device information...
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Profiles</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="00" checked> Profile 0 (8-bit, 4:2:0)</label>
+                    <label><input type="checkbox" value="01"> Profile 1 (8-bit, 4:2:2/4:4:4)</label>
+                    <label><input type="checkbox" value="02"> Profile 2 (10-bit, 4:2:0)</label>
+                    <label><input type="checkbox" value="03"> Profile 3 (10-bit, 4:2:2/4:4:4)</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Levels (VP9 defines 14 levels: 1.0 through 6.1)</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="10" checked> 1.0</label>
+                    <label><input type="checkbox" value="11"> 1.1</label>
+                    <label><input type="checkbox" value="20"> 2.0</label>
+                    <label><input type="checkbox" value="21"> 2.1</label>
+                    <label><input type="checkbox" value="30" checked> 3.0</label>
+                    <label><input type="checkbox" value="31"> 3.1</label>
+                    <label><input type="checkbox" value="40" checked> 4.0</label>
+                    <label><input type="checkbox" value="41"> 4.1</label>
+                    <label><input type="checkbox" value="50"> 5.0</label>
+                    <label><input type="checkbox" value="51"> 5.1</label>
+                    <label><input type="checkbox" value="60"> 6.0</label>
+                    <label><input type="checkbox" value="61"> 6.1</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Bit Depth</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="08" checked> 8-bit</label>
+                    <label><input type="checkbox" value="10"> 10-bit</label>
+                    <label><input type="checkbox" value="12"> 12-bit</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Chroma Subsampling (Profile 0/2 only support 4:2:0)</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="00" checked> 4:2:0</label>
+                    <label><input type="checkbox" value="01"> 4:2:0 colocated</label>
+                    <label><input type="checkbox" value="02"> 4:2:2</label>
+                    <label><input type="checkbox" value="03"> 4:4:4</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Color Space (Optional - use defaults for fastest testing)</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="minimal" checked> Minimal (no color info)</label>
+                    <label><input type="checkbox" value="rec709"> BT.709 (SDR)</label>
+                    <label><input type="checkbox" value="bt2020"> BT.2020 (HDR)</label>
+                </div>
+            </div>
+
+            <button id="runTestsBtn" onclick="runAllTests()">Run All Tests</button>
+            <button id="stopTestsBtn" onclick="stopTests()" disabled>Stop Testing</button>
+            <button onclick="clearResults()">Clear Results</button>
+            <button onclick="toggleAdvanced()">Advanced Options</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-row">
+                <span>Total codec strings to test:</span>
+                <strong id="statTotal">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Tested so far:</span>
+                <strong id="statTested">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Supported:</span>
+                <strong id="statSupported" style="color: #28a745;">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Unsupported:</span>
+                <strong id="statUnsupported" style="color: #dc3545;">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Testing progress:</span>
+                <strong id="statProgress">0%</strong>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">
+                Click "Run All Tests" to start testing codec strings
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>Export Results</h3>
+            <button onclick="exportAsJSON()">Export as JSON</button>
+            <button onclick="exportAsCSV()">Export as CSV</button>
+            <textarea id="exportArea" placeholder="Results will appear here..." readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const RESOLUTIONS = {
+            '360p': { width: 640, height: 360 },
+            '720p': { width: 1280, height: 720 },
+            '1080p': { width: 1920, height: 1080 },
+            '4K': { width: 3840, height: 2160 }
+        };
+
+        const VP9_PROFILES = {
+            '00': { name: 'Profile 0', bitDepth: '8-bit', chromaSubsampling: '4:2:0 only', description: '8-bit YUV 4:2:0' },
+            '01': { name: 'Profile 1', bitDepth: '8-bit', chromaSubsampling: '4:2:0/4:2:2/4:4:4', description: '8-bit with extended chroma' },
+            '02': { name: 'Profile 2', bitDepth: '10-bit', chromaSubsampling: '4:2:0 only', description: '10-bit YUV 4:2:0' },
+            '03': { name: 'Profile 3', bitDepth: '10-bit', chromaSubsampling: '4:2:0/4:2:2/4:4:4', description: '10-bit with extended chroma' }
+        };
+
+        const VP9_LEVELS = {
+            '10': '1.0', '11': '1.1',
+            '20': '2.0', '21': '2.1',
+            '30': '3.0', '31': '3.1',
+            '40': '4.0', '41': '4.1',
+            '50': '5.0', '51': '5.1',
+            '60': '6.0', '61': '6.1'
+        };
+
+        const VP9_CHROMA_SUBSAMPLING = {
+            '00': '4:2:0',
+            '01': '4:2:0 colocated',
+            '02': '4:2:2',
+            '03': '4:4:4'
+        };
+
+        const COLOR_SPACE_PRESETS = {
+            'minimal': { // No color info - defaults applied
+                cp: null, tc: null, mc: null, vf: null
+            },
+            'rec709': { // SDR - BT.709
+                cp: '01', tc: '01', mc: '01', vf: '00'
+            },
+            'bt2020': { // HDR - BT.2020 with ST.2084 EOTF
+                cp: '09', tc: '16', mc: '09', vf: '00'
+            }
+        };
+
+        let results = [];
+        let isTesting = false;
+        let testQueue = [];
+
+        function getSelectedValues(selector) {
+            const checkboxes = document.querySelectorAll(selector + ' input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function generateCodecStrings() {
+            const profiles = getSelectedValues('.control-group:nth-of-type(1)');
+            const levels = getSelectedValues('.control-group:nth-of-type(2)');
+            const bitDepths = getSelectedValues('.control-group:nth-of-type(3)');
+            const chromaSubsampling = getSelectedValues('.control-group:nth-of-type(4)');
+            const colorSpaceMode = getSelectedValues('.control-group:nth-of-type(5)');
+
+            const codecs = [];
+
+            for (const profile of profiles) {
+                const profileInfo = VP9_PROFILES[profile];
+                
+                // Validate bit depth for profile
+                const validBitDepths = profile === '00' || profile === '02' 
+                    ? ['08'] // Profile 0 & 2 only support 8-bit and 10-bit respectively
+                    : bitDepths;
+
+                for (const bitDepth of validBitDepths) {
+                    // Profile 0 is 8-bit, Profile 2 is 10-bit
+                    if ((profile === '00' && bitDepth !== '08') || (profile === '02' && bitDepth !== '10')) continue;
+                    if ((profile === '01' && bitDepth !== '08') || (profile === '03' && bitDepth !== '10')) continue;
+
+                    // Validate chroma subsampling for profile
+                    const validChroma = (profile === '00' || profile === '02')
+                        ? ['00'] // Profile 0 & 2 only support 4:2:0
+                        : chromaSubsampling;
+
+                    for (const chroma of validChroma) {
+                        for (const level of levels) {
+                            for (const colorMode of colorSpaceMode) {
+                                const colorSpace = COLOR_SPACE_PRESETS[colorMode];
+
+                                // Build codec string
+                                let codecString = `vp09.${profile}.${level}.${bitDepth}.${chroma}`;
+
+                                // Add color space if specified
+                                if (colorSpace.cp !== null) {
+                                    codecString += `.${colorSpace.cp}.${colorSpace.tc}.${colorSpace.mc}.${colorSpace.vf}`;
+                                }
+
+                                codecs.push({
+                                    string: codecString,
+                                    profile: profile,
+                                    profileName: profileInfo.name,
+                                    level: level,
+                                    levelName: VP9_LEVELS[level],
+                                    bitDepth: bitDepth,
+                                    chroma: chroma,
+                                    chromaName: VP9_CHROMA_SUBSAMPLING[chroma],
+                                    colorMode: colorMode,
+                                    profileDescription: profileInfo.description
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            return codecs;
+        }
+
+        async function testCodecString(codec) {
+            const resolutionResults = {};
+
+            for (const [resName, resolution] of Object.entries(RESOLUTIONS)) {
+                try {
+                    const config = {
+                        codec: codec.string,
+                        width: resolution.width,
+                        height: resolution.height,
+                        bitrate: 2500000,
+                        framerate: 30
+                    };
+
+                    const result = await VideoDecoder.isConfigSupported(config);
+                    resolutionResults[resName] = result.supported;
+                } catch (e) {
+                    resolutionResults[resName] = false;
+                }
+            }
+
+            return {
+                supported: Object.values(resolutionResults).some(v => v),
+                resolutions: resolutionResults
+            };
+        }
+
+        async function runAllTests() {
+            if (isTesting) return;
+            isTesting = true;
+
+            document.getElementById('runTestsBtn').disabled = true;
+            document.getElementById('stopTestsBtn').disabled = false;
+            document.getElementById('resultsContainer').innerHTML = '';
+            results = [];
+
+            const codecs = generateCodecStrings();
+            testQueue = [...codecs];
+            const total = testQueue.length;
+
+            document.getElementById('statTotal').textContent = total;
+
+            for (let i = 0; i < testQueue.length; i++) {
+                if (!isTesting) break;
+
+                const codec = testQueue[i];
+                const testResult = await testCodecString(codec);
+
+                const result = {
+                    ...codec,
+                    supported: testResult.supported,
+                    resolutions: testResult.resolutions
+                };
+
+                results.push(result);
+                displayResult(result);
+                updateStats();
+                updateProgress(i + 1, total);
+
+                // Small delay to prevent blocking
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+
+            isTesting = false;
+            document.getElementById('runTestsBtn').disabled = false;
+            document.getElementById('stopTestsBtn').disabled = true;
+        }
+
+        function stopTests() {
+            isTesting = false;
+            document.getElementById('runTestsBtn').disabled = false;
+            document.getElementById('stopTestsBtn').disabled = true;
+        }
+
+        function displayResult(result) {
+            const container = document.getElementById('resultsContainer');
+            const card = document.createElement('div');
+            const statusClass = result.supported ? 'supported' : 'unsupported';
+
+            if (container.innerHTML.includes('Click "Run All Tests"')) {
+                container.innerHTML = '';
+            }
+
+            const resolutionHtml = Object.entries(result.resolutions)
+                .map(([name, supported]) => 
+                    `<span class="resolution-tag ${supported ? 'yes' : 'no'}">${name}: ${supported ? '✓' : '✗'}</span>`
+                )
+                .join('');
+
+            card.className = `result-card ${statusClass}`;
+            card.innerHTML = `
+                <div class="codec-string">${result.string}</div>
+                <div class="codec-details">
+                    <div class="codec-detail-row">
+                        <div class="codec-detail-label">Profile:</div>
+                        <div>${result.profileName}</div>
+                    </div>
+                    <div class="codec-detail-row">
+                        <div class="codec-detail-label">Level:</div>
+                        <div>${result.levelName}</div>
+                    </div>
+                    <div class="codec-detail-row">
+                        <div class="codec-detail-label">Bit Depth:</div>
+                        <div>${result.bitDepth}-bit</div>
+                    </div>
+                    <div class="codec-detail-row">
+                        <div class="codec-detail-label">Chroma:</div>
+                        <div>${result.chromaName}</div>
+                    </div>
+                    <div class="codec-detail-row">
+                        <div class="codec-detail-label">Color Mode:</div>
+                        <div>${result.colorMode}</div>
+                    </div>
+                </div>
+                <div class="resolutions">
+                    ${resolutionHtml}
+                </div>
+                <div class="status ${statusClass}">
+                    ${result.supported ? '✓ Supported' : '✗ Not supported'}
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
+        function updateStats() {
+            const total = results.length;
+            const supported = results.filter(r => r.supported).length;
+            const unsupported = total - supported;
+
+            document.getElementById('statTested').textContent = total;
+            document.getElementById('statSupported').textContent = supported;
+            document.getElementById('statUnsupported').textContent = unsupported;
+        }
+
+        function updateProgress(current, total) {
+            const percent = Math.round((current / total) * 100);
+            document.getElementById('statProgress').textContent = percent + '%';
+        }
+
+        function clearResults() {
+            results = [];
+            document.getElementById('resultsContainer').innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">
+                    Click "Run All Tests" to start testing codec strings
+                </div>
+            `;
+            document.getElementById('statTested').textContent = '0';
+            document.getElementById('statSupported').textContent = '0';
+            document.getElementById('statUnsupported').textContent = '0';
+            document.getElementById('statProgress').textContent = '0%';
+            document.getElementById('statTotal').textContent = '0';
+            document.getElementById('exportArea').value = '';
+        }
+
+        function exportAsJSON() {
+            const json = JSON.stringify(results, null, 2);
+            document.getElementById('exportArea').value = json;
+            document.getElementById('exportArea').select();
+        }
+
+        function exportAsCSV() {
+            const headers = ['codec_string', 'profile', 'level', 'bit_depth', 'chroma_subsampling', 'color_mode', '360p', '720p', '1080p', '4K', 'supported'];
+            const rows = results.map(r => [
+                r.string,
+                r.profileName,
+                r.levelName,
+                r.bitDepth + '-bit',
+                r.chromaName,
+                r.colorMode,
+                r.resolutions['360p'] ? 'true' : 'false',
+                r.resolutions['720p'] ? 'true' : 'false',
+                r.resolutions['1080p'] ? 'true' : 'false',
+                r.resolutions['4K'] ? 'true' : 'false',
+                r.supported ? 'true' : 'false'
+            ]);
+
+            const csv = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            document.getElementById('exportArea').value = csv;
+            document.getElementById('exportArea').select();
+        }
+
+        function toggleAdvanced() {
+            alert('Advanced options: You can manually edit the generated codec strings by exporting as JSON, modifying, and testing specific combinations.');
+        }
+
+        function updateDeviceInfo() {
+            const ua = navigator.userAgent;
+            const info = `
+                User Agent: ${ua}
+                Browser: ${getBrowserInfo()}
+                Platform: ${navigator.platform}
+                WebCodecs Support: ${typeof VideoDecoder !== 'undefined' ? '✓ Yes' : '✗ No'}
+            `;
+            document.getElementById('deviceInfo').textContent = info;
+        }
+
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'Chrome';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Safari')) return 'Safari';
+            if (ua.includes('Edge')) return 'Edge';
+            return 'Unknown';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDeviceInfo();
+        });
+
+        // Check if WebCodecs is supported
+        if (typeof VideoDecoder === 'undefined') {
+            document.getElementById('runTestsBtn').disabled = true;
+            alert('WebCodecs API is not supported in this browser. Please use Chrome, Edge, or Firefox.');
+        }
+    </script>
+</body>
+</html>
