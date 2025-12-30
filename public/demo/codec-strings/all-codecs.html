@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive WebCodecs Compatibility Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .device-info {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: #f9f9f9;
+        }
+
+        .tab.active {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #ddd;
+        }
+
+        .result-card.supported {
+            border-left-color: #28a745;
+            background: #f0fff4;
+        }
+
+        .result-card.unsupported {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .codec-string {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            word-break: break-all;
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 3px;
+        }
+
+        .codec-details {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .resolutions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .resolution-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .resolution-tag.yes {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .resolution-tag.no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status.supported {
+            color: #28a745;
+        }
+
+        .status.unsupported {
+            color: #dc3545;
+        }
+
+        .export-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comprehensive WebCodecs Compatibility Tester</h1>
+        <p class="subtitle">Test all video codec configurations across devices and browsers</p>
+
+        <div class="device-info" id="deviceInfo">
+            Loading device information...
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="vp8">VP8</div>
+            <div class="tab" data-tab="vp9">VP9</div>
+            <div class="tab" data-tab="avc">H.264/AVC</div>
+            <div class="tab" data-tab="hevc">H.265/HEVC</div>
+            <div class="tab" data-tab="av1">AV1</div>
+            <div class="tab" data-tab="all">All Codecs</div>
+        </div>
+
+        <div class="tab-content active" id="vp8-content">
+            <div class="note">
+                <strong>VP8:</strong> Simple codec string - just "vp8" with no additional parameters.
+                <br>Reference: <a href="https://www.w3.org/TR/webcodecs-vp8-codec-registration/" target="_blank">W3C VP8 WebCodecs Registration</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="vp9-content">
+            <div class="note">
+                <strong>VP9 Format:</strong> vp09.{profile}.{level}.{bitDepth}[.{chromaSubsampling}.{colorPrimaries}.{transferCharacteristics}.{matrixCoefficients}.{videoFullRangeFlag}]
+                <br>Reference: <a href="https://github.com/webmproject/vp9-dash/blob/main/VPCodecISOMediaFileFormatBinding.md" target="_blank">VP Codec ISO Media File Format Binding</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="avc-content">
+            <div class="note">
+                <strong>H.264/AVC Format:</strong> avc1.{profile}{constraint}{level} (6 hex digits)
+                <br>Reference: <a href="https://datatracker.ietf.org/doc/html/rfc6381" target="_blank">RFC 6381</a>, ISO/IEC 14496-10
+            </div>
+        </div>
+
+        <div class="tab-content" id="hevc-content">
+            <div class="note">
+                <strong>H.265/HEVC Format:</strong> hev1.{profile}.{compatibilityFlags}.{tier}{level}.{constraintFlags}
+                <br>Reference: <a href="https://www.w3.org/TR/webcodecs-hevc-codec-registration/" target="_blank">W3C HEVC WebCodecs Registration</a>, ISO/IEC 14496-15 Section E.3
+            </div>
+        </div>
+
+        <div class="tab-content" id="av1-content">
+            <div class="note">
+                <strong>AV1 Format:</strong> av01.{profile}.{level}{tier}.{bitDepth}[.{monochrome}.{chromaSubsampling}.{colorPrimaries}.{transferCharacteristics}.{matrixCoefficients}.{videoFullRangeFlag}]
+                <br>Reference: <a href="https://aomediacodec.github.io/av1-isobmff/" target="_blank">AV1 Codec ISO Media File Format Binding</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="all-content">
+            <div class="note">
+                <strong>All Codecs Mode:</strong> Tests all codec configurations sequentially. This may take several minutes to complete.
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="runTestsBtn" onclick="runTests()">Run Tests</button>
+            <button id="stopTestsBtn" onclick="stopTests()" disabled>Stop Testing</button>
+            <button class="secondary" onclick="clearResults()">Clear Results</button>
+            <button class="secondary" onclick="exportResults()">Export Results</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-row">
+                <span>Total codec strings to test:</span>
+                <strong id="statTotal">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Tested so far:</span>
+                <strong id="statTested">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Supported:</span>
+                <strong id="statSupported" style="color: #28a745;">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Unsupported:</span>
+                <strong id="statUnsupported" style="color: #dc3545;">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Progress:</span>
+                <strong id="statProgress">0%</strong>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">
+                Select a codec tab and click "Run Tests" to start
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>Export Results</h3>
+            <textarea id="exportArea" placeholder="Results will appear here after testing..." readonly></textarea>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import codec string generators
+        import { generateVP8CodecStrings } from './codecs/vp8.js';
+        import { generateVP9CodecStrings } from './codecs/vp9.js';
+        import { generateAVCCodecStrings } from './codecs/h264.js';
+        import { generateHEVCCodecStrings } from './codecs/hevc.js';
+        import { generateAV1CodecStrings } from './codecs/av1.js';
+
+        // Test resolutions
+        const RESOLUTIONS = {
+            '360p': { width: 640, height: 360 },
+            '720p': { width: 1280, height: 720 },
+            '1080p': { width: 1920, height: 1080 },
+            '4K': { width: 3840, height: 2160 }
+        };
+
+        // Global state
+        let currentTab = 'vp8';
+        let isTesting = false;
+        let results = [];
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                if (isTesting) {
+                    alert('Please stop testing before switching tabs');
+                    return;
+                }
+
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                document.getElementById(currentTab + '-content').classList.add('active');
+
+                updateCodecCount();
+            });
+        });
+
+        function getCodecStringsForTab(tab) {
+            switch (tab) {
+                case 'vp8': return generateVP8CodecStrings();
+                case 'vp9': return generateVP9CodecStrings();
+                case 'avc': return generateAVCCodecStrings();
+                case 'hevc': return generateHEVCCodecStrings();
+                case 'av1': return generateAV1CodecStrings();
+                case 'all': return [
+                    ...generateVP8CodecStrings(),
+                    ...generateVP9CodecStrings(),
+                    ...generateAVCCodecStrings(),
+                    ...generateHEVCCodecStrings(),
+                    ...generateAV1CodecStrings()
+                ];
+                default: return [];
+            }
+        }
+
+        function updateCodecCount() {
+            const codecs = getCodecStringsForTab(currentTab);
+            document.getElementById('statTotal').textContent = codecs.length;
+        }
+
+        async function testCodecString(codec) {
+            const resolutionResults = {};
+
+            for (const [resName, resolution] of Object.entries(RESOLUTIONS)) {
+                try {
+                    const config = {
+                        codec: codec.string,
+                        width: resolution.width,
+                        height: resolution.height,
+                        bitrate: 2500000,
+                        framerate: 30
+                    };
+
+                    const result = await VideoEncoder.isConfigSupported(config);
+                    resolutionResults[resName] = result.supported;
+                } catch (e) {
+                    resolutionResults[resName] = false;
+                }
+            }
+
+            return {
+                ...codec,
+                resolutions: resolutionResults,
+                supported: Object.values(resolutionResults).some(v => v)
+            };
+        }
+
+        async function runTests() {
+            if (isTesting) return;
+            isTesting = true;
+
+            document.getElementById('runTestsBtn').disabled = true;
+            document.getElementById('stopTestsBtn').disabled = false;
+            document.getElementById('resultsContainer').innerHTML = '';
+            results = [];
+
+            const codecs = getCodecStringsForTab(currentTab);
+            const total = codecs.length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statTested').textContent = '0';
+            document.getElementById('statSupported').textContent = '0';
+            document.getElementById('statUnsupported').textContent = '0';
+            document.getElementById('statProgress').textContent = '0%';
+
+            for (let i = 0; i < codecs.length; i++) {
+                if (!isTesting) break;
+
+                const result = await testCodecString(codecs[i]);
+                results.push(result);
+
+                displayResult(result);
+                updateStats();
+
+                // Small delay to prevent blocking
+                await new Promise(resolve => setTimeout(resolve, 5));
+            }
+
+            isTesting = false;
+            document.getElementById('runTestsBtn').disabled = false;
+            document.getElementById('stopTestsBtn').disabled = true;
+        }
+
+        function stopTests() {
+            isTesting = false;
+            document.getElementById('runTestsBtn').disabled = false;
+            document.getElementById('stopTestsBtn').disabled = true;
+        }
+
+        function displayResult(result) {
+            const container = document.getElementById('resultsContainer');
+
+            if (container.innerHTML.includes('Select a codec')) {
+                container.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            const statusClass = result.supported ? 'supported' : 'unsupported';
+
+            const resolutionHtml = Object.entries(result.resolutions)
+                .map(([name, supported]) =>
+                    `<span class="resolution-tag ${supported ? 'yes' : 'no'}">${name}: ${supported ? '✓' : '✗'}</span>`
+                )
+                .join('');
+
+            let detailsHtml = '';
+            if (result.family !== 'vp8') {
+                const details = [];
+                if (result.profile) details.push(`Profile: ${result.profile}`);
+                if (result.level) details.push(`Level: ${result.level}`);
+                if (result.tier) details.push(`Tier: ${result.tier}`);
+                if (result.bitDepth) details.push(`Bit Depth: ${result.bitDepth}`);
+                if (result.chroma) details.push(`Chroma: ${result.chroma}`);
+                if (result.constraint) details.push(`Constraint: ${result.constraint}`);
+
+                if (details.length > 0) {
+                    detailsHtml = `<div class="codec-details">${details.join(' • ')}</div>`;
+                }
+            }
+
+            card.className = `result-card ${statusClass}`;
+            card.innerHTML = `
+                <div class="codec-string">${result.string}</div>
+                ${detailsHtml}
+                <div class="resolutions">${resolutionHtml}</div>
+                <div class="status ${statusClass}">
+                    ${result.supported ? '✓ Supported' : '✗ Not supported'}
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
+        function updateStats() {
+            const total = results.length;
+            const supported = results.filter(r => r.supported).length;
+            const unsupported = total - supported;
+            const totalToTest = parseInt(document.getElementById('statTotal').textContent);
+
+            document.getElementById('statTested').textContent = total;
+            document.getElementById('statSupported').textContent = supported;
+            document.getElementById('statUnsupported').textContent = unsupported;
+
+            if (totalToTest > 0) {
+                const percent = Math.round((total / totalToTest) * 100);
+                document.getElementById('statProgress').textContent = percent + '%';
+            }
+        }
+
+        function clearResults() {
+            results = [];
+            document.getElementById('resultsContainer').innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">
+                    Select a codec tab and click "Run Tests" to start
+                </div>
+            `;
+            document.getElementById('statTested').textContent = '0';
+            document.getElementById('statSupported').textContent = '0';
+            document.getElementById('statUnsupported').textContent = '0';
+            document.getElementById('statProgress').textContent = '0%';
+            document.getElementById('exportArea').value = '';
+            updateCodecCount();
+        }
+
+        function exportResults() {
+            const exportData = {
+                testMetadata: {
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    browser: getBrowserInfo(),
+                    platform: navigator.platform,
+                    codecTab: currentTab
+                },
+                results: results
+            };
+
+            const json = JSON.stringify(exportData, null, 2);
+            document.getElementById('exportArea').value = json;
+            document.getElementById('exportArea').select();
+        }
+
+        function updateDeviceInfo() {
+            const ua = navigator.userAgent;
+            const info = `User Agent: ${ua} | Browser: ${getBrowserInfo()} | Platform: ${navigator.platform} | WebCodecs: ${typeof VideoEncoder !== 'undefined' ? '✓ Yes' : '✗ No'}`;
+            document.getElementById('deviceInfo').textContent = info;
+        }
+
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'Chrome';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Safari')) return 'Safari';
+            if (ua.includes('Edge')) return 'Edge';
+            return 'Unknown';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDeviceInfo();
+            updateCodecCount();
+        });
+
+        // Check WebCodecs support
+        if (typeof VideoEncoder === 'undefined') {
+            document.getElementById('runTestsBtn').disabled = true;
+            alert('WebCodecs API is not supported in this browser. Please use Chrome, Edge, or a recent Firefox version.');
+        }
+    </script>
+</body>
+</html>

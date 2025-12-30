@@ -520,7 +520,7 @@ I personally don't have much experience with this, but from my initial attempts 
 
 **WebM Files** 
 
-WebM files use format called [Extensible Binary Meta Language](https://en.wikipedia.org/wiki/Extensible_Binary_Meta_Language), which is like a binary version of XML. You can use an [EBML parser](https://github.com/legokichi/ts-ebml) to read a WebM file and extract all the EBML elements
+WebM files use format called [Extensible Binary Meta Language](https://en.wikipedia.org/wiki/Extensible_Binary_Meta_Language), which is like a binary version of XML. You can use an [EBML parser](https://github.com/legokichi/ts-ebml) to read a WebM file and extract all the EBML elements, which are kind of like XML tags, but they aren't nested (they just come out as an array) and they can have binary data.
 
 ```javascript
 import * as EBML from 'ts-ebml';

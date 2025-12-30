@@ -89,6 +89,7 @@ export default defineConfig({
 				{
 					label: 'Media Bunny',
 					items: [
+						{ label: 'Intro', slug: 'media-bunny/intro' },
 						{ label: 'Video Player', slug: 'media-bunny/playback' },
 						{ label: 'Transcoding', slug: 'media-bunny/transcoding' },
 						{ label: 'Video Editing', slug: 'media-bunny/editing' },
