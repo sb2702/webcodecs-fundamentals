@@ -11,7 +11,7 @@ The `VideoDecoder` allows transforming [EncodedVideoChunk](./encoded-video-chunk
 The basic "hello world" API for the decoder works like this:
 
 ```typescript
-//Psuedocode, demuxing libraries provide the same info but syntax varies.
+//Pseudocode, demuxing libraries provide the same info but syntax varies.
 const {chunks, metaData} = await demuxFile(<File> file);
 
 
@@ -453,7 +453,7 @@ import MP4Box, {
 
 ### Rube Goldberg Machine
 
-When building a decoding pipeline, the first thing the keep in mind is that decoding isn't just some async process. You can't just decode individual chunks and await for the results.
+When building a decoding pipeline, the first thing to keep in mind is that decoding isn't just some async process. You can't just decode individual chunks and await for the results.
 
 ```typescript
 // Does not work like this
@@ -501,7 +501,7 @@ The solution is to call `decoder.flush()` which will force everything along, wit
 #### Pipelines
 
 As a consequence, instead of treading decoding as an async task (e.g. `for frame of framesInVideo`), it's better to think of decoding as a pipeline, where you will be continously decoding chunks and generating frames, and you need to need to track the data flows:
-* Where chunks are sent for encoding
+* Where chunks are sent for decoding
 * Where frames are generated
 * Where frames are consumed
 
@@ -603,19 +603,19 @@ render(time: number){
 
     const latest_frame = getLatestFrame(time);
 
-    if(latest_frame) < 0 return;
+    if(latest_frame < 0) return;
 
 
     for(let i=0; i < latest_frame-1; i++){
-        rendered_buffer[i].close()
+        render_buffer[i].close()
     }
-    rendered_buffer.splice(0, latest_frame-1); //Drop frames
+    render_buffer.splice(0, latest_frame-1); //Drop frames
 
-    const frame_to_render = rendered_buffer.shift();
+    const frame_to_render = render_buffer.shift();
     ctx.drawImage(frame_to_render, 0, 0);
     frame_to_render.close();
 
-    if(rendered_buffer.length < BATCH_DECODE_SIZE/2) fillBuffer();
+    if(render_buffer.length < BATCH_DECODE_SIZE/2) fillBuffer();
 
 }
 
@@ -629,7 +629,7 @@ render(time: number){
 getLatestFrame(time: number){
 
 
-    for (let i=0; i < rendere_buffer.length-1; i++){
+    for (let i=0; i < render_buffer.length-1; i++){
 
         if(render_buffer[i+1].timestamp < render_buffer[i].timestamp){
             return i+1;
@@ -642,7 +642,7 @@ getLatestFrame(time: number){
 
     for (let i=0; i < render_buffer.length; i++){
 
-        if (render_buffer[i].timestamp/1000 < time &&  render_buffer[i].timestamp > render_buffer[latest_frame_buffer_index].timestamp){
+        if (render_buffer[i].timestamp/1e6 < time &&  render_buffer[i].timestamp > render_buffer[latest_frame_buffer_index].timestamp){
             latest_frame_buffer_index = i
         }
     }
@@ -666,7 +666,7 @@ const decoder = new VideoDecoder({
 
         if(frame.timestamp/1e6 < lastRenderedTime) {
             frame.close();
-            if(rendered_buffer.length < BATCH_DECODE_SIZE) {
+            if(render_buffer.length < BATCH_DECODE_SIZE) {
                 fillBuffer();
             }
             return;
