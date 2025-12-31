@@ -21,7 +21,7 @@ const decoder = new VideoDecoder({
 
 ```
 
-And for "hello world" demos, here or in other documentation websites, this is fine, because the '2d' is simple, and works well enough.  That said, there are other ways to render a `VideoFrame` to canvas, and the '2d' canvas context is the least efficient, so we'll cover the other options.
+And for "hello world" demos, here or in other documentation websites, this is fine, because  2d Canvas context is simple, and works well enough.  That said, there are other ways to render a `VideoFrame` to canvas, and the '2d' canvas context is by far the least efficient, so we'll cover the other options.
 
 
 
@@ -78,7 +78,7 @@ Benchmarking the speed of decoding + `drawImage` [Big Buck Bunny](https://downlo
 
 You can see how different browser implementations vary dramatically in performance. Chromium browsers seem to implement some form of optimization that the others don't, but as we'll see, even for Chromium Canvas2d is not as efficient as other methods.
 
-\* I'm not testing on other browsers, because the vast majority of other popular browsers (Edge, Opera, Brave) are built on Chromium, the same engine used by Chrome. Safari and Firefox are the two main popular browsers not built on Chromium.
+\* I'm not testing on other browsers, because the vast majority of other popular browsers (Edge, Opera, Brave etc..)  are built on Chromium, the same engine used by Chrome. Safari and Firefox are the two main popular browsers not built on Chromium.
 
 
 ### Bitmap Renderer
