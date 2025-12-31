@@ -144,24 +144,28 @@ Basically, if you are live streaming or really need to improve encoding speed, u
 
 ###  Practical Considerations
 
+Before we go ahead and set up an actual encoding loop, here are a few things to keep in mind:
 
-#### Encoding is slow
+#### Encoding can be slow
 
-NEtbook:
-encode: 11fps
-Decode: 540fps
+Encoding performance varies dramatically across devices and browsers, and is in general much slower than decoding. Here are some benchmarks for encoding and decoding of 1080p, 30fps, h264 video across a variety of devices and browsers
 
-Samsung Chromebook:
-encode: 60fps
-decode: 600fps
 
-Ubuntu Laptop:
-encode 100fps
-decode 350fps
+| Device | Tier | Browser | Encode FPS | Decode FPS |
+|--------|------|---------|------------|------------|
+| Windows Netbook | Low | Chrome | 11 | 540 |
+| Windows Netbook | Low | Firefox | 25 | 30 |
+| Samsung Chromebook | Low | Chrome | 60 | 600 |
+| Ubuntu Lenovo | Mid | Chrome | 100 | 350 |
+| Ubuntu Lenovo | Mid | Firefox | 80 | 300 |
+| iPhone 16 Pro | High | Chrome | 120 | 600 |
+| iPhone 16 Pro | High | Safari | 12 | 600 |
+| Samsung Galaxy S25 | High | Chrome | 200 | 600 |
+| Macbook Pro M4 | High | Chrome | 200 | 1200 |
+| Macbook Pro M4 | High | Firefox | 80 | 600 |
+| Macbook Pro M4 | High | Safari | 200 | 600 |
 
-Mac M4
-encode 200fps
-Decode: 1200fps
+
 
 
 #### Encoding queue and flush
