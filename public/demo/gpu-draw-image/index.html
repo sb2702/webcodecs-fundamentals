@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPUDrawImage Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .demo-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    .demo-card h3 {
+      margin-top: 0;
+    }
+    canvas {
+      border: 1px solid #999;
+      display: block;
+      width: 100%;
+      background: #000;
+    }
+    .controls {
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .stats {
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .badge-webgpu {
+      background: #4caf50;
+      color: white;
+    }
+    .badge-bitmap {
+      background: #ff9800;
+      color: white;
+    }
+    .badge-canvas2d {
+      background: #2196f3;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>GPUDrawImage Demo</h1>
+  <p>Comparing rendering methods for VideoFrame: WebGPU (zero-copy), ImageBitmap, and Canvas 2D.</p>
+
+  <div class="controls">
+    <button id="startBtn">Start Playback</button>
+    <button id="stopBtn" disabled>Stop</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div class="stats">
+    <div>Status: <span id="status">Ready</span></div>
+    <div>Frames rendered: <span id="framesRendered">0</span></div>
+    <div>FPS: <span id="fps">0</span></div>
+    <div>Average frame time: <span id="avgFrameTime">0</span>ms</div>
+  </div>
+
+  <div class="demo-grid">
+    <div class="demo-card">
+      <h3>GPUDrawImage Utility <span id="gpuBadge" class="badge">Loading...</span></h3>
+      <canvas id="gpuCanvas" width="640" height="360"></canvas>
+      <div class="stats">
+        <div>Render time: <span id="gpuTime">0</span>ms</div>
+      </div>
+    </div>
+
+    <div class="demo-card">
+      <h3>Canvas 2D drawImage() <span class="badge badge-canvas2d">Baseline</span></h3>
+      <canvas id="canvas2dCanvas" width="640" height="360"></canvas>
+      <div class="stats">
+        <div>Render time: <span id="canvas2dTime">0</span>ms</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { WebDemuxer } from 'https://cdn.jsdelivr.net/npm/web-demuxer/+esm';
+    import { GPUDrawImage } from './GPUDrawImage.js';
+
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Canvas elements
+    const gpuCanvas = document.getElementById('gpuCanvas');
+    const canvas2dCanvas = document.getElementById('canvas2dCanvas');
+
+    // Stats elements
+    const statusEl = document.getElementById('status');
+    const framesRenderedEl = document.getElementById('framesRendered');
+    const fpsEl = document.getElementById('fps');
+    const avgFrameTimeEl = document.getElementById('avgFrameTime');
+    const gpuTimeEl = document.getElementById('gpuTime');
+    const canvas2dTimeEl = document.getElementById('canvas2dTime');
+    const gpuBadgeEl = document.getElementById('gpuBadge');
+
+    // Renderers
+    let gpuRenderer = null;
+    let canvas2dCtx = canvas2dCanvas.getContext('2d');
+
+    let chunks = [];
+    let metaData = null;
+    let decoder = null;
+    let renderInterval = null;
+
+    // Decode loop variables
+    let decodeChunkIndex = 0;
+    const BATCH_DECODE_SIZE = 10;
+    const DECODE_QUEUE_LIMIT = 20;
+    const render_buffer = [];
+    let lastRenderedTime = 0;
+    let framesRendered = 0;
+
+    // Performance tracking
+    let frameStartTime = 0;
+    let fpsCounter = 0;
+    let fpsStartTime = 0;
+    let frameTimes = [];
+
+    async function init() {
+      statusEl.textContent = 'Initializing renderers...';
+
+      // Initialize GPUDrawImage
+      gpuRenderer = new GPUDrawImage(gpuCanvas);
+      await gpuRenderer.init();
+
+      const mode = gpuRenderer.getMode();
+      if (mode === 'webgpu') {
+        gpuBadgeEl.textContent = 'WebGPU (Zero-Copy)';
+        gpuBadgeEl.className = 'badge badge-webgpu';
+      } else {
+        gpuBadgeEl.textContent = 'ImageBitmap (Fallback)';
+        gpuBadgeEl.className = 'badge badge-bitmap';
+      }
+
+      statusEl.textContent = 'Loading video...';
+
+      const demuxer = new WebDemuxer({
+        wasmFilePath: "https://cdn.jsdelivr.net/npm/web-demuxer@latest/dist/wasm-files/web-demuxer.wasm",
+      });
+
+      const response = await fetch('hero-small.webm');
+      const buffer = await response.arrayBuffer();
+      const file = new File([buffer], 'hero-small.webm', {type: 'video/webm'});
+
+      await demuxer.load(file);
+      const mediaInfo = await demuxer.getMediaInfo();
+      const videoTrack = mediaInfo.streams.filter((s) => s.codec_type_string === 'video')[0];
+
+      metaData = {
+        codec: videoTrack.codec_string,
+        width: videoTrack.width,
+        height: videoTrack.height
+      };
+
+      statusEl.textContent = 'Extracting chunks...';
+      chunks = await getChunks(demuxer);
+
+      statusEl.textContent = `Ready - ${chunks.length} chunks loaded`;
+      startBtn.disabled = false;
+    }
+
+    async function getChunks(demuxer, start = 0, end = undefined) {
+      const reader = demuxer.read('video', start, end).getReader();
+      const chunks = [];
+
+      return new Promise(function(resolve) {
+        reader.read().then(async function processPacket({ done, value }) {
+          if (value) chunks.push(value);
+          if (done) return resolve(chunks);
+          return reader.read().then(processPacket);
+        });
+      });
+    }
+
+    function fillBuffer() {
+      for (let i = 0; i < BATCH_DECODE_SIZE; i++) {
+        if (decodeChunkIndex < chunks.length) {
+          if (decoder.decodeQueueSize > DECODE_QUEUE_LIMIT) continue;
+
+          try {
+            decoder.decode(chunks[decodeChunkIndex]);
+            decodeChunkIndex += 1;
+
+            if (decodeChunkIndex === chunks.length) decoder.flush();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+    }
+
+    function getLatestFrame(time) {
+      for (let i = 0; i < render_buffer.length - 1; i++) {
+        if (render_buffer[i + 1].timestamp < render_buffer[i].timestamp) {
+          return i + 1;
+        }
+      }
+
+      if (render_buffer[0].timestamp / 1e6 > time) return -1;
+
+      let latest_frame_buffer_index = 0;
+
+      for (let i = 0; i < render_buffer.length; i++) {
+        if (render_buffer[i].timestamp / 1e6 < time &&
+            render_buffer[i].timestamp > render_buffer[latest_frame_buffer_index].timestamp) {
+          latest_frame_buffer_index = i;
+        }
+      }
+
+      return latest_frame_buffer_index;
+    }
+
+    async function render(time) {
+      lastRenderedTime = time;
+
+      if (render_buffer.length === 0) return;
+
+      const latest_frame = getLatestFrame(time);
+
+      if (latest_frame < 0) return;
+
+      // Close and drop old frames
+      for (let i = 0; i < latest_frame - 1; i++) {
+        render_buffer[i].close();
+      }
+      render_buffer.splice(0, latest_frame - 1);
+
+      const frame_to_render = render_buffer.shift();
+
+      frameStartTime = performance.now();
+
+      // Render with GPUDrawImage
+      const gpuStart = performance.now();
+      gpuRenderer.drawImage(frame_to_render, 0, 0);
+      const gpuEnd = performance.now();
+      gpuTimeEl.textContent = (gpuEnd - gpuStart).toFixed(3);
+
+      // Render with Canvas 2D
+      const canvas2dStart = performance.now();
+      canvas2dCtx.drawImage(frame_to_render, 0, 0, canvas2dCanvas.width, canvas2dCanvas.height);
+      const canvas2dEnd = performance.now();
+      canvas2dTimeEl.textContent = (canvas2dEnd - canvas2dStart).toFixed(3);
+
+      frame_to_render.close();
+
+      framesRendered++;
+      framesRenderedEl.textContent = framesRendered;
+
+      // Calculate FPS
+      const frameTime = performance.now() - frameStartTime;
+      frameTimes.push(frameTime);
+      if (frameTimes.length > 30) frameTimes.shift();
+
+      fpsCounter++;
+      const elapsed = (performance.now() - fpsStartTime) / 1000;
+      if (elapsed > 1) {
+        fpsEl.textContent = Math.round(fpsCounter / elapsed);
+        fpsCounter = 0;
+        fpsStartTime = performance.now();
+      }
+
+      const avgTime = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
+      avgFrameTimeEl.textContent = avgTime.toFixed(2);
+
+      if (render_buffer.length < BATCH_DECODE_SIZE / 2) fillBuffer();
+    }
+
+    function start() {
+      statusEl.textContent = 'Playing...';
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      // Reset state
+      decodeChunkIndex = 0;
+      lastRenderedTime = 0;
+      framesRendered = 0;
+      fpsCounter = 0;
+      fpsStartTime = performance.now();
+      frameTimes = [];
+      render_buffer.length = 0;
+
+      // Create decoder
+      decoder = new VideoDecoder({
+        output: function(frame) {
+          if (frame.timestamp / 1e6 < lastRenderedTime) {
+            frame.close();
+            if (render_buffer.length < BATCH_DECODE_SIZE) {
+              fillBuffer();
+            }
+            return;
+          }
+
+          render_buffer.push(frame);
+        },
+        error: function(error) {
+          console.error(error);
+          statusEl.textContent = `Error: ${error.message}`;
+        }
+      });
+
+      decoder.configure({
+        codec: metaData.codec
+      });
+
+      const start_time = performance.now();
+
+      fillBuffer();
+
+      renderInterval = setInterval(function() {
+        const current_time = (performance.now() - start_time) / 1000;
+        render(current_time);
+
+        if (decodeChunkIndex >= chunks.length && render_buffer.length === 0) {
+          stop();
+          statusEl.textContent = 'Finished';
+        }
+      }, 1000 / 30);
+    }
+
+    function stop() {
+      if (renderInterval) {
+        clearInterval(renderInterval);
+        renderInterval = null;
+      }
+
+      for (const frame of render_buffer) {
+        frame.close();
+      }
+      render_buffer.length = 0;
+
+      if (decoder && decoder.state !== 'closed') {
+        decoder.close();
+      }
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+
+    startBtn.addEventListener('click', start);
+    stopBtn.addEventListener('click', stop);
+    resetBtn.addEventListener('click', () => location.reload());
+
+    init().catch(err => {
+      console.error('Initialization error:', err);
+      statusEl.textContent = `Error: ${err.message}`;
+    });
+  </script>
+</body>
+</html>
