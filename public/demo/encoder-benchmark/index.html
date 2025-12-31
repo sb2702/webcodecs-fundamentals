@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoEncoder Performance Benchmark</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .test-config {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .config-item label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .config-item select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .controls {
+      margin: 20px 0;
+      text-align: center;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      background: #2196f3;
+      color: white;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #1976d2;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    button.stop {
+      background: #f44336;
+    }
+    button.stop:hover {
+      background: #d32f2f;
+    }
+    canvas {
+      border: 2px solid #333;
+      display: block;
+      margin: 20px auto;
+      background: #000;
+    }
+    .stats {
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .stat-item {
+      padding: 15px;
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+    .device-info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .device-info h3 {
+      margin-top: 0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 10px;
+      font-size: 14px;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 30px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #4caf50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>VideoEncoder Performance Benchmark</h1>
+  <p>Test encoding performance across different resolutions and codecs. Tests encoding a simple animated canvas at 30fps.</p>
+
+  <div class="device-info" id="deviceInfo">
+    <h3>Device Information</h3>
+    <div class="info-grid">
+      <div><strong>Browser:</strong> <span id="browserInfo">Loading...</span></div>
+      <div><strong>Platform:</strong> <span id="platformInfo">Loading...</span></div>
+      <div><strong>GPU Tier:</strong> <span id="gpuTier">Detecting...</span></div>
+      <div><strong>GPU:</strong> <span id="gpuName">Detecting...</span></div>
+    </div>
+  </div>
+
+  <div class="test-config">
+    <h3>Test Configuration</h3>
+    <div class="config-grid">
+      <div class="config-item">
+        <label for="resolution">Resolution</label>
+        <select id="resolution">
+          <option value="3840x2160">4K (3840x2160)</option>
+          <option value="1920x1080" selected>1080p (1920x1080)</option>
+          <option value="1280x720">720p (1280x720)</option>
+          <option value="640x360">360p (640x360)</option>
+        </select>
+      </div>
+      <div class="config-item">
+        <label for="codec">Codec</label>
+        <select id="codec">
+          <option value="vp09.00.10.08.00" >VP9 (vp09.00.10.08.00)</option>
+          <option value="vp8">VP8</option>
+          <option value="avc1.42003e" selected>H.264 Baseline</option>
+          <option value="avc1.4D001E">H.264 Main</option>
+          <option value="av01.0.04M.08">AV1</option>
+        </select>
+      </div>
+      <div class="config-item">
+        <label for="frameCount">Frames to Encode</label>
+        <select id="frameCount">
+          <option value="150">150 frames</option>
+          <option value="300" selected>300 frames</option>
+          <option value="600">600 frames</option>
+          <option value="900">900 frames</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Start Test</button>
+    <button id="stopBtn" class="stop" disabled>Stop Test</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="stats">
+    <h3>Test Progress</h3>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" id="status">Ready</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Frames Encoded</div>
+        <div class="stat-value" id="framesEncoded">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Encoding FPS</div>
+        <div class="stat-value" id="encodingFps">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Avg Encode Time</div>
+        <div class="stat-value" id="avgEncodeTime">0ms</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Encode Queue Size</div>
+        <div class="stat-value" id="queueSize">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Data Encoded</div>
+        <div class="stat-value" id="dataSize">0 MB</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getGPUTier } from 'https://cdn.jsdelivr.net/npm/detect-gpu/+esm';
+
+    // UI Elements
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const resolutionSelect = document.getElementById('resolution');
+    const codecSelect = document.getElementById('codec');
+    const frameCountSelect = document.getElementById('frameCount');
+
+    // Stats elements
+    const statusEl = document.getElementById('status');
+    const framesEncodedEl = document.getElementById('framesEncoded');
+    const encodingFpsEl = document.getElementById('encodingFps');
+    const avgEncodeTimeEl = document.getElementById('avgEncodeTime');
+    const queueSizeEl = document.getElementById('queueSize');
+    const dataSizeEl = document.getElementById('dataSize');
+    const progressBarEl = document.getElementById('progressBar');
+
+    // Device info elements
+    const browserInfoEl = document.getElementById('browserInfo');
+    const platformInfoEl = document.getElementById('platformInfo');
+    const gpuTierEl = document.getElementById('gpuTier');
+    const gpuNameEl = document.getElementById('gpuName');
+
+    // Test state
+    let encoder = null;
+    let testRunning = false;
+    let testStartTime = 0;
+    let targetFrameCount = 300;
+    let framesEncoded = 0;
+    let framesSent = 0;
+    let totalDataSize = 0; // bytes
+    let encodeTimes = [];
+
+    // Detect device info
+    async function detectDeviceInfo() {
+      // Browser info
+      const ua = navigator.userAgent;
+      let browser = 'Unknown';
+      if (ua.includes('Chrome')) browser = 'Chrome';
+      else if (ua.includes('Firefox')) browser = 'Firefox';
+      else if (ua.includes('Safari')) browser = 'Safari';
+
+      browserInfoEl.textContent = browser;
+      platformInfoEl.textContent = navigator.platform;
+
+      // GPU detection
+      try {
+        const gpuTier = await getGPUTier();
+        gpuTierEl.textContent = `Tier ${gpuTier.tier} (${gpuTier.type})`;
+        gpuNameEl.textContent = gpuTier.gpu || 'Unknown GPU';
+      } catch (e) {
+        gpuTierEl.textContent = 'Detection failed';
+        gpuNameEl.textContent = 'Unknown';
+      }
+    }
+
+    // Simple frame drawing - just show frame number
+    function drawFrame(frameNumber) {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw frame number
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${Math.min(canvas.width / 10, 72)}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`Frame ${frameNumber}`, canvas.width / 2, canvas.height / 2);
+    }
+
+    // Encoding loop - encode as fast as possible
+    function encodeLoop() {
+      if (!testRunning) return;
+
+      // Check if we've sent all frames
+      if (framesSent >= targetFrameCount) {
+        // Wait for encoding to finish
+        if (encoder.encodeQueueSize === 0) {
+          completeTest();
+        } else {
+          // Continue checking until queue is empty
+          requestAnimationFrame(encodeLoop);
+        }
+        return;
+      }
+
+      // Send frames to encoder as fast as queue allows
+      while (encoder.encodeQueueSize < 30 && framesSent < targetFrameCount) {
+        const frameStart = performance.now();
+
+        // Draw frame
+        drawFrame(framesSent);
+
+        // Create and encode frame
+        const timestamp = (framesSent / 30) * 1e6; // 30fps timestamps in microseconds
+        const frame = new VideoFrame(canvas, { timestamp });
+
+        const keyFrame = framesSent % 60 === 0; // Keyframe every 2 seconds at 30fps
+        encoder.encode(frame, { keyFrame });
+        frame.close();
+
+        const encodeTime = performance.now() - frameStart;
+        encodeTimes.push(encodeTime);
+        if (encodeTimes.length > 30) encodeTimes.shift();
+
+        framesSent++;
+      }
+
+      // Continue loop
+      requestAnimationFrame(encodeLoop);
+    }
+
+    function getBitrate(width, height, quality = 'good') {
+      const pixels = width * height;
+      const qualityFactors = {
+        'low': 0.05,
+        'good': 0.08,
+        'high': 0.10,
+        'very-high': 0.15
+      };
+      const factor = qualityFactors[quality] || qualityFactors['good'];
+      return pixels * 30 * factor; // 30fps
+    }
+
+    async function startTest() {
+      testRunning = true;
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      statusEl.textContent = 'Running';
+
+      // Parse configuration
+      const [width, height] = resolutionSelect.value.split('x').map(Number);
+      const codec = codecSelect.value;
+      targetFrameCount = parseInt(frameCountSelect.value);
+
+      // Setup canvas
+      canvas.width = width;
+      canvas.height = height;
+
+      // Reset stats
+      framesEncoded = 0;
+      framesSent = 0;
+      totalDataSize = 0;
+      encodeTimes = [];
+      testStartTime = performance.now();
+
+      // Create encoder
+      encoder = new VideoEncoder({
+        output: (chunk, metadata) => {
+          framesEncoded++;
+          totalDataSize += chunk.byteLength;
+          dataSizeEl.textContent = (totalDataSize / 1024 / 1024).toFixed(2) + ' MB';
+        },
+        error: (e) => {
+          console.error('Encoder error:', e);
+          statusEl.textContent = 'Error: ' + e.message;
+          stopTest();
+        }
+      });
+
+      const bitrate = getBitrate(width, height);
+
+      encoder.configure({
+        codec,
+        width,
+        height,
+        bitrate,
+        framerate: 30,
+        latencyMode: 'quality'
+      });
+
+      console.log(`Starting test: ${width}x${height} @ ${codec}, ${targetFrameCount} frames, ${bitrate} bps`);
+
+      // Start encoding loop
+      requestAnimationFrame(encodeLoop);
+    }
+
+    function completeTest() {
+      testRunning = false;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+
+      if (encoder) {
+        encoder.flush().then(() => {
+          encoder.close();
+          statusEl.textContent = 'Complete';
+
+          // Update final stats
+          const elapsed = (performance.now() - testStartTime) / 1000;
+          const fps = framesSent / elapsed;
+
+          framesEncodedEl.textContent = framesSent;
+          encodingFpsEl.textContent = fps.toFixed(1);
+          queueSizeEl.textContent = '0';
+
+          if (encodeTimes.length > 0) {
+            const avgTime = encodeTimes.reduce((a, b) => a + b, 0) / encodeTimes.length;
+            avgEncodeTimeEl.textContent = avgTime.toFixed(2) + 'ms';
+          }
+
+          progressBarEl.style.width = '100%';
+          progressBarEl.textContent = '100%';
+
+          console.log(`Test complete: ${framesSent} frames in ${elapsed.toFixed(2)}s = ${fps.toFixed(1)} fps`);
+        });
+      }
+    }
+
+    function stopTest() {
+      testRunning = false;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+
+      if (encoder && encoder.state !== 'closed') {
+        encoder.close();
+      }
+
+      statusEl.textContent = 'Stopped';
+    }
+
+    startBtn.addEventListener('click', startTest);
+    stopBtn.addEventListener('click', stopTest);
+
+    // Initialize
+    detectDeviceInfo();
+  </script>
+</body>
+</html>

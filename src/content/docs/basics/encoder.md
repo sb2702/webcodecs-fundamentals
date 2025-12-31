@@ -142,16 +142,34 @@ Video encoders also have a tradeoff between speed and quality, where you can sac
 Basically, if you are live streaming or really need to improve encoding speed, use   latencyMode: "realtime" , otherwise if you expect to output a video file, use latencyMode: "quality"  (the default).
 
 
-##  Encoding is slower
+###  Practical Considerations
+
+
+#### Encoding is slow
+
+NEtbook:
+encode: 11fps
+Decode: 540fps
+
+Samsung Chromebook:
+encode: 60fps
+decode: 600fps
+
+Ubuntu Laptop:
+encode 100fps
+decode 350fps
+
+Mac M4
+encode 200fps
+Decode: 1200fps
+
+
+#### Encoding queue and flush
+
+#### Finishing conditions
 
 
 
-
-## Finish condition
-- Encoding timeouts
-- Flush
-
-## EncodeQueue (keep it less than 30)
 
 
 
