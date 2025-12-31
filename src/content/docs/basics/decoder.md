@@ -549,7 +549,7 @@ const DECODE_QUEUE_LIMIT=20;
 ```
 
 
-**fillBuffer()**: A function which we will use to send chunks for decoding, which limits the number of chunks sent to the decode size and limits the size of the decode_que.
+**fillBuffer()**: A function which we will use to send chunks for decoding, which limits the number of chunks sent to the decode size and limits the size of the decode_queue.
 
 ```typescript
 
@@ -587,7 +587,7 @@ const render_buffer = [];
 let lastRenderedTime = 0;
 ```
 
-**render(time)**  We will create a render function, which takes a timestamp as as argument. It will then take the latest frame in the render_buffer whose timestamp is less than the render time, and render that. Note that we only call fillBuffer in the render function.
+**render(time)**  We will create a render function, which takes a timestamp as as argument. It will then take the latest frame in the render_buffer whose timestamp is less than the render time, and render that. Note that we only call fillBuffer in the render function, because we want to make sure we only add more chunks for decoding (and increase the size of the render buffer) once we have consumed frames from the render buffer.
 
 
 ```typescript
@@ -711,6 +711,318 @@ function start(){
 
 ```
 
+Putting this all together, we can finally see an actual video play back at normal speed:
 
 
+<iframe src="/demo/decode-loop/index.html" frameBorder="0" width="720" height="600" style="height:580px" ></iframe>
+
+
+
+<details>
+<summary>Full source code</summary>
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decode Loop Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin: 20px 0;
+    }
+    .controls {
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .stats {
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Decode Loop Demo</h1>
+  <p>Implementing the decode loop from the WebCodecs Fundamentals guide - rendering video at 30fps using WebCodecs.</p>
+
+  <div class="controls">
+    <button id="startBtn">Start Playback</button>
+    <button id="stopBtn" disabled>Stop</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="stats">
+    <div>Status: <span id="status">Ready</span></div>
+    <div>Chunks decoded: <span id="chunksDecoded">0</span></div>
+    <div>Frames rendered: <span id="framesRendered">0</span></div>
+    <div>Render buffer size: <span id="bufferSize">0</span></div>
+    <div>Current time: <span id="currentTime">0.00</span>s</div>
+    <div>Decode queue size: <span id="decodeQueue">0</span></div>
+  </div>
+
+  <script type="module">
+    import { WebDemuxer } from 'https://cdn.jsdelivr.net/npm/web-demuxer/+esm';
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Stats elements
+    const statusEl = document.getElementById('status');
+    const chunksDecodedEl = document.getElementById('chunksDecoded');
+    const framesRenderedEl = document.getElementById('framesRendered');
+    const bufferSizeEl = document.getElementById('bufferSize');
+    const currentTimeEl = document.getElementById('currentTime');
+    const decodeQueueEl = document.getElementById('decodeQueue');
+
+    let chunks = [];
+    let metaData = null;
+    let decoder = null;
+    let renderInterval = null;
+
+    // Decode loop variables
+    let decodeChunkIndex = 0;
+    const BATCH_DECODE_SIZE = 10;
+    const DECODE_QUEUE_LIMIT = 20;
+    const render_buffer = [];
+    let lastRenderedTime = 0;
+    let framesRendered = 0;
+
+    // Initialize demuxer and load video
+    async function init() {
+      statusEl.textContent = 'Loading video...';
+
+      const demuxer = new WebDemuxer({
+        wasmFilePath: "https://cdn.jsdelivr.net/npm/web-demuxer@latest/dist/wasm-files/web-demuxer.wasm",
+      });
+
+      const response = await fetch('hero-small.webm');
+      const buffer = await response.arrayBuffer();
+      const file = new File([buffer], 'hero-small.webm', {type: 'video/webm'});
+
+      await demuxer.load(file);
+      const mediaInfo = await demuxer.getMediaInfo();
+      const videoTrack = mediaInfo.streams.filter((s) => s.codec_type_string === 'video')[0];
+
+      // Set canvas dimensions
+      canvas.width = videoTrack.width;
+      canvas.height = videoTrack.height;
+
+      metaData = {
+        codec: videoTrack.codec_string,
+        width: videoTrack.width,
+        height: videoTrack.height
+      };
+
+      // Extract all chunks
+      statusEl.textContent = 'Extracting chunks...';
+      chunks = await getChunks(demuxer);
+
+
+      statusEl.textContent = `Ready - ${chunks.length} chunks loaded`;
+      startBtn.disabled = false;
+    }
+
+    async function getChunks(demuxer, start = 0, end = undefined) {
+      const reader = demuxer.read('video', start, end).getReader();
+      const chunks = [];
+
+      return new Promise(function(resolve) {
+        reader.read().then(async function processPacket({ done, value }) {
+          if (value) chunks.push(value);
+          if (done) return resolve(chunks);
+          return reader.read().then(processPacket);
+        });
+      });
+    }
+
+    function fillBuffer() {
+      for (let i = 0; i < BATCH_DECODE_SIZE; i++) {
+        if (decodeChunkIndex < chunks.length) {
+          if (decoder.decodeQueueSize > DECODE_QUEUE_LIMIT) continue;
+
+          try {
+
+            console.log(`Decoding chunk ${decodeChunkIndex}`);
+
+            console.log(`Decoding chunk ${chunks[decodeChunkIndex].type}`);
+            decoder.decode(chunks[decodeChunkIndex]);
+            decodeChunkIndex += 1;
+            chunksDecodedEl.textContent = decodeChunkIndex;
+
+            if (decodeChunkIndex === chunks.length) decoder.flush();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+    }
+
+    function getLatestFrame(time) {
+      // Check for out-of-order frames
+      for (let i = 0; i < render_buffer.length - 1; i++) {
+        if (render_buffer[i + 1].timestamp < render_buffer[i].timestamp) {
+          return i + 1;
+        }
+      }
+
+      if (render_buffer[0].timestamp / 1e6 > time) return -1;
+
+      let latest_frame_buffer_index = 0;
+
+      for (let i = 0; i < render_buffer.length; i++) {
+        if (render_buffer[i].timestamp / 1e6 < time &&
+            render_buffer[i].timestamp > render_buffer[latest_frame_buffer_index].timestamp) {
+          latest_frame_buffer_index = i;
+        }
+      }
+
+      return latest_frame_buffer_index;
+    }
+
+    function render(time) {
+      lastRenderedTime = time;
+      currentTimeEl.textContent = time.toFixed(2);
+      decodeQueueEl.textContent = decoder.decodeQueueSize;
+
+      if (render_buffer.length === 0) return;
+
+      const latest_frame = getLatestFrame(time);
+
+      if (latest_frame < 0) return;
+
+      // Close and drop old frames
+      for (let i = 0; i < latest_frame - 1; i++) {
+        render_buffer[i].close();
+      }
+      render_buffer.splice(0, latest_frame - 1);
+
+      const frame_to_render = render_buffer.shift();
+      ctx.drawImage(frame_to_render, 0, 0);
+      frame_to_render.close();
+
+      framesRendered++;
+      framesRenderedEl.textContent = framesRendered;
+      bufferSizeEl.textContent = render_buffer.length;
+
+      if (render_buffer.length < BATCH_DECODE_SIZE / 2) fillBuffer();
+    }
+
+    function start() {
+      statusEl.textContent = 'Playing...';
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      // Reset state
+      decodeChunkIndex = 0;
+      lastRenderedTime = 0;
+      framesRendered = 0;
+      render_buffer.length = 0;
+
+      // Create decoder
+      decoder = new VideoDecoder({
+        output: function(frame) {
+          if (frame.timestamp / 1e6 < lastRenderedTime) {
+            frame.close();
+            if (render_buffer.length < BATCH_DECODE_SIZE) {
+              fillBuffer();
+            }
+            return;
+          }
+
+          render_buffer.push(frame);
+          bufferSizeEl.textContent = render_buffer.length;
+        },
+        error: function(error) {
+          console.error(error);
+          statusEl.textContent = `Error: ${error.message}`;
+        }
+      });
+
+      console.log("MEtadata", metaData.codec)
+      decoder.configure({
+        codec: metaData.codec
+      });
+
+      const start_time = performance.now();
+
+      fillBuffer();
+
+      renderInterval = setInterval(function() {
+        const current_time = (performance.now() - start_time) / 1000;
+        render(current_time);
+
+        // Stop at end of video
+        if (decodeChunkIndex >= chunks.length && render_buffer.length === 0) {
+          stop();
+          statusEl.textContent = 'Finished';
+        }
+      }, 1000 / 30); // 30fps
+    }
+
+    function stop() {
+      if (renderInterval) {
+        clearInterval(renderInterval);
+        renderInterval = null;
+      }
+
+      // Close remaining frames
+      for (const frame of render_buffer) {
+        frame.close();
+      }
+      render_buffer.length = 0;
+
+      if (decoder && decoder.state !== 'closed') {
+        decoder.close();
+      }
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      bufferSizeEl.textContent = '0';
+    }
+
+    startBtn.addEventListener('click', start);
+    stopBtn.addEventListener('click', stop);
+    resetBtn.addEventListener('click', () => location.reload());
+
+    // Initialize on load
+    init().catch(err => {
+      console.error('Initialization error:', err);
+      statusEl.textContent = `Error: ${err.message}`;
+    });
+  </script>
+</body>
+</html>
+
+
+
+```
+</details>
+
+
+If that seems like a lot of code for simple video playback, well, yes. We are working with low level APIs, and by it's nature you have lots of control but also lots to manage yourself.
+
+Hopefully this code also communicates the idea of how to think about WebCodecs, as data flow pipelines, with chunks being consumed, frames being generated, buffered then consumed, all while managing memory limits.
+
+Some of this gets easier with libraries like [MediaBunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
 

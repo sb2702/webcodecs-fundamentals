@@ -34,12 +34,13 @@
   </style>
 </head>
 <body>
-  <h1>Decode Loop Demo</h1>
+  <h3>Decode Loop Demo</h1>
   <p>Implementing the decode loop from the WebCodecs Fundamentals guide - rendering video at 30fps using WebCodecs.</p>
 
   <div class="controls">
     <button id="startBtn">Start Playback</button>
     <button id="stopBtn" disabled>Stop</button>
+    <button id="resetBtn">Reset</button>
   </div>
 
   <canvas id="canvas"></canvas>
@@ -60,6 +61,7 @@
     const ctx = canvas.getContext('2d');
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
     // Stats elements
     const statusEl = document.getElementById('status');
@@ -137,9 +139,6 @@
 
           try {
 
-            console.log(`Decoding chunk ${decodeChunkIndex}`);
-
-            console.log(`Decoding chunk ${chunks[decodeChunkIndex].type}`);
             decoder.decode(chunks[decodeChunkIndex]);
             decodeChunkIndex += 1;
             chunksDecodedEl.textContent = decodeChunkIndex;
@@ -277,6 +276,7 @@
 
     startBtn.addEventListener('click', start);
     stopBtn.addEventListener('click', stop);
+    resetBtn.addEventListener('click', () => location.reload());
 
     // Initialize on load
     init().catch(err => {
