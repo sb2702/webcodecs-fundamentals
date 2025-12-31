@@ -607,7 +607,7 @@ function ensureDecoder(){
     }
 }
 ```
-**Render Buffer**: We can't render `VideoFrame` objects as soon as they are decoded by the decoder, otherwise the video will play back at 20x to 100x speed. We therefore need to store rendered frames in a buffer, and consume frames from the buffer.
+**Render Buffer**: We can't render `VideoFrame` objects as soon as they are decoded by the decoder, otherwise the video will play back at 20x to 100x speed. We therefore need to store rendered frames in a buffer, and consume frames from the buffer. 
 
 ```typescript 
 const render_buffer = [];

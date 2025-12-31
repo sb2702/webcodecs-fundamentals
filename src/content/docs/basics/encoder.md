@@ -21,7 +21,7 @@ const encoder = new VideoEncoder({
     error: function(e: any)=> console.warn(e);
 });
 
-const encoder = encoder.configure({
+encoder.configure({
     'codec': 'vp9.00.10.08.00',
      width: 1280,
      height: 720,
@@ -44,24 +44,112 @@ The `VideoEncoder` is the mirror operation to the `VideoDecoder`, but API and us
 
 In this article we'll focus specifically on the `VideoEnocder` and how to actually manage an encoder in a production pipeline.
 
-[MediaBunny](../media-bunny/intro) abstracts the `VideoDecoder` away, simplifying a lot of the pipeline and process management,  so if you want to use MediaBunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
+[MediaBunny](../media-bunny/intro) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use MediaBunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
 
 
 
-Configuration:
-- What codec do you want
-- Bitrate calculation
-- Resolution of 2
+## Configuration
+
+Unlike the `VideoDecoder`, where you get the decoding config from the video source file/stream, you have a choice on how to encode your video, and you'd specify your encoding proferences via `encoder.configure(config)` as shown below 
+
+
+```typescript
+
+encoder.configure({
+    'codec': 'vp9.00.10.08.00', // Codec string
+     width: 1280,
+     height: 720,
+     bitrate: 1000000 //bitrate is related to quality
+     framerate: 25,
+     latencyMode: "quality" 
+
+```
+
+You can see a more comprehensive summary of the options on [MDN](https://developer.mozilla.org/en-US/docs/Web/API/VideoEncoder/configure) but I'll cover the practical ones here:
+
+
+##### Codec
+You need to specify a *codec string* such as  'vp9.00.10.08.00' or 'avc1.42003e'.  Choosing a codec is a whole *thing*,  you can see the [codecs](../codecs) page for practical guidance on how to choose one.
 
 
 
-## Encoding is slower
+##### Bitrate
+Video codecs apply a trade-off between file size and video quality, where you can have high quality video with large file sizes, or you can have compact files with low quality video. This tradeoff is specified in the bitrate, where higher bitrates result in larger files but higher quality. 
+
+Here's an visualization of how bitrate affects quality, with the same [1080p file](https://larmoire.org/jellyfish/) transcoded at different bitrates
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px;">
+  <div style="text-align: center;">
+    <img src="/src/assets/content/basics/encoder/jellyfish_300k_crop.png" alt="300 kbps">
+    <p><strong>300 kbps</strong></p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/src/assets/content/basics/encoder/jellyfish_1M_crop.png" alt="1 Mbps">
+    <p><strong>1 Mbps</strong></p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/src/assets/content/basics/encoder/jellyfish_3M_crop.png" alt="3 Mbps">
+    <p><strong>3 Mbps</strong></p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/src/assets/content/basics/encoder/jellyfish_10M_crop.png" alt="10 Mbps">
+    <p><strong>10 Mbps</strong></p>
+  </div>
+</div>
+
+Here are typical recommendations for bitrate settings [[1](https://support.google.com/youtube/answer/1722171#zippy=%2Cbitrate)]
+
+
+| Resolution | Bitrate (30fps) | Bitrate (60fps)
+|------------|-----------------|-----------------|
+| 4K         | 13-20 Mbps      | 20-30 Mbps      | 
+| 1080p      | 4.5-6 Mbps      | 6-9 Mbps        | 
+| 720p       | 2-4 Mbps        | 3-6 Mbps        | 
+| 480p       | 1.5-2 Mbps      | 2-3 Mbps        |
+| 360p       | 0.5-1 Mbps      | 1-1.5 Mbps      | 
+| 240p       | 300-500 kbps    | 500-800 kbps    | 
+
+
+If you just want something quick and easy that works, here is a quick utility function:
+
+```typescript
+
+function getBitrate(width, height, fps, quality = 'good') {
+    const pixels = width * height;
+
+    const qualityFactors = {
+      'low': 0.05,
+      'good': 0.08,
+      'high': 0.10,
+      'very-high': 0.15
+    };
+
+    const factor = qualityFactors[quality] || qualityFactors['good'];
+
+    // Returns bitrate in bits per second
+    return pixels * fps * factor;
+  }
+
+```
+
+
+
+##### Latency mode
+
+Video encoders also have a tradeoff between speed and quality, where you can sacrifice some quality for faster encoding, which would be helpful in the scenario of streaming.
+
+Basically, if you are live streaming or really need to improve encoding speed, use   latencyMode: "realtime" , otherwise if you expect to output a video file, use latencyMode: "quality"  (the default).
+
+
+##  Encoding is slower
+
+
 
 
 ## Finish condition
-Encoding timeouts
-Flush
+- Encoding timeouts
+- Flush
 
 ## EncodeQueue (keep it less than 30)
 
