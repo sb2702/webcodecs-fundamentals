@@ -8,6 +8,13 @@ The `VideoEncoder` allows transforming [VideoFrame](./video-frame) objects into 
 
 ![](/src/assets/content/basics/encoder/video-encoder.png)
 
+The `VideoEncoder` is the mirror operation to the `VideoDecoder`, but unlike decoding, where `EncodedVideoChunk` already has metadata (like codec, framerate, timestamps) from the video source...
+
+
+![](/src/assets/content/basics/what-is-webcodecs/simplified.svg)
+
+... when using a `VideoEncoder`, your application needs to supply a lot of the metadata (like codec, framerate and timestamps) to the encoder and frames. 
+
 
 The basic "hello world" API for the decoder works like this:
 
@@ -37,15 +44,12 @@ setInterval(function(){
     const frame = new VideoFrame(canvas, {timestamp: currenTimeMicroSeconds });
     encoder.encode(frame, {keyFrame: framesSent%60 ==0}); //Key Frame every 60 frames;
     frame.close();
+    framesSent++;
 }, 40);  // Capture a frame every 40 ms (25fps)
 
 ```
 
-The `VideoEncoder` is the mirror operation to the `VideoDecoder`, but API and usage is a bit different, because whereas the `EncodedVideoChunk` already has metadata (like codec, framerate, timestamps) from the video source that gets passed to the `VideoDecoder` and resulting `VideoFrame` objects...
 
-![](/src/assets/content/basics/what-is-webcodecs/simplified.svg)
-
-When using a `VideoEncoder`, your application needs to supply a lot of the metadata (like codec, framerate and timestamps) to the encoder and frames. 
 
 Like the `VideoDecoder` though, there is a big gap between hello world dmeos and producton pipelines, so in this article we'll focus specifically on the `VideoEnocder` and how to actually manage an encoder in a production pipeline.
 
@@ -150,9 +154,58 @@ Basically, if you are live streaming or really need to improve encoding speed, u
 
 ### encode() and Timestamps
 
-As discussed
+One of the major differences between encoding and decoding is that when encoding video, you will need to provide information (like keyFrames, timestamps), instead of getting it from the decoder.
 
 
+#### Timestamp: 
+
+Presumably if you are encoding a video via WebCodecs, you have a clear idea of what the timeline of the video to be written will look like.
+
+If you are just transcoding a video, or performing some basic filter or transform, then it's quite a bit easier in that the source video timeline is identical to the destination video timeline, and you would have a 1:1 correspondence from source frames to destination frames, and just pass timestamps from the source frames to the destination frames.
+
+If you are generating video programatically or have a video editing application with a composition and a timeline, then those details you'd need to manage in your app's logic.
+
+In either case, you'd need to specify the timestamp for each frame that gets encoded.
+
+
+**VideoDecoder**
+If your video frame comes from a `VideoDecoder` (decoding), the resulting frame will already have a timestamp associated with it. If you are just transcoding a video and the timestamp is correct, you don't need to do anything.  If the timestamp is not correct (e.g. if you are making cuts in the video, or otherwise adjusting the timeline), you'll need to construct a new frame with your desired timestamp.
+
+```javascript
+new VideoFrame(frame, {timestamp: /*adjustedTimestamp in microsseconds}*/});
+```
+
+
+**VideoElement**
+IF you construct a `VideoFrame` from a `<video>` element as in `new VideoFrame(<HTMLVideoElement> video)`, then by default it will have the timestamp from the underlying video. Otherwise, you can manually override it by specifing the timestmap
+
+
+**Any other method**
+IF you construct a `VideoFrame` from any other source (`<canvas>`, `ImageBitmap` etc...), you'll need to specify the timestamp
+
+```javascript
+new VideoFrame(canvas, {timestamp: /*timestamp in microseconds*/});
+```
+
+In either case, just keep in mind that the timestamps used in `VideoFRame`  are in *microseconds*, even if the encoder config uses frames/second and bits/second for the `framerate` and `bitrate` properties respectively.
+
+
+#### KeyFrames: 
+
+The other main thing you'll need to decide is how often you want to specify *key frames* (covered [here](../encoded-video-chunk/#key-frames)), and you'd specify which frames to designate as key frames in the `encoder.encode()` call, specifically:
+
+```javascript
+ encoder.encode(frame, {keyFrame: /*boolean*/});
+``` 
+
+The first frame you encode **needs to be**  a key frame. Subsequent frames, you are given full flexibility to choose,  with the tradeoff that more key frames results in larger file sizes, but fewer key frames can result in playback issues. Typical values range from every 30 frames to 60 frames.
+
+A common strategy is just to keep track of how many frames have been encoded thus far and just choose to indicate every nth frame as a key frame
+
+```typescript
+encoder.encode(frame, {keyFrame: framesSent%60 ==0}); //Key Frame every 60 frames;
+framesSent++;
+```
 
 
 ###  Practical Considerations
@@ -212,7 +265,7 @@ Some of this gets easier with libraries like [MediaBunny](../../media-bunny/intr
 
 
 
-#### Encoding queue and flush
+#### Encoding queue
 
 #### Finishing conditions
 
