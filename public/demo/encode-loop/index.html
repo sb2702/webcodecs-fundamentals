@@ -257,15 +257,44 @@ console.log(Mediabunny)
       console.log(`Encoding complete: ${TOTAL_FRAMES} frames in ${elapsed.toFixed(2)}s = ${fps.toFixed(1)} fps`);
     }
 
+    // Get best supported codec
+    async function getBestCodec() {
+      const codecs = ['avc1.64003e', 'avc1.4d0034', 'avc1.42003e', 'avc1.42001f'];
+      const bitrate = getBitrate(CANVAS_WIDTH, CANVAS_HEIGHT, FPS, 'good');
+
+      for (const testCodec of codecs) {
+        const config = {
+          codec: testCodec,
+          width: CANVAS_WIDTH,
+          height: CANVAS_HEIGHT,
+          bitrate,
+          framerate: FPS
+        };
+
+        const support = await VideoEncoder.isConfigSupported(config);
+        if (support.supported) {
+          return testCodec;
+        }
+      }
+
+      throw new Error('No supported codec found');
+    }
+
     // Start encoding process
     async function startEncoding() {
       startBtn.disabled = true;
       downloadBtn.disabled = true;
-      statusEl.textContent = 'Encoding...';
+      statusEl.textContent = 'Detecting codec...';
       frameNumber = 0;
       chunksMuxed = 0;
       flushed = false;
       encodingStartTime = performance.now();
+
+      // Get best supported codec
+      const codec = await getBestCodec();
+      console.log('Using codec:', codec);
+
+      statusEl.textContent = 'Encoding...';
 
       // Setup output (muxer)
       output = new Output({
@@ -294,7 +323,7 @@ console.log(Mediabunny)
       const bitrate = getBitrate(CANVAS_WIDTH, CANVAS_HEIGHT, FPS, 'good');
 
       encoder.configure({
-        codec: 'avc1.42003e',
+        codec,
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
         bitrate: bitrate,

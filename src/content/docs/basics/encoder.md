@@ -272,13 +272,13 @@ Fortunately, because rendering can be treated like a simple async task, it doesn
 e.g, don't run
 
 ```typescript
-render(<VideoFrame> frame);
+render(<VideoFrame> frame); // WebGPU shader pipeline
 await  device.queue.onSubmittedWorkDone();
 encoder.encode(renderCanvas)
 ```
 You will end up encoding blank frames.  Instead, just encode directly after running the WebGPU shaders.
 ```typescript
-render(<VideoFrame> frame);
+render(<VideoFrame> frame); //WebGPU shader pipeline
 encoder.encode(renderCanvas)
 ```
 
@@ -441,6 +441,36 @@ function getBitrate(width, height, fps, quality = 'good') {
 
 ```
 
+**getBestCodec()**: For production use, we should detect the best supported codec string rather than hardcoding one. This ensures compatibility across different browsers and devices. See [codecs](./codecs#how-to-choose-a-codec-string) for more details on why this is necessary.
+
+```typescript
+
+async function getBestCodec() {
+    const codecs = ['avc1.64003e', 'avc1.4d0034', 'avc1.42003e', 'avc1.42001f'];
+    const bitrate = getBitrate(width, height, fps, 'good');
+
+    for (const testCodec of codecs) {
+        const config = {
+            codec: testCodec,
+            width,
+            height,
+            bitrate,
+            framerate: fps
+        };
+
+        const support = await VideoEncoder.isConfigSupported(config);
+        if (support.supported) {
+            return testCodec;
+        }
+    }
+
+    throw new Error('No supported codec found');
+}
+
+const codec = await getBestCodec();
+
+```
+
 **VideoEncoder**: Finally we set up the VideoEncoder
 
 ``` typescript
@@ -458,10 +488,10 @@ const encoder = new VideoEncoder({
 
 
 encoder.configure({
-    'codec': 'avc1.42003e',
+    codec,
      width: 640,
      height: 360,
-     bitrate: getBirate(640, 360, fps, 'good'),
+     bitrate: getBitrate(640, 360, fps, 'good'),
      framerate: fps
 })
 
@@ -475,5 +505,347 @@ encoder.configure({
 Putting this all together, we can finally see an actual video encoding in action
 
 
-<iframe src="/demo/encode-loop/index.html" frameBorder="0" width="720" height="600" style="height:880px" ></iframe>
+<iframe src="/demo/encode-loop/index.html" frameBorder="0" width="720" height="600" style="height:800px" ></iframe>
 
+
+<details>
+<summary>Full Source Code</summary>
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encode Loop Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    canvas {
+      border: 2px solid #333;
+      display: block;
+      margin: 20px auto;
+      background: #000;
+    }
+    .controls {
+      margin: 20px 0;
+      text-align: center;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      background: #2196f3;
+      color: white;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #1976d2;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    button.download {
+      background: #4caf50;
+    }
+    button.download:hover {
+      background: #45a049;
+    }
+    .stats {
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .stat-item {
+      padding: 10px;
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+
+  <script src="mediabunny.cjs"></script>
+</head>
+<body>
+
+
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <button id="startBtn">Start Encoding</button>
+    <button id="downloadBtn" class="download" disabled>Download Video</button>
+  </div>
+
+
+  <div class="stats">
+    <h3>Encoding Statistics</h3>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" id="status">Ready</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Frames Rendered</div>
+        <div class="stat-value" id="framesRendered">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Frames Encoded</div>
+        <div class="stat-value" id="framesEncoded">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Encode Queue Size</div>
+        <div class="stat-value" id="queueSize">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Progress</div>
+        <div class="stat-value" id="progress">0%</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Encoding FPS</div>
+        <div class="stat-value" id="encodingFps">0</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+
+
+
+const {
+      EncodedPacket,
+      EncodedVideoPacketSource,
+      BufferTarget,
+      Mp4OutputFormat,
+      Output
+    } =  Mediabunny;  // CJS import
+
+
+
+    // UI Elements
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // Stats elements
+    const statusEl = document.getElementById('status');
+    const framesRenderedEl = document.getElementById('framesRendered');
+    const framesEncodedEl = document.getElementById('framesEncoded');
+    const queueSizeEl = document.getElementById('queueSize');
+    const progressEl = document.getElementById('progress');
+    const encodingFpsEl = document.getElementById('encodingFps');
+
+    // Configuration
+    const CANVAS_WIDTH = 640;
+    const CANVAS_HEIGHT = 360;
+    const TOTAL_FRAMES = 300;
+    const FPS = 30;
+    const ENCODER_QUEUE_LIMIT = 20;
+
+    // Setup canvas
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+
+    // State
+    let encoder = null;
+    let output = null;
+    let source = null;
+    let frameNumber = 0;
+    let chunksMuxed = 0;
+    let encodingStartTime = 0;
+    let videoBlob = null;
+    let flushed = false;
+
+    // Render a frame to the canvas
+    function renderFrame() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw frame number
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${Math.min(canvas.width / 10, 72)}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`Frame ${frameNumber}`, canvas.width / 2, canvas.height / 2);
+    }
+
+    // Wait for encoder queue to be below limit
+    function waitForEncoder() {
+      return new Promise(function(resolve) {
+        if (encoder.encodeQueueSize < ENCODER_QUEUE_LIMIT) return resolve();
+
+        function check() {
+          if (encoder.encodeQueueSize < ENCODER_QUEUE_LIMIT) {
+            resolve();
+          } else {
+            setTimeout(check, 100);
+          }
+        }
+        check();
+      });
+    }
+
+    // Calculate bitrate based on resolution and quality
+    function getBitrate(width, height, fps, quality = 'good') {
+      const pixels = width * height;
+      const qualityFactors = {
+        'low': 0.05,
+        'good': 0.08,
+        'high': 0.10,
+        'very-high': 0.15
+      };
+      const factor = qualityFactors[quality] || qualityFactors['good'];
+      return pixels * fps * factor;
+    }
+
+    // Main encoding loop
+    async function encodeLoop() {
+      renderFrame();
+      framesRenderedEl.textContent = frameNumber + 1;
+
+      await waitForEncoder();
+
+      const timestamp = (frameNumber / FPS) * 1e6; // Convert to microseconds
+      const frame = new VideoFrame(canvas, { timestamp });
+      encoder.encode(frame, { keyFrame: frameNumber % 60 === 0 });
+      frame.close();
+
+      frameNumber++;
+
+      // Update stats
+      const progress = Math.round((frameNumber / TOTAL_FRAMES) * 100);
+      progressEl.textContent = progress + '%';
+      queueSizeEl.textContent = encoder.encodeQueueSize;
+
+      if (frameNumber === TOTAL_FRAMES) {
+        if (!flushed) encoder.flush();
+        flushed = true;
+      } else {
+        return encodeLoop();
+      }
+    }
+
+    // Finish encoding and create downloadable blob
+    async function finish() {
+      statusEl.textContent = 'Finalizing...';
+
+      await output.finalize();
+      const buffer = output.target.buffer;
+      encoder.close();
+      videoBlob = new Blob([buffer], { type: 'video/mp4' });
+
+      queueSizeEl.textContent = 0;
+
+      const elapsed = (performance.now() - encodingStartTime) / 1000;
+      const fps = TOTAL_FRAMES / elapsed;
+
+      statusEl.textContent = 'Complete';
+      encodingFpsEl.textContent = fps.toFixed(1);
+      downloadBtn.disabled = false;
+
+    }
+
+    // Start encoding process
+    async function startEncoding() {
+      startBtn.disabled = true;
+      downloadBtn.disabled = true;
+      statusEl.textContent = 'Encoding...';
+      frameNumber = 0;
+      chunksMuxed = 0;
+      flushed = false;
+      encodingStartTime = performance.now();
+
+      // Setup output (muxer)
+      output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new BufferTarget(),
+      });
+
+      source = new EncodedVideoPacketSource('avc');
+      output.addVideoTrack(source);
+      await output.start();
+
+      // Setup encoder
+      encoder = new VideoEncoder({
+        output: function(chunk, meta) {
+          source.add(EncodedPacket.fromEncodedChunk(chunk), meta);
+          chunksMuxed++;
+          framesEncodedEl.textContent = chunksMuxed;
+          if (chunksMuxed === TOTAL_FRAMES) finish();
+        },
+        error: function(e) {
+          console.error('Encoder error:', e);
+          statusEl.textContent = 'Error: ' + e.message;
+        }
+      });
+
+      const bitrate = getBitrate(CANVAS_WIDTH, CANVAS_HEIGHT, FPS, 'good');
+
+      encoder.configure({
+        codec: 'avc1.42003e',
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+        bitrate: bitrate,
+        framerate: FPS
+      });
+
+      // Start encoding loop
+      await encodeLoop();
+    }
+
+    // Download the encoded video
+    function downloadVideo() {
+      if (!videoBlob) return;
+
+      const url = URL.createObjectURL(videoBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'encoded-video.mp4';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Event listeners
+    startBtn.addEventListener('click', startEncoding);
+    downloadBtn.addEventListener('click', downloadVideo);
+
+    // Update queue size periodically
+    setInterval(() => {
+      if (encoder && encoder.state === 'configured') {
+        queueSizeEl.textContent = encoder.encodeQueueSize;
+      }
+    }, 100);
+  </script>
+</body>
+</html>
+
+```
+
+</details>
