@@ -64,6 +64,26 @@ You can see this in the actual audio data, by noticing that the left channel has
 Practically speaking, plan to work with two audio channels by default, though some audio files will only have one channel.
 
 
+##### Audio Size
+
+
+Raw audio is more compact than raw video, but it's styll pretty big. Per second of audio in a typical file, you'd have:
+
+```
+44,100 samples/sec × 2 channels × 4 bytes = 352,800 bytes = ~344 KB
+```
+
+This equates to ~1.27GB of memory for an hour of typical audio. Audio is entirely on the CPU, so there's no need to worry about video memory, but it's still a lot of memory for a single application.
+
+
+At 128kbps (the most common bitrate for compressed audio), an hour of compressed audio would only take ~58MB.
+
+
+Practically speaking, we still do need to manage memory, and decode audio in chunks, though audio is more lenient. Whereas just 10 seconds of raw video might be enough to crash your application, you could typically store 10 minutes of raw stereo audio in memory without worrying about crashes.
+
+
+
+
 
 ### Audio Data objects
 
