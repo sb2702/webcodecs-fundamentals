@@ -67,11 +67,12 @@ export default defineConfig({
 				{
 					label: 'Audio',
 					items: [
+						{ label: 'Intro', slug: 'audio/intro' },
 						{ label: 'EncodedAudioChunk', slug: 'audio/encoded-audio-chunk' },
 						{ label: 'AudioData', slug: 'audio/audio-data' },
-						{ label: 'Codecs', slug: 'audio/codecs' },
-						{ label: 'Muxing', slug: 'audio/muxing' },
+						{ label: 'Decoding & Encoding', slug: 'audio/decoding-encoding' },
 						{ label: 'Playback', slug: 'audio/web-audio' },
+						{ label: 'MP3', slug: 'audio/mp3' },
 					],
 				},
 
@@ -96,21 +97,6 @@ export default defineConfig({
 						{ label: 'Live Streaming', slug: 'media-bunny/live-streaming' },
 					],
 				},
-				{
-					label: 'High-Performance',
-					items: [
-						{ label: 'Zero-Copy Rendering', slug: 'performance/zero-copy' },
-						{ label: 'Memory Management', slug: 'performance/memory' },
-						{ label: 'Compute Optimization', slug: 'performance/compute' },
-					],
-				},
-				{
-					label: 'Troubleshooting',
-					items: [
-						{ label: 'Common Issues', slug: 'troubleshooting/common-issues' },
-						{ label: 'Codec Compatibility', slug: 'troubleshooting/codec-compatibility' },
-					],
-				},
 
 				{
 					label: 'Datasets',
@@ -120,6 +106,13 @@ export default defineConfig({
 						{ label: 'Codec Support', slug: 'datasets/codec-support' },
 						{ label: 'Encode/Decode Performance', slug: 'datasets/performance' },
 						{ label: 'Key Frames vs Delta frames', slug: 'datasets/key-delta' },
+					],
+				},
+
+				{
+					label: 'Referece',
+					items: [
+						{ label: 'About', slug: 'reference/about' },
 					],
 				},
 			],
