@@ -68,8 +68,8 @@ export default defineConfig({
 					label: 'Audio',
 					items: [
 						{ label: 'Intro', slug: 'audio/intro' },
-						{ label: 'EncodedAudioChunk', slug: 'audio/encoded-audio-chunk' },
 						{ label: 'AudioData', slug: 'audio/audio-data' },
+						{ label: 'EncodedAudioChunk', slug: 'audio/encoded-audio-chunk' },
 						{ label: 'Decoding & Encoding', slug: 'audio/decoding-encoding' },
 						{ label: 'Playback', slug: 'audio/web-audio' },
 						{ label: 'MP3', slug: 'audio/mp3' },
