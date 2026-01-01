@@ -293,8 +293,157 @@ You therefore need to manage how and when you sent frames to the encoder, checki
 
 ## Encoding Loop
 
-* renderFn
-* encoderFree
-* isFinished
-* muxer
-* Full demo (Write )
+Okay, enough theory, let's get to encoding an actual video with a proper encoding loop. Here, to keep it simple, we'll programatically generate a video, by just including a single canvas and drawing the current frame, and rendering 300 frames.
+
+
+```typescript
+const canvas = new OffscreenCanvas(640, 360);
+const ctx = canvas.getContext('2d');
+const TOTAL_FRAMES=300;
+let frameNumber = 0;
+const fps = 30;
+
+```
+
+
+**renderFrame()**:  Next, we'll create the render function which will render the next frame using ctx 2d.
+
+```typescript
+
+function renderFrame(){
+
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw frame number
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${Math.min(canvas.width / 10, 72)}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Frame ${frameNumber}`, canvas.width / 2, canvas.height / 2);
+}
+
+```
+
+**ENCODE_QUEUE_LIMIT**: Next we'll define an encoder queue limit to avoid overwhelming the encoder.
+
+```typescript
+const ENCODER_QUEUE_LIMIT = 20;
+```
+
+**waitForEncoder()**: We'll create a function to wait for the encoder's queue size to go below the limit, throttling the render function
+
+
+```typescript
+
+function waitForEncoder(){
+    return new Promise(function(resolve){
+
+        if (encoder.encodeQueueSize < ENCODER_QUEUE_LIMIT) return resolve();
+
+        function check(){
+            if(encoder.encodeQueueSize < ENCODER_QUEUE_LIMIT){
+                resolve();
+            } else {
+                setTimeout(check, 100);
+            }
+        }
+        check();
+    })
+}
+
+```
+
+
+**encodeLoop**: The actual render / encode loop
+
+```typescript
+async function encodeLoop(){
+
+    renderFrame();
+    await waitForEncoder();
+
+    const frame = new VideoFrame(canvas, {timestamp: frameNumber/fps*1e6});
+    encoder.encode(frame, {keyFrame: frameNumber %60 ===0});
+    frame.close();
+
+    frameNumber++;
+
+
+    if(frameNumber === TOTAL_FRAMES) return finish();
+    else return encodeLoop();
+}
+```
+
+**Muxer**: We set up the muxer where the video will be encoded.
+
+``` typescript
+
+import {
+  EncodedPacket,
+  EncodedPacketVideoSource,
+  BufferTarget,
+  Mp4OutputFormat,
+  Output
+} from 'mediabunny';
+
+
+const output = new Output({
+    format: new Mp4OutputFormat(),
+    target: new BufferTarget(),
+});
+
+const source = new EncodedVideoPacketSource({codec: 'avc'});
+output.addVideoTrack(source);
+
+await output.start();
+
+
+```
+
+**getBitrate()**: The getBitrate function we mentioned earlier
+
+```typescript
+
+function getBitrate(width, height, fps, quality = 'good') {
+    const pixels = width * height;
+
+    const qualityFactors = {
+      'low': 0.05,
+      'good': 0.08,
+      'high': 0.10,
+      'very-high': 0.15
+    };
+
+    const factor = qualityFactors[quality] || qualityFactors['good'];
+
+    // Returns bitrate in bits per second
+    return pixels * fps * factor;
+  }
+
+```
+
+**VideoEncoder**: Finally we set up the VideoEncoder
+
+``` typescript
+
+const encoder = new VideoEncoder({
+    output: function(chunk, meta){
+        source.add(EncodedPacket.fromEncodedChunk(chunk))
+    },
+    error: function(e){
+        console.warn(e);
+    }
+})
+
+
+encoder.configure({
+    'codec': 'vp9.00.10.08.00',
+     width: 640,
+     height: 360,
+     bitrate: getBirate(640, 360, fps, 'good'),
+     framerate: fps
+})
+
+
+
+```
