@@ -41,9 +41,13 @@ setInterval(function(){
 
 ```
 
-The `VideoEncoder` is the mirror operation to the `VideoDecoder`, but API and usage is a bit different, and like with the `VideoDecoder`, there is a big gap between hello world APIs and production.
+The `VideoEncoder` is the mirror operation to the `VideoDecoder`, but API and usage is a bit different, because whereas the `EncodedVideoChunk` already has metadata (like codec, framerate, timestamps) from the video source that gets passed to the `VideoDecoder` and resulting `VideoFrame` objects...
 
-In this article we'll focus specifically on the `VideoEnocder` and how to actually manage an encoder in a production pipeline.
+![](/src/assets/content/basics/what-is-webcodecs/simplified.svg)
+
+When using a `VideoEncoder`, your application needs to supply a lot of the metadata (like codec, framerate and timestamps) to the encoder and frames. 
+
+Like the `VideoDecoder` though, there is a big gap between hello world dmeos and producton pipelines, so in this article we'll focus specifically on the `VideoEnocder` and how to actually manage an encoder in a production pipeline.
 
 [MediaBunny](../media-bunny/intro) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use MediaBunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
@@ -143,6 +147,14 @@ Video encoders also have a tradeoff between speed and quality, where you can sac
 Basically, if you are live streaming or really need to improve encoding speed, use   latencyMode: "realtime" , otherwise if you expect to output a video file, use latencyMode: "quality"  (the default).
 
 
+
+### encode() and Timestamps
+
+As discussed
+
+
+
+
 ###  Practical Considerations
 
 Before we go ahead and set up an actual encoding loop, here are a few things to keep in mind:
@@ -205,7 +217,6 @@ Some of this gets easier with libraries like [MediaBunny](../../media-bunny/intr
 #### Finishing conditions
 
 
-#### Key Frames
 
 
 
