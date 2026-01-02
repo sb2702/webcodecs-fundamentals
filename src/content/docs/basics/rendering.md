@@ -125,44 +125,26 @@ Where you can see that the firefox performance improves dramatically, almost cer
 
 One key advantage that it has though is the `importExternalTexture` method, which enables rendering `VideoFrame` objects to a canvas in a true *zero-copy* fashion, meaning that the video frame isn't copied anywhere, it moves directly from where it is in GPU memory to the canvas.
 
-If you are building a complex video editing pipeline you may end up needing to use WebGPU anyway, but if you just want something quick and easy that works and don't want to learn WebGPU, here is a quick utility class called `GPUDrawImage`
+If you are building a complex video editing pipeline you may end up needing to use WebGPU anyway, but if you just want something quick and easy that works and don't want to learn WebGPU, I built a quick utility called `GPUFrameRenderer` in [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils), which uses WebGPU when available (falling back to BitmapRenderer when not available).
 
 
 ```javascript
 
+import { GPUFrameRenderer } from 'webcodecs-utils'
+
 const canvas = new OffscreenCanvas(width, height);
-const  gpuRenderer = new GPUDrawImage(canvas));
+const  gpuRenderer = new GPUFrameRenderer(canvas);
 await gpuRenderer.init();
 
 const decoder = new VideoDecoder({
     output: function(frame: VideoFrame){
-
-        gpuRenderer.drawImage(frame)
+        gpuRenderer.drawImage(frame);
         frame.close();
     },
     error: function(e: any)=> console.warn(e);
 });
 
 ```
-
-<details>
-<summary>GPUDrawImage source</summary> 
-
-
-```javascript
-/**
- * GPUDrawImage - A simple drawImage()-like API that uses WebGPU for zero-copy rendering
- * with bicubic scaling, falling back to ImageBitmapRenderer when WebGPU is unavailable.
- *
- * Usage:
- *   const renderer = new GPUDrawImage(canvas);
- *   await renderer.init();
- *   renderer.drawImage(videoFrame, 0, 0, width, height);
- */
-
-```
-
-</details>
 
 It may seem like a lot of programming overhead, but the zero copy operation makes a clear performance difference
 

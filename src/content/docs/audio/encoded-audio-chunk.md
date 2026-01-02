@@ -119,9 +119,19 @@ reader.read().then(async function processPacket({ done:boolean, value: EncodedAu
 ```
 
 
-##### MP4Box
+##### MP4Demuxer
 
-See [here](http://localhost:4321/basics/muxing/#mp4box)
+You can also use the MP4Demuxer utility from [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils)
+
+```typescript
+import { MP4Demuxer } from 'webcodecs-utils'
+
+const demuxer = new MP4Demuxer(file);
+await demuxer.load();
+
+const decoderConfig = demuxer.getAudioDecoderConfig();
+const chunks = await demuxer.extractSegment('video', 0, 30); //First 30 seconds
+```
 
 
 ### Muxing
@@ -215,8 +225,10 @@ Let's say I had a 20 minute source video, you could just extract the a clip from
 For audio you could just do this:
 
 ```typescript
+
+import {getAudioChunks} from 'webcodecs-utils'
  // About 20 minutes of chunks
-const source_chunks = <EncodedAudioChunk[]> = await demuxFile(file);
+const source_chunks = <EncodedAudioChunk[]> = await getAudioChunks(file);
 //No re-encoding needed
 const dest_chunks = source_chunks.filter((chunk)=> chunk.timestamp > 600*1e6 && chunk.timestamp < 630*1e6 );
 ```
@@ -229,8 +241,9 @@ The above example it's quite true, you'd still need to adjust the timestamps, bu
 
 
 ```typescript
+import {getAudioChunks} from 'webcodecs-utils'
  // About 20 minutes of chunks
-const source_chunks = <EncodedAudioChunk[]> = await demuxFile(file);
+const source_chunks = <EncodedAudioChunk[]> = await getAudioChunks(file);
 
 //Extract the clips
 const clip_chunks = source_chunks.filter((chunk)=> chunk.timestamp > 600*1e6 && chunk.timestamp < 630*1e6 );
@@ -239,7 +252,6 @@ const final_chunks = clip_chunks.map(function(chunk: EncodedAudioChunk){
 
     const audio_data = new ArrayBuffer(chunk.byteLength);
     chunk.copyTo(audio_data);
-
     //For this example, clip starts at t=600s, so shift everything by 600s
     const adjusted_time = chunk.timestamp - 600*1e6; 
 

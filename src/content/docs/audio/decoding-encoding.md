@@ -105,6 +105,19 @@ const decoderConfig: AudioDecoderConfig = {
 ```
 
 
+##### MP4Demuxer
+
+```typescript
+
+import { MP4Demuxer } from 'webcodecs-utils'
+
+const demuxer = new MP4Demuxer(file);
+await demuxer.load();
+
+const decoderConfig = <AudioDecoderConfig> demuxer.getAudioDecoderConfig();
+```
+
+
 
 
 ### Encoder

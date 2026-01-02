@@ -192,6 +192,12 @@ function extractChannels(audioData: AudioData): Float32Array[] {
 }
 ```
 
+Which is also available via [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils)
+
+```typescript
+import {extractChannels} from 'webcodecs-utils'
+```
+
 And then you'd extract channels as so:
 
 ```typescript

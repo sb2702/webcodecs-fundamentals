@@ -72,7 +72,6 @@ encoder.configure({
      bitrate: 1000000 //bitrate is related to quality
      framerate: 25,
      latencyMode: "quality" 
-
 });
 
 ```
@@ -143,6 +142,14 @@ function getBitrate(width, height, fps, quality = 'good') {
   }
 
 ```
+
+Also available via [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils)
+
+
+```typescript
+import { getBitrate } from 'webcodecs-utils'
+```
+
 
 
 
