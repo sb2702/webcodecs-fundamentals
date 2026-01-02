@@ -73,6 +73,8 @@ encoder.configure({
      framerate: 25,
      latencyMode: "quality" 
 
+});
+
 ```
 
 You can see a more comprehensive summary of the options on [MDN](https://developer.mozilla.org/en-US/docs/Web/API/VideoEncoder/configure) but I'll cover the practical ones here:

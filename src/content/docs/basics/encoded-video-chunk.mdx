@@ -233,8 +233,9 @@ This is exacly what real-world codecs do, with delta frames typically being 2x t
 The `EncodedVideoChunk` represents this property via the `type` attribute, with *key frames* having a `key` type, and delta frames having a `delta type`
 
 ```typescript
+import { getVideoChunks } from 'webcodecs-utils'
 
-const chunks = <EncodedVideoChunk[]> await demux(<File> file);
+const chunks = <EncodedVideoChunk[]> await getVideoChunks(<File> file);
 
 console.log(chunks[0].type); //"key"
 console.log(chunks[1].type); //"delta"
@@ -303,7 +304,7 @@ for await (const packet of sink.packets()) {
 }
 ```
 
-There are other demuxing libraries, we'll go into more detail[in the next section](../muxing)
+There are other demuxing libraries, we'll go into more detail [in the next section](../muxing)
 
 
 
@@ -342,7 +343,9 @@ You can use `EncodedVideoChunk` objects by decoding them, muxing them, or manual
 
 
 ```typescript
-const chunks = <EncodedVideoChunk[]> await getChunks(file);
+import { demuxVideo } from 'webcodecs-utils'
+
+const {chunks, config} = await demuxVideo(file);
 
 const decoder = new VideoDecoder({
     output(frame: VideoFrame) {
@@ -351,7 +354,7 @@ const decoder = new VideoDecoder({
     error(e) {}
 });
 
-decoder.configure(/* Decoder config */);
+decoder.configure(config);
 
 for (const chunk of chunks){
     deocder.decode(chunks)
@@ -364,16 +367,18 @@ You can also use chunks to mux to a file, and each muxing library has their own 
 
 
 ```typescript
-// This is psuedocode
-const chunks = <EncodedVideoChunk[]> await getChunks(file);
+// Use mediabunny for production, these are just simplified utils for learning
+import { getVideoChunks, ExampleMuxer }  from 'webcodecs-utils'
 
-const muxer = new ExampleMuxer(/**configuration */);
+const chunks = <EncodedVideoChunk[]> await getVideoChunks(file);
+
+const muxer = new ExampleMuxer();
 
 for (const chunk of chunks){
-  muxer.addVideoChunk(chunk);
+  muxer.addChunk(chunk);
 }
 
-const arrayBuffer =  muxer.finish();
+const arrayBuffer =  await muxer.finish();
 
 const blob = new Blob([arrayBuffer], {type: 'video/mp4'})
 

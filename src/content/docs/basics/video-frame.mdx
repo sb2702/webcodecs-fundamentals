@@ -32,7 +32,10 @@ These two classes (`VideoFrame` and `EncodedVideoChunk`) are the backbone of Web
 The primary way to get a `VideoFrame` is directly from `VideoDecoder`
 
 ```typescript
-const chunks = <EncodedVideoChunk[]> await getChunks(file);
+
+import { demuxVideo } from 'webcodecs-utils'
+
+const {chunks, config} = await demuxVideo(file);
 
 const decoder = new VideoDecoder({
     output(frame: VideoFrame) {
@@ -41,7 +44,7 @@ const decoder = new VideoDecoder({
     error(e) {}
 });
 
-decoder.configure(/* Decoder config */);
+decoder.configure(config);
 
 for (const chunk of chunks){
     deocder.decode(chunks)
@@ -229,11 +232,11 @@ You can also render a `VideoFrame` to canvas. Here is the player example we show
 
 ```typescript
 
-
+import { demuxVideo } from 'webcodecs-utils'
 
 async function playFile(file: File){
 
-    const chunks = <EncodedVideoChunk[]> await getChunks(file);
+    const {chunks, config} = await demuxVideo(file);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -245,8 +248,8 @@ async function playFile(file: File){
         error(e) {}
     });
 
-    const decoderConfig = <VideoDecoderConfig> getDecoderConfig(file)
-    decoder.configure(decoderConfig);
+
+    decoder.configure(config);
 
     for (const chunk of chunks){
         deocder.decode(chunks)
