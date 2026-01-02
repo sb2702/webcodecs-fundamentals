@@ -43,13 +43,15 @@
 
    const videoTrack = mediaInfo.streams.filter((s)=>s.codec_type_string === 'video')[0];
 
+   const audioTrack = mediaInfo.streams.filter((s)=>s.codec_type_string === 'audio')[0];
 
 
 
 
-   async function getChunks(start=0, end=undefined){
 
-    const reader = demuxer.read('video', start, end).getReader()
+   async function getChunks(type, start=0, end=undefined){
+
+    const reader = demuxer.read(type, start, end).getReader()
 
     const chunks = [];
 
@@ -65,8 +67,11 @@
 
    }
 
-   const chunks = await getChunks();
+   const videoChunks = await getChunks('video');
+   const audioChunks = await getChunks('audio');
 
+
+   console.log('Audio chunks:', audioChunks);
 
 
  const decoder = new VideoDecoder({
@@ -82,7 +87,7 @@
     });
 
 
-    for (const chunk of chunks) {
+    for (const chunk of videoChunks) {
       decoder.decode(chunk);
     }
 

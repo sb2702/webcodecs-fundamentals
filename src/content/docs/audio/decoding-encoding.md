@@ -1,6 +1,6 @@
 ---
-title: Why WebCodecs is harder than it looks
-description: Why WebCodecs is harder than it looks
+title: Decoding & Encoding
+description: Encoding and decoding audio
 ---
 
 TBD

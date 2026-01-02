@@ -347,7 +347,11 @@ async function resample(audio: AudioData[], target_sample_rate: number){
 ### How to write audio data
 
 
-Two write audio data, you'd need to use `AudioData` constructor, format the input data as a `Float32Array`, and then specify the relevant metadata. For example, let's go back to the audio mixing example:
+Two write audio data, you'd need to use `AudioData` constructor, format the input data as a `Float32Array`, and then specify the relevant metadata.
+
+##### Mixing audio
+
+ For example, let's go back to the audio mixing example:
 
 
 ```typescript
@@ -369,8 +373,10 @@ const mixed_chunk = new AudioData({
 })
 
 ```
+You create the destination data as a single `Float32Array` with a length of `num_frames*num_channels`, and then place each channels data into the target array at position `channel_index*num_frames`.
 
-Here's a full working example:
+Here's the full working example:
+
 
 ```typescript
 
@@ -431,6 +437,84 @@ function mixAudio(fromAudio: AudioData[], toAudio: AudioData[]): AudioData[]{
 }
 
 ```
+
+##### Resampling audio
+
+Just for utility's sake, here's the full working resample function
+
+```typescript
+
+
+function resample(audio: AudioData[], target_sample_rate: number): AudioData[] {
+
+    const source_sample_rate = audio[0].sampleRate;
+    const num_source_channels = audio[0].numberOfChannels;
+    const num_target_channels = audio[0].numberOfChannels
+
+    const ratio = target_sample_rate/source_sample_rate;
+
+    const target_data_chunks: AudioData[] = [];
+
+    let total_frames = 0;
+    let frame_offset = 0;
+
+
+    for(const frame of audio){
+        total_frames += frame.numberOfFrames;
+    }
+
+    const start_timestamp = audio[0].timestamp;
+    const source_audio = new Float32Array(total_frames*num_target_channels);
+    const num_target_frames = Math.floor(total_frames*ratio);
+    const target_data = new Float32Array(num_target_frames*num_target_channels);
+    const num_taget_audio_chunks = Math.floor(target_data.length/(1024*num_target_channels));
+
+    for(let channel=0; channel<num_target_channels; channel++){
+        for(const frame of audio){
+            const data_view = new DataView(source_audio.buffer, frame_offset*4, frame.numberOfFrames*4);
+            frame.copyTo(data_view, {frameOffset: 0, planeIndex: channel});
+            frame_offset += frame.numberOfFrames;
+        }
+    }
+
+    for(let i=0; i<num_target_frames*num_target_channels; i++){
+        const inputIndex = i / ratio;
+        const index1 = Math.floor(inputIndex);
+        const index2 = Math.min(index1 + 1, source_audio.length - 1);
+        const fraction = inputIndex - index1;
+        target_data[i] = source_audio[index1] + fraction * (source_audio[index2] - source_audio[index1]);
+    }
+
+    const left_channel = target_data.subarray(0, num_target_frames);
+    const right_channel = target_data.subarray(num_target_frames, num_target_frames*2);
+
+
+    for(let i=0; i<num_taget_audio_chunks; i++){
+
+        const resampled_stereo = new Float32Array(1024*2);
+
+        resampled_stereo.set(left_channel.subarray(i*1024, (i+1)*1024), 0);
+        resampled_stereo.set(right_channel.subarray(i*1024, (i+1)*1024), 1024);
+
+
+        const resampled_frame = new AudioData({
+            numberOfFrames: 1024,
+            numberOfChannels: 2,
+            data: resampled_stereo,
+            format: "f32-planar",
+            sampleRate:target_sample_rate,
+            timestamp: start_timestamp + i*1024/target_sample_rate,*1e6
+        })
+
+        target_data_chunks.push(resampled_frame);
+
+    }
+
+    return target_data_chunks;
+}
+
+```
+
 ### Next up
 
 Now that you've seen how  `AudioData` objects work and raw audio works, we can move on to `EncodedAudioChunk` objects.
