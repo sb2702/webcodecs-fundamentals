@@ -110,9 +110,11 @@ export default defineConfig({
 				},
 
 				{
-					label: 'Referece',
+					label: 'Reference',
 					items: [
 						{ label: 'About', slug: 'reference/about' },
+						{ label: 'Sources', slug: 'reference/sources' },
+						{ label: 'Easter Eggs', slug: 'reference/easter-eggs' },
 					],
 				},
 			],
