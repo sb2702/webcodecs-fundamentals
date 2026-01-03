@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebAudio Playback Speed with Pitch Correction</title>
+  <title>WebAudio Playback Speed (Naive)</title>
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
@@ -96,12 +96,9 @@
   </style>
 </head>
 <body>
-  <div class="demo-section">
-    <h4>Playback with Speed Control (Soundtouch)</h4>
 
-    <div class="warning" id="workletWarning" style="display: none;">
-      ⚠️ SoundTouch worklet failed to load. Falling back to native playbackRate (pitch will shift).
-    </div>
+  <div class="demo-section">
+    <h4>WebAudio Playback Speed (Naive - No Pitch Correction)</h4>
 
     <div class="controls">
       <button id="playBtn">Play</button>
@@ -127,11 +124,10 @@
     <div class="stats">
       <div>Status: <span id="status">Loading...</span></div>
       <div>Playback Speed: <span id="speedDisplay">1.0</span>x</div>
-      <div>Using SoundTouch: <span id="soundtouchStatus">Loading...</span></div>
     </div>
   </div>
 
-  <script type="module">
+  <script>
     const playBtn = document.getElementById('playBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn = document.getElementById('stopBtn');
@@ -142,66 +138,22 @@
     const currentTimeEl = document.getElementById('currentTime');
     const durationEl = document.getElementById('duration');
     const speedDisplayEl = document.getElementById('speedDisplay');
-    const soundtouchStatusEl = document.getElementById('soundtouchStatus');
-    const workletWarningEl = document.getElementById('workletWarning');
 
     let audioContext = null;
     let audioBuffer = null;
     let sourceNode = null;
-    let soundTouchNode = null;
-    let soundTouchLoaded = false;
 
     // Timeline tracking
     let startTime = 0;
     let pausedAt = 0;
     let isPlaying = false;
-    let animationFrameId = null;
     let playbackSpeed = 1.0;
-
-    // Load SoundTouch worklet
-    async function loadSoundTouchWorklet() {
-      try {
-        soundtouchStatusEl.textContent = 'Loading...';
-
-        // Load from CDN
-        await audioContext.audioWorklet.addModule(
-          'https://cdn.jsdelivr.net/npm/@soundtouchjs/audio-worklet@0.2.1/dist/soundtouch-worklet.js'
-        );
-
-        soundTouchLoaded = true;
-        soundtouchStatusEl.textContent = 'Yes (pitch correction enabled)';
-        console.log('✅ SoundTouch worklet loaded successfully');
-      } catch (error) {
-        console.error('❌ Failed to load SoundTouch worklet:', error);
-        soundTouchLoaded = false;
-        soundtouchStatusEl.textContent = 'No (using native playbackRate)';
-        workletWarningEl.style.display = 'block';
-      }
-    }
-
-    // Create SoundTouch processor
-    function createSoundTouchNode() {
-      if (!soundTouchLoaded) return null;
-
-      try {
-        const node = new AudioWorkletNode(audioContext, 'soundtouch-processor');
-        // Set pitch parameter (inverse of speed for pitch correction)
-        node.parameters.get('pitch').value = 1 / playbackSpeed;
-        return node;
-      } catch (error) {
-        console.error('❌ Failed to create SoundTouch node:', error);
-        return null;
-      }
-    }
 
     // Load and decode audio
     async function loadAudio() {
       statusEl.textContent = 'Loading audio...';
 
       audioContext = new AudioContext();
-
-      // Load SoundTouch worklet
-      await loadSoundTouchWorklet();
 
       const response = await fetch('bbb-excerpt.mp3');
       const arrayBuffer = await response.arrayBuffer();
@@ -229,19 +181,11 @@
       sourceNode = audioContext.createBufferSource();
       sourceNode.buffer = audioBuffer;
 
-      // Create audio chain based on SoundTouch availability
-      if (soundTouchLoaded) {
-        // With SoundTouch: source -> soundtouch -> destination
-        soundTouchNode = createSoundTouchNode();
-        sourceNode.connect(soundTouchNode);
-        soundTouchNode.connect(audioContext.destination);
-        // Set playback rate on source to match speed
-        sourceNode.playbackRate.value = playbackSpeed;
-      } else {
-        // Fallback: source -> destination (pitch will shift)
-        sourceNode.connect(audioContext.destination);
-        sourceNode.playbackRate.value = playbackSpeed;
-      }
+      // Connect directly to destination (no pitch correction)
+      sourceNode.connect(audioContext.destination);
+
+      // Set playback rate (this changes both speed AND pitch)
+      sourceNode.playbackRate.value = playbackSpeed;
 
       // Handle end of playback
       sourceNode.onended = () => {
@@ -271,17 +215,7 @@
       sourceNode.stop();
       sourceNode = null;
 
-      if (soundTouchNode) {
-        soundTouchNode.disconnect();
-        soundTouchNode = null;
-      }
-
       isPlaying = false;
-
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
 
       updateUI();
     }
@@ -294,18 +228,8 @@
         sourceNode = null;
       }
 
-      if (soundTouchNode) {
-        soundTouchNode.disconnect();
-        soundTouchNode = null;
-      }
-
       isPlaying = false;
       pausedAt = 0;
-
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
 
       updateUI();
     }
@@ -318,17 +242,7 @@
         sourceNode.onended = () => {};
         sourceNode.stop();
         sourceNode = null;
-
-        if (soundTouchNode) {
-          soundTouchNode.disconnect();
-          soundTouchNode = null;
-        }
-
         isPlaying = false;
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-          animationFrameId = null;
-        }
       }
 
       pausedAt = Math.max(0, Math.min(time, audioBuffer.duration));
@@ -371,7 +285,7 @@
       currentTimeEl.textContent = current.toFixed(1);
       seekBar.value = current;
 
-      animationFrameId = requestAnimationFrame(updateTime);
+      requestAnimationFrame(updateTime);
     }
 
     // Update UI state

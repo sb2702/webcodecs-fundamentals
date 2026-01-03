@@ -55,7 +55,7 @@ In this article we'll explain the main componens of WebAudio, and then provide s
 
 That should provide enough background to then build a full video player with webcodecs and webaudio, which we'll cover [here](../../patterns/playback/).
 
-# Concepts
+## Concepts
 
 ### AudioContext
 
@@ -276,13 +276,18 @@ And you can close the `AudioContext` when you're done to free up resources.
 ctx.close();
 ```
 
-# Concrete examples
+#### Memory
 
-Now let's build a working audio player step by step. We'll use a 14 second audio clip from [Big Buck Bunny](../../reference/easter-eggs)
+Just keep in mind that raw audio is still quite big with 1 hour of audio taking up more than 1GB of RAM. We don't specifically worry about memory in the examples in this section, but we'll handle memory management when we get to designing [a full video player](../../patterns/playback/).
+
+
+## Concrete examples
+
+Now let's build a working audio player step by step. We'll use a 14 second audio clip from [Big Buck Bunny](../../reference/easter-eggs) as a demo.
 
 <audio src="/src/assets/content/audio/audio-data/bbb-excerpt.mp3" controls> </audio>
 
-## Basic Playback with Start/Stop
+### Basic Playback with Start/Stop
 
 Let's implement basic audio playback with play and stop controls.
 
@@ -541,7 +546,7 @@ Here's the complete working example:
 
 </details>
 
-## Seek and Timeline Management
+### Seek and Timeline Management
 
 The tricky part of Web Audio is managing pause, resume, and seeking. Since `AudioBufferSourceNode` can't be paused (only started and stopped), we need to track the timeline ourselves.
 
@@ -1356,22 +1361,34 @@ Here's the complete example with volume control:
 
 </details>
 
-## Playback Speed with Pitch Correction
+### Setting Playback Speed
 
-Changing playback speed in Web Audio is tricky because the naive approach (using `playbackRate`) changes both speed and pitch - making fast audio sound like chipmunks and slow audio sound deep. For video players, you need pitch correction so voices sound natural at all speeds.
 
-**The Problem**: Native `playbackRate` changes pitch
+Another common feature of most players is to control playback speed (e.g. play audio back at 2x speed or 0.5x speed).
+
+
+There is a `sourceNode.playbackRate` property which you can use to set the playback speed
 
 ```typescript
-// This changes speed BUT also shifts pitch (chipmunk effect)
-sourceNode.playbackRate.value = 2.0; // 2x speed = higher pitch
+sourceNode.playbackRate.value = 2.0; 
 ```
+But doing this, by itself, will create a "chipmunk effect", affecting the pitch and tone of the sounds and music being played. 
 
-**The Solution**: Use SoundTouch for pitch correction. SoundTouch is an audio processing library that can change tempo (speed) independently from pitch.
 
-### Loading SoundTouch AudioWorklet
+<iframe src="/demo/web-audio/playback-speed-naive.html" frameBorder="0" width="720" height="500" style="height: 400px;"></iframe>
 
-First, load the SoundTouch AudioWorklet module:
+
+This problem can be solved with "Pitch correction", which accounts for this and adjusts the audio to preserve pitch and tone while playing back at different speeds. The `<audio>` element does pitch correction internally in the browser, but unhelpfully, pitch correction is not handled by default in WebAudio.
+
+
+#### AudioWorklets and SoundTouch
+
+WebAudio does allow you to do custom audio processing by adding custom nodes via something called an `AudioWorklet`, which enables custom processing of audio in a seperate worker thread. 
+
+You can read up how to build your own custom AudioWorklet [here](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_AudioWorklet). Fortunately, we don't need to make our own custom pitch correction script, you can use a pre-built one from the [SoundTouch JS library](https://www.npmjs.com/package/@soundtouchjs/audio-worklet)
+
+
+You can load the SoundTouch worklet as shown below:
 
 ```typescript
 let soundTouchLoaded = false;
@@ -1389,9 +1406,7 @@ async function loadSoundTouchWorklet() {
 }
 ```
 
-### Creating and Using SoundTouch Node
-
-Create a SoundTouch processor and set its pitch parameter:
+Then you create a SoundTouch processor and set its pitch parameter:
 
 ```typescript
 function createSoundTouchNode(playbackSpeed) {
@@ -1409,11 +1424,7 @@ function createSoundTouchNode(playbackSpeed) {
 }
 ```
 
-### Audio Chain Setup
-
-Connect the audio chain: `source -> soundtouch -> destination`
-
-**Important**: You need to set BOTH `playbackRate` on the source AND `pitch` on SoundTouch:
+Next, you set up the the audio chain: `source -> soundtouch -> destination`.  Keep in mind, you need to set both `playbackRate` on the source and `pitch` on SoundTouch:
 
 ```typescript
 function play() {
@@ -1440,8 +1451,6 @@ function play() {
 }
 ```
 
-### Changing Speed During Playback
-
 To change speed while playing, you need to stop and restart the audio:
 
 ```typescript
@@ -1461,7 +1470,7 @@ function setSpeed(speed) {
 
 Here's a complete example with multiple speed options:
 
-<iframe src="/demo/web-audio/playback-speed.html" frameBorder="0" width="720" height="550"></iframe>
+<iframe src="/demo/web-audio/playback-speed.html" frameBorder="0" width="720" height="550" style="height: 415px;"></iframe>
 
 <details>
 <summary>Full Source Code</summary>
@@ -1891,12 +1900,13 @@ Here's a complete example with multiple speed options:
 
 </details>
 
-**Key Takeaways:**
-
+**Key takeaways**:
 - Native `playbackRate` changes both speed and pitch (chipmunk effect)
-- SoundTouch provides pitch correction via AudioWorklet
-- You need BOTH `sourceNode.playbackRate` and `soundTouchNode.parameters.get('pitch')` set
-- The pitch parameter is the **inverse** of speed: `pitch = 1 / playbackSpeed`
-- Changing speed requires stopping and restarting the audio with new nodes
+- You can fix this with an [AudioWorklet](https://developer.mozilla.org/en-US/docs/Web/API/AudioWorklet)
+- The [SoundTouch](https://www.npmjs.com/package/@soundtouchjs/audio-worklet) library offers pitch correction for playback speed adjustment
+- You can build your own [AudioWorklet](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_AudioWorklet) or find other libraries for custom processing
 
 
+## Next steps
+
+Hopefully that gives you a good idea of how to play audio in the browser using WebAudio, which should be enough background to build a full webcodecs video player which we will cover [here](../../patterns/playback/).
