@@ -68,7 +68,7 @@ The only extra step would be getting the `AudioDecoderConfig`, which you can get
 ##### MediaBunny
 
 ```typescript
-import {Input, MP4, BlobSource} from 'media-bunny'
+import {Input, MP4, BlobSource} from 'mediabunny'
 
 const input = new Input({
     formats: [MP4],
