@@ -962,9 +962,11 @@ Here's the complete working example with pause/resume and seek controls:
 
 </details>
 
-# Extra functionality
+## Extra functionality
 
-## Volume Control with GainNode
+Okay, so we've gotten through the barebones playback of audio in WebAudio. Now to cover some very basic controls that most people would include in an audio or video player.
+
+#### Volume Control with GainNode
 
 To control volume, we use a `GainNode` which sits between the source and the destination. The gain value ranges from 0 (silent) to 1 (full volume), though you can go higher for amplification.
 
@@ -1014,7 +1016,7 @@ The gain node persists across source node changes, so you only create it once an
 
 Here's the complete example with volume control:
 
-<iframe src="/demo/web-audio/volume-control.html" frameBorder="0" width="720" height="500"></iframe>
+<iframe src="/demo/web-audio/volume-control.html" frameBorder="0" width="720" height="500" style="height: 500px;"></iframe>
 
 <details>
 <summary>Full Source Code</summary>
