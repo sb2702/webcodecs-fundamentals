@@ -282,17 +282,26 @@ Now let's build a working audio player step by step. We'll use a 14 second audio
 
 <audio src="/src/assets/content/audio/audio-data/bbb-excerpt.mp3" controls> </audio>
 
-## Basic Playback with Start/Stop
+## Basic Playback with Pause/Resume
 
-Let's implement basic audio playback with play and stop controls. Here's how to break it down:
+Let's implement basic audio playback with play, pause, and stop controls. The tricky part is tracking timeline state since `AudioBufferSourceNode` can't be paused - only started and stopped.
 
-**Load and decode audio**: First we need to load the audio file and decode it into an `AudioBuffer`
+**Setup tracking variables**: We need to track where we are in the audio
 
 ```typescript
 let audioContext = null;
 let audioBuffer = null;
 let sourceNode = null;
 
+// Timeline tracking
+let startTime = 0;           // When playback started (in AudioContext time)
+let pausedAt = 0;            // Where we paused (in audio file time)
+let isPlaying = false;
+```
+
+**Load and decode audio**: First we load the audio file and decode it into an `AudioBuffer`
+
+```typescript
 async function loadAudio() {
     // Create AudioContext
     audioContext = new AudioContext();
@@ -303,68 +312,86 @@ async function loadAudio() {
 
     // Decode audio data
     audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-    console.log('Duration:', audioBuffer.duration);
 }
 ```
 
-**play()**: To play the audio, we create a source node, connect it to the destination, and start it
+**getCurrentTime()**: Calculate the current playback position
+
+```typescript
+function getCurrentTime() {
+    if (!isPlaying) return pausedAt;
+    return pausedAt + (audioContext.currentTime - startTime);
+}
+```
+
+**play()**: Start or resume playback from the current position
 
 ```typescript
 function play() {
-    if (!audioBuffer) return;
+    if (!audioBuffer || isPlaying) return;
 
-    // Create source node
+    // Create new source node
     sourceNode = audioContext.createBufferSource();
     sourceNode.buffer = audioBuffer;
-
-    // Connect to destination (speakers)
     sourceNode.connect(audioContext.destination);
 
     // Handle when audio finishes
     sourceNode.onended = () => {
-        console.log('Playback finished');
+        if (isPlaying) {
+            isPlaying = false;
+            pausedAt = 0;
+        }
     };
 
-    // Start playing
-    sourceNode.start();
+    // Start playing from pausedAt position
+    startTime = audioContext.currentTime;
+    sourceNode.start(0, pausedAt);  // Second parameter is offset in the audio
+
+    isPlaying = true;
+    updateTime(); // Updates UI with timestamp
 }
 ```
 
-**stop()**: To stop playback, we call `stop()` on the source node
+**pause()**: Pause playback and remember where we stopped
+
+```typescript
+function pause() {
+    if (!isPlaying || !sourceNode) return;
+    // Calculate where we are in the audio
+    pausedAt = getCurrentTime();
+    sourceNode.stop();
+    sourceNode = null;
+    isPlaying = false;
+}
+```
+
+**stop()**: Stop and reset to the beginning
 
 ```typescript
 function stop() {
     if (sourceNode) {
+        sourceNode.onended = () => {};
         sourceNode.stop();
         sourceNode = null;
     }
+    isPlaying = false;
+    pausedAt = 0;
 }
 ```
 
-**Track playback time**: We can track the current playback time using `audioContext.currentTime`
+**updateTime()**: Finally, we can update the current display time in the UI, using `requestAnimationFrame` in a loop. It will auto-cancel when `isPlaying` is set to false.
 
 ```typescript
-function play() {
-    // ... source node setup code from above ...
+// Update time display
+function updateTime() {
+    if (!isPlaying) return;
 
-    sourceNode.start();
-
-    // Track playback time
-    const startTime = audioContext.currentTime;
-
-    function updateTime() {
-        if (!sourceNode) return;
-
-        const elapsed = audioContext.currentTime - startTime;
-        console.log('Current time:', elapsed.toFixed(2));
-
-        requestAnimationFrame(updateTime);
-    }
-
-    updateTime();
+    const current = getCurrentTime();
+    currentTimeEl.textContent = current.toFixed(2);
+    requestAnimationFrame(updateTime);
 }
 ```
+
 
 Here's the complete working example:
 
@@ -442,22 +469,24 @@ Here's the complete working example:
     <audio controls src="bbb-excerpt.mp3"></audio>
   </div>
 
-  <div class="demo-section">
-    <h4>Web Audio API</h4>
-    <div class="controls">
-      <button id="playBtn">Play</button>
-      <button id="stopBtn" disabled>Stop</button>
-    </div>
-
-    <div class="stats">
-      <div>Status: <span id="status">Ready</span></div>
-      <div>Current Time: <span id="currentTime">0.00</span>s</div>
-      <div>Duration: <span id="duration">0.00</span>s</div>
-    </div>
+  <h4>Web Audio Playback</h4>
+  <div class="controls">
+    <button id="playBtn">Play</button>
+    <button id="pauseBtn" disabled>Pause</button>
+    <button id="stopBtn" disabled>Stop</button>
   </div>
+
+  <div class="stats">
+    <div>Status: <span id="status">Ready</span></div>
+    <div>Current Time: <span id="currentTime">0.00</span>s</div>
+    <div>Duration: <span id="duration">0.00</span>s</div>
+  </div>
+  <h4>Native Audio Element (for comparison)</h4>
+    <audio controls src="bbb-excerpt.mp3"></audio>
 
   <script>
     const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn = document.getElementById('stopBtn');
     const statusEl = document.getElementById('status');
     const currentTimeEl = document.getElementById('currentTime');
@@ -466,6 +495,12 @@ Here's the complete working example:
     let audioContext = null;
     let audioBuffer = null;
     let sourceNode = null;
+
+    // Timeline tracking
+    let startTime = 0;
+    let pausedAt = 0;
+    let isPlaying = false;
+    let animationFrameId = null;
 
     // Load and decode audio file
     async function loadAudio() {
@@ -485,9 +520,15 @@ Here's the complete working example:
       statusEl.textContent = 'Ready';
     }
 
-    // Play audio
+    // Calculate current playback position
+    function getCurrentTime() {
+      if (!isPlaying) return pausedAt;
+      return pausedAt + (audioContext.currentTime - startTime);
+    }
+
+    // Play from current position
     function play() {
-      if (!audioBuffer) return;
+      if (!audioBuffer || isPlaying) return;
 
       // Create source node
       sourceNode = audioContext.createBufferSource();
@@ -498,48 +539,80 @@ Here's the complete working example:
 
       // Handle when audio finishes
       sourceNode.onended = () => {
-        statusEl.textContent = 'Finished';
-        playBtn.disabled = false;
-        stopBtn.disabled = true;
+        if (isPlaying) {
+          isPlaying = false;
+          pausedAt = 0;
+          updateUI();
+        }
       };
 
-      // Start playing
-      sourceNode.start();
+      // Start playing from pausedAt position
+      startTime = audioContext.currentTime;
+      sourceNode.start(0, pausedAt);
 
-      statusEl.textContent = 'Playing';
-      playBtn.disabled = true;
-      stopBtn.disabled = false;
-
-      // Update current time display
-      const startTime = audioContext.currentTime;
-      updateTime(startTime);
+      isPlaying = true;
+      updateUI();
+      updateTime();
     }
 
-    // Stop audio
+    // Pause playback
+    function pause() {
+      if (!isPlaying || !sourceNode) return;
+
+      // Calculate where we are in the audio
+      pausedAt = getCurrentTime();
+      sourceNode.stop();
+      sourceNode = null;
+
+      isPlaying = false;
+
+      updateUI();
+    }
+
+    // Stop and reset
     function stop() {
       if (sourceNode) {
+        sourceNode.onended = () => {};
         sourceNode.stop();
         sourceNode = null;
       }
 
-      statusEl.textContent = 'Stopped';
-      playBtn.disabled = false;
-      stopBtn.disabled = true;
-      currentTimeEl.textContent = '0.00';
+      isPlaying = false;
+      pausedAt = 0;
+
+      updateUI();
     }
 
     // Update time display
-    function updateTime(startTime) {
-      if (!sourceNode || stopBtn.disabled) return;
+    function updateTime() {
+      if (!isPlaying) return;
 
-      const elapsed = audioContext.currentTime - startTime;
-      currentTimeEl.textContent = elapsed.toFixed(2);
+      const current = getCurrentTime();
+      currentTimeEl.textContent = current.toFixed(2);
 
-      requestAnimationFrame(() => updateTime(startTime));
+      animationFrameId = requestAnimationFrame(updateTime);
+    }
+
+    // Update UI state
+    function updateUI() {
+      if (isPlaying) {
+        statusEl.textContent = 'Playing';
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+      } else {
+        statusEl.textContent = pausedAt > 0 ? 'Paused' : 'Stopped';
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = pausedAt === 0;
+      }
+
+      currentTimeEl.textContent = pausedAt.toFixed(2);
     }
 
     // Event listeners
     playBtn.addEventListener('click', play);
+    pauseBtn.addEventListener('click', pause);
     stopBtn.addEventListener('click', stop);
 
     // Load audio on page load
@@ -618,10 +691,6 @@ function pause() {
 
     isPlaying = false;
 
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
 }
 ```
 
@@ -639,10 +708,6 @@ function seekTo(time) {
         sourceNode = null;
         isPlaying = false;
 
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
     }
 
     // Update position
@@ -659,7 +724,7 @@ function seekTo(time) {
 
 Here's the complete working example with pause/resume and seek controls:
 
-<iframe src="/demo/web-audio/seek-timeline.html" frameBorder="0" width="720" height="550"></iframe>
+<iframe src="/demo/web-audio/seek-timeline.html" frameBorder="0" width="720" height="550" style="height: 530px;"> </iframe>
 
 <details>
 <summary>Full Source Code</summary>

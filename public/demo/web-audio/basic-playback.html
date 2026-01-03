@@ -62,6 +62,7 @@
   <h4>Web Audio Playback</h4>
   <div class="controls">
     <button id="playBtn">Play</button>
+    <button id="pauseBtn" disabled>Pause</button>
     <button id="stopBtn" disabled>Stop</button>
   </div>
 
@@ -75,6 +76,7 @@
 
   <script>
     const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn = document.getElementById('stopBtn');
     const statusEl = document.getElementById('status');
     const currentTimeEl = document.getElementById('currentTime');
@@ -83,6 +85,11 @@
     let audioContext = null;
     let audioBuffer = null;
     let sourceNode = null;
+
+    // Timeline tracking
+    let startTime = 0;
+    let pausedAt = 0;
+    let isPlaying = false;
 
     // Load and decode audio file
     async function loadAudio() {
@@ -102,9 +109,15 @@
       statusEl.textContent = 'Ready';
     }
 
-    // Play audio
+    // Calculate current playback position
+    function getCurrentTime() {
+      if (!isPlaying) return pausedAt;
+      return pausedAt + (audioContext.currentTime - startTime);
+    }
+
+    // Play from current position
     function play() {
-      if (!audioBuffer) return;
+      if (!audioBuffer || isPlaying) return;
 
       // Create source node
       sourceNode = audioContext.createBufferSource();
@@ -115,48 +128,83 @@
 
       // Handle when audio finishes
       sourceNode.onended = () => {
-        statusEl.textContent = 'Finished';
-        playBtn.disabled = false;
-        stopBtn.disabled = true;
+        if (isPlaying) {
+          isPlaying = false;
+          pausedAt = 0;
+          updateUI();
+        }
       };
 
-      // Start playing
-      sourceNode.start();
+      // Start playing from pausedAt position
+      startTime = audioContext.currentTime;
+      sourceNode.start(0, pausedAt);
 
-      statusEl.textContent = 'Playing';
-      playBtn.disabled = true;
-      stopBtn.disabled = false;
-
-      // Update current time display
-      const startTime = audioContext.currentTime;
-      updateTime(startTime);
+      isPlaying = true;
+      updateUI();
+      updateTime();
     }
 
-    // Stop audio
+    // Pause playback
+    function pause() {
+      if (!isPlaying || !sourceNode) return;
+
+      // Calculate where we are in the audio
+      pausedAt = getCurrentTime();
+
+      // Clear onended handler to prevent it from firing
+      sourceNode.onended = () => {};
+      sourceNode.stop();
+      sourceNode = null;
+
+      isPlaying = false;
+
+      updateUI();
+    }
+
+    // Stop and reset
     function stop() {
       if (sourceNode) {
+        sourceNode.onended = () => {};
         sourceNode.stop();
         sourceNode = null;
       }
 
-      statusEl.textContent = 'Stopped';
-      playBtn.disabled = false;
-      stopBtn.disabled = true;
-      currentTimeEl.textContent = '0.00';
+      isPlaying = false;
+      pausedAt = 0;
+
+      updateUI();
     }
 
     // Update time display
-    function updateTime(startTime) {
-      if (!sourceNode || stopBtn.disabled) return;
+    function updateTime() {
+      if (!isPlaying) return;
 
-      const elapsed = audioContext.currentTime - startTime;
-      currentTimeEl.textContent = elapsed.toFixed(2);
+      const current = getCurrentTime();
+      currentTimeEl.textContent = current.toFixed(2);
 
-      requestAnimationFrame(() => updateTime(startTime));
+      requestAnimationFrame(updateTime);
+    }
+
+    // Update UI state
+    function updateUI() {
+      if (isPlaying) {
+        statusEl.textContent = 'Playing';
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+      } else {
+        statusEl.textContent = pausedAt > 0 ? 'Paused' : 'Stopped';
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = pausedAt === 0;
+      }
+
+      currentTimeEl.textContent = pausedAt.toFixed(2);
     }
 
     // Event listeners
     playBtn.addEventListener('click', play);
+    pauseBtn.addEventListener('click', pause);
     stopBtn.addEventListener('click', stop);
 
     // Load audio on page load
