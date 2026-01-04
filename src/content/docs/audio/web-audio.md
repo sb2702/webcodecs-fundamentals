@@ -51,9 +51,14 @@ sourceNode.start(); //Starts playing audio in your speakers!
 
 Because WebAudio provides the only interface to output custom audio to the user's speakers, you'll **need** to use WebAudio for audio/video playback.
 
+
 In this article we'll explain the main componens of WebAudio, and then provide some working code examples to play audio in the browser and add basic controls like volume, playback speed and start/stop/seek.
 
 That should provide enough background to then build a full video player with webcodecs and webaudio, which we'll cover [here](../../patterns/playback/).
+
+
+**Note**: A major limitation of WebAudio is that it only works on the main thread which we'll need to incorporate into our architecture when we build a full video player.
+
 
 ## Concepts
 
