@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      max-width: 900px;
+      max-width: 640px;
       margin: 0 auto;
       padding: 20px;
       background-color: #f8f9fa;
@@ -26,11 +26,21 @@
       font-size: 14px;
     }
 
+    .main-content {
+      position: relative;
+      
+    }
+
+    .video-section {
+      position: relative;
+      width:640px;
+      min-width: 0;
+      display: block;
+    }
+
     .video-container {
       position: relative;
       width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
       display: flex;
       justify-content: center;
       background-color: #000;
@@ -41,15 +51,14 @@
 
     canvas {
       display: block;
-      width: 100%;
-      height: auto;
+      width: 640px;
+      height: 360px;
       background-color: #000;
     }
 
     .controls {
       width: 100%;
-      max-width: 800px;
-      margin: 15px auto;
+      margin: 15px 0;
       background-color: #fff;
       border-radius: 8px;
       padding: 15px;
@@ -173,27 +182,34 @@
     }
 
     .debug-panel {
-      width: 100%;
-      max-width: 800px;
-      margin: 20px auto;
+   
+      top:0;
+      right: 0px;
+      width: 500px;
+      flex-shrink: 0;
+      margin: auto;;
       background-color: #1a202c;
       color: #e2e8f0;
       border-radius: 8px;
-      padding: 20px;
+      padding: 10px;
       font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
       font-size: 12px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
     }
 
     .debug-panel h3 {
-      margin: 0 0 15px 0;
+      margin: 0 0 2px 0;
       color: #63b3ed;
       font-size: 16px;
       font-weight: 600;
     }
 
     .debug-section {
-      margin-bottom: 15px;
+      width: 200px;
+      float: left;
+      margin: 10px;;
       padding: 12px;
       background-color: #2d3748;
       border-radius: 6px;
@@ -234,8 +250,7 @@
     }
 
     .info-banner {
-      max-width: 800px;
-      margin: 0 auto 20px auto;
+      margin: 0 0 20px 0;
       padding: 15px;
       background-color: #edf2f7;
       border-left: 4px solid #3182ce;
@@ -259,12 +274,13 @@
 <body>
   <div id="app">
 
+    <div class="main-content">
+      <div class="video-section">
+        <div class="video-container">
+          <canvas id="canvas" width="640" height="360"></canvas>
+        </div>
 
-    <div class="video-container">
-      <canvas id="canvas" width="1920" height="1080"></canvas>
-    </div>
-
-    <div class="controls disabled" id="videoControls">
+        <div class="controls disabled" id="videoControls">
       <div class="transport-controls">
         <button id="playBtn">▶ Play</button>
         <button id="pauseBtn">⏸ Pause</button>
@@ -276,15 +292,14 @@
       <div class="seek-container">
         <input type="range" min="0" max="100" value="0" class="seek-bar" id="seekBar">
       </div>
-    </div>
+        </div>
 
-    <div class="file-controls">
-      <button id="loadFileBtn">📁 Load Video File</button>
-    </div>
+        <div class="file-controls">
+          <button id="loadFileBtn">📁 Load Video File</button>
+        </div>
+      </div>
 
-    <div class="debug-panel disabled" id="debugPanel">
-      <h3>🔍 Debug Information</h3>
-
+      <div class="debug-panel disabled" id="debugPanel" style="margin-bottom: 0px;">
       <div class="debug-section">
         <h4>Audio Renderer</h4>
         <div class="debug-row">
@@ -295,7 +310,7 @@
           <span class="debug-label">Sample Rate:</span>
           <span class="debug-value" id="debugAudioSampleRate">--</span>
         </div>
-        <div class="debug-row">
+        <div class="debug-row" >
           <span class="debug-label">Channels:</span>
           <span class="debug-value" id="debugAudioChannels">--</span>
         </div>
@@ -309,7 +324,7 @@
         </div>
       </div>
 
-      <div class="debug-section">
+      <div class="debug-section"  style="margin-bottom: 0px;">
         <h4>Video Renderer</h4>
         <div class="debug-row">
           <span class="debug-label">Codec:</span>
@@ -331,7 +346,7 @@
           <span class="debug-label">Decode Queue Size:</span>
           <span class="debug-value" id="debugVideoDecodeQueueSize">--</span>
         </div>
-        <div class="debug-row">
+        <div class="debug-row" style="display: none;">
           <span class="debug-label">Last Rendered Time:</span>
           <span class="debug-value" id="debugVideoLastRenderedTime">--</span>
         </div>
@@ -348,6 +363,7 @@
           <span class="debug-value" id="debugClockCurrentTime">--</span>
         </div>
       </div>
+    </div>
     </div>
   </div>
 
