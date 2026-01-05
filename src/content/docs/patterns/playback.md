@@ -430,10 +430,10 @@ This gives us a complete audio renderer with segmented loading
 <summary>Full Audio Renderer</summary>
 
 ```typescript
-iimport {ArrayBufferTarget, Muxer} from "mp4-muxer";
+import {ArrayBufferTarget, Muxer} from "mp4-muxer";
+import EventEmitter from "../../../utils/EventEmitter";
 import { WorkerController } from "../../../utils/WorkerController";
-import type { Clock } from "../../clock";
-
+import { VideoWorker } from "../video/video";
 export interface AudioTrackData {
     codec: string,
     sampleRate: number ,
@@ -443,16 +443,12 @@ export interface AudioTrackData {
 // Duration of each audio segment (time-based blocks that contain multiple EncodedAudioChunks)
 const SEGMENT_DURATION = 30; // seconds
 
-
 export interface AudioPlayerArgs {
-
     audioConfig: AudioTrackData;
     duration: number;
     worker: WorkerController;
     file: File;
-    clock: Clock;
 }
-
 
 export class WebAudioPlayer {
     audioContext: AudioContext | null;
@@ -470,8 +466,6 @@ export class WebAudioPlayer {
     worker: WorkerController;
     isPreloading: boolean;
     audioConfig: AudioTrackData | null;
-    clock: Clock;
-
     constructor(args: AudioPlayerArgs) {
         this.audioContext = null;
         this.sourceNode = null;
@@ -480,29 +474,20 @@ export class WebAudioPlayer {
         this.pauseTime = 0;
         this.duration = args.duration;
         this.audioConfig = args.audioConfig;
-
         this.encodedChunks = [];
         this.audioSegments = new Map(); // Cache for decoded audio segments
         this.scheduledNodes = new Map(); // Track scheduled audio nodes
         this.preloadThreshold = 5; // Seconds before segment end to trigger preload
         this.isPreloading = false;
-
-        //Audio Renderer gets its own worker to avoid using the video worker to get audio chunks while the video renderer is running / fetching video chunks
         this.worker = args.worker;
         this.file = args.file;
-        this.clock = args.clock;
-
-        // Subscribe to Clock's tick events for segment preloading
-        this.clock.on('tick', this.onClockTick.bind(this));
-
         this.init();
     }
 
     init() {
         this.audioContext = new AudioContext();
-
         this.seek(0);
-
+        
     }
 
     /**
@@ -569,19 +554,10 @@ export class WebAudioPlayer {
         if (encodedChunks.length === 0) return null;
 
         try {
-            const a = performance.now();
-
             // Mux EncodedAudioChunks to AAC buffer
             const muxedBuffer = await this.muxEncodedChunksToBuffer(encodedChunks, this.audioConfig!);
-
-            const b = performance.now();
-
             // Decode to AudioBuffer for Web Audio API
             const audioBuffer = await this.audioContext!.decodeAudioData(muxedBuffer);
-
-            const c = performance.now();
-            console.log(`Segment ${segmentIndex}: Muxing took ${b - a}ms, Decoding took ${c - b}ms`);
-
             // Cache the decoded segment
             this.audioSegments.set(segmentIndex, audioBuffer);
 
@@ -631,8 +607,10 @@ export class WebAudioPlayer {
         const nextSegmentIndex = Math.floor(startTime / SEGMENT_DURATION);
 
         // Check if we already have this segment cached
-        if (this.audioSegments.has(nextSegmentIndex)) return;
-
+        if (this.audioSegments.has(nextSegmentIndex)) {
+            this.scheduleSegment(this.audioSegments.get(nextSegmentIndex), startTime, 0);
+            return;
+        }
         this.isPreloading = true;
         try {
             const nextSegment = await this.loadSegment(startTime);
@@ -650,10 +628,7 @@ export class WebAudioPlayer {
         const sourceNode = this.audioContext!.createBufferSource();
         sourceNode.buffer = audioBuffer;
         sourceNode.connect(this.audioContext!.destination);
-
-
         const playbackTime = this.startTime + (startTime - this.pauseTime);
-
         sourceNode.start(playbackTime, offset);
         this.scheduledNodes.set(startTime, sourceNode);
 
@@ -676,30 +651,27 @@ export class WebAudioPlayer {
         this.isPlaying = false;
     }
 
-
+  
     async seek(time: number) {
-        const wasPlaying = this.isPlaying;
-
+        const wasPlaying = this.isPlaying;    
         if (wasPlaying) {
             this.clearScheduledNodes();
             this.isPlaying = false;
         }
-
         this.pauseTime = time;
-
         if (wasPlaying) {
             this.startTime = this.audioContext!.currentTime;
             this.isPlaying = true;
             await this.startPlayback(time);
+
         }
     }
 
-    /**
-     * Tick handler - called by Clock on each tick
-     * Checks if we need to preload the next segment
-     * @param currentTime - Current playback time from audio timeline
-     */
-    private onClockTick(currentTime: number) {
+
+    checkForPreLoad() {
+        if (!this.isPlaying) return;
+        const currentTime = this.getCurrentTime();
+        // Check if we need to preload the next segment
         const currentSegmentIndex = this.getCurrentSegmentIndex();
         const timeInCurrentSegment = currentTime % SEGMENT_DURATION;
 
@@ -707,7 +679,7 @@ export class WebAudioPlayer {
             !this.isPreloading &&
             !this.audioSegments.has(currentSegmentIndex + 1)) {
             this.preloadNextSegment((currentSegmentIndex + 1) * SEGMENT_DURATION);
-        }
+        }      
     }
 
     getCurrentTime() {
@@ -715,6 +687,7 @@ export class WebAudioPlayer {
         return this.pauseTime + (this.audioContext!.currentTime - this.startTime);
     }
 }
+
 
 ```
 
@@ -749,11 +722,14 @@ export default class VideoRenderer {
     source_buffer: EncodedVideoChunk[] = [];
     rendered_buffer: VideoFrame[] = [];
     canvas: OffscreenCanvas;
-    renderer: GPUFrameRenderer;
+    frameRenderer: GPUFrameRenderer;
     decoder: VideoDecoder;
     metadata: VideoTrackData;
     initP: Promise<void>
-    constructor(metadata: VideoTrackData, chunks: EncodedVideoChunk[],  canvas: OffscreenCanvas) {
+    constructor(metadata: VideoTrackData, chunks: EncodedVideoChunk[],  canvas: OffscreenCanvas, frameRenderer: GPUFrameRenderer) {
+
+
+        console.log(chunks[0])
 
         this.currentChunk =0;
         this.firstRendered = false;
@@ -763,12 +739,13 @@ export default class VideoRenderer {
 
         this.metadata = metadata;
 
+        this.frameRenderer = frameRenderer;
 
         this.canvas = canvas;
 
         // Initialize GPU renderer with linear filtering (hardware accelerated)
-        this.renderer = new GPUFrameRenderer(this.canvas, { filterMode: 'linear' });
-        this.initP = this.renderer.init();
+
+        this.initP = this.frameRenderer.init();
 
         this.decoder = this.setupDecoder(metadata)
 
@@ -954,7 +931,7 @@ export default class VideoRenderer {
             }
 
             // Use GPU renderer for zero-copy rendering
-            this.renderer.drawImage(frame);
+            this.frameRenderer.drawImage(frame);
             frame.close();
 
         } catch (e) {
@@ -975,6 +952,8 @@ However, just like in the audio renderer, we'll enable chunked loading so that w
 
 ```typescript
 import VideoRenderer, { VideoTrackData } from "./decoder";
+import { GPUFrameRenderer } from 'webcodecs-utils';
+
 
 // Types
 interface TrackData {
@@ -1022,6 +1001,7 @@ export default class VideoTransformer {
     private isPreloading: boolean;
     private preloadThreshold: number;
     private rendering: boolean;
+    private frameRenderer: GPUFrameRenderer;
     private lastRenderedTime: number;
 
     // Request ID tracking
@@ -1037,6 +1017,7 @@ export default class VideoTransformer {
         this.canvas = canvas;
         this.filePort = filePort;
         this.videoMetadata = videoMetadata;
+        this.frameRenderer = new GPUFrameRenderer(this.canvas, { filterMode: 'linear' });
         this.duration = duration;
         this.renderers = new Map();
         this.loadedChunks = new Map();
@@ -1084,6 +1065,7 @@ export default class VideoTransformer {
         // Initialize with the first chunk
         await this.initializeChunk(0);
         await this.seek(0);
+        await this.frameRenderer.init();
     }
 
     /**
@@ -1139,7 +1121,8 @@ export default class VideoTransformer {
         const renderer = new VideoRenderer(
             this.videoMetadata,
             chunks,
-            this.canvas
+            this.canvas,
+            this.frameRenderer
         );
         
         // Store it in our map
@@ -1191,6 +1174,26 @@ export default class VideoTransformer {
     }
 
     /**
+     * Get debug information about the current state
+     */
+    getDebugInfo() {
+
+        return {
+            currentChunkIndex: this.currentChunkIndex,
+            activeRenderer: this.activeRenderer ? {
+                renderBufferSize: this.activeRenderer.rendered_buffer.length,
+                decodeQueueSize: this.activeRenderer.decoder.decodeQueueSize,
+                currentChunk: this.activeRenderer.currentChunk,
+                lastRenderedTime: this.activeRenderer.lastRenderedTime
+
+            } : null,
+            totalRenderers: this.renderers.size,
+            loadedChunks: this.loadedChunks.size,
+            isPreloading: this.isPreloading
+        };
+    }
+
+    /**
      * Play the video (compatibility with VideoRenderer API)
      */
     play() {
@@ -1205,6 +1208,9 @@ export default class VideoTransformer {
         if (this.rendering) {
             return;
         }
+
+
+;
         
         this.rendering = true;
         this.lastRenderedTime = time;
@@ -1300,6 +1306,163 @@ export default class VideoTransformer {
         this.activeRenderer = null;
     }
 }
+
+let transformer: VideoTransformer | null = null;
+
+
+
+// Main message handler
+self.onmessage = async function(event: MessageEvent) {
+  const { cmd, data, request_id } = event.data;
+
+  switch (cmd) {
+    case "init":
+      try {
+        // Get the transferred canvas and file worker port
+        offscreenCanvas = data.canvas;
+        fileWorkerPort = data.fileWorkerPort;
+
+        if (!offscreenCanvas || !fileWorkerPort) {
+          throw new Error('Missing canvas or file worker port');
+        }
+
+        console.log("Video worker initialized with MessagePort to file worker");
+
+        // Send successful initialization (video transformer will be created after track data is received)
+        self.postMessage({
+          request_id,
+          res: true
+        });
+      } catch (error) {
+        self.postMessage({
+          request_id,
+          error: `Initialization error: ${error}`
+        });
+      }
+      break;
+
+    case "set-track-data":
+      try {
+        // Receive video metadata and duration from main thread
+        const { videoMetadata, duration } = data;
+
+        if (!offscreenCanvas || !fileWorkerPort) {
+          throw new Error('Worker not initialized');
+        }
+
+        // Set canvas dimensions
+        if (videoMetadata.codedWidth && videoMetadata.codedHeight) {
+          offscreenCanvas.width = videoMetadata.codedWidth;
+          offscreenCanvas.height = videoMetadata.codedHeight;
+        }
+
+        // Create the video transformer with the file worker port
+        transformer = new VideoTransformer(
+          offscreenCanvas,
+          fileWorkerPort,
+          videoMetadata,
+          duration
+        );
+
+        await transformer.initialize();
+        console.log("Video transformer initialized");
+
+        self.postMessage({
+          request_id,
+          res: true
+        });
+      } catch (error) {
+        self.postMessage({
+          request_id,
+          error: `Set track data error: ${error}`
+        });
+      }
+      break;
+
+    case "render":
+      if (!transformer) {
+        self.postMessage({
+          request_id,
+          error: "VideoManager not initialized"
+        });
+        return;
+      }
+
+      try {
+        const time = data.time;
+        transformer.render(time);
+        self.postMessage({
+          request_id,
+          res: "render-complete"
+        });
+      } catch (error) {
+        self.postMessage({
+          request_id,
+          error: `Render error: ${error}`
+        });
+      }
+      break;
+
+    case "get-debug-info":
+      if (!transformer) {
+        self.postMessage({
+          request_id,
+          error: "VideoManager not initialized"
+        });
+        return;
+      }
+
+      try {
+        const debugInfo = transformer.getDebugInfo();
+        self.postMessage({
+          request_id,
+          res: debugInfo
+        });
+      } catch (error) {
+        self.postMessage({
+          request_id,
+          error: `Debug info error: ${error}`
+        });
+      }
+      break;
+
+    case "seek":
+      if (!transformer) {
+        self.postMessage({
+          request_id,
+          error: "VideoManager not initialized"
+        });
+        return;
+      }
+
+      try {
+        const time = data.time;
+        await transformer.seek(time);
+        self.postMessage({
+          request_id,
+          res: "seek-complete"
+        });
+      } catch (error) {
+        self.postMessage({
+          request_id,
+          error: `Seek error: ${error}`
+        });
+      }
+      break;
+
+
+    case "terminate":
+      if (transformer) {
+        transformer.terminate();
+        transformer = null;
+      }
+      self.postMessage({
+        request_id,
+        res: "terminated"
+      });
+      break;
+  }
+};
 ```
 </details>
 
@@ -1315,9 +1478,12 @@ import workerUrl from './video.worker.ts?worker&url';
 import { WorkerController } from "../../../utils/WorkerController";
 
 export interface VideoWorkerParams {
+  src: File;
   canvas: HTMLCanvasElement;
   fileWorkerPort: MessagePort;
 }
+
+
 
 /**
  * OffscreenVideoWorker is a wrapper around the video.worker.ts
@@ -1328,34 +1494,56 @@ export class VideoWorker extends EventEmitter {
   private offscreenCanvas: OffscreenCanvas | null = null;
   public duration: number = 0;
   private worker: WorkerController;
-
   private fileWorkerPort: MessagePort;
 
   constructor(params: VideoWorkerParams) {
     super();
     this.canvas = params.canvas;
     this.fileWorkerPort = params.fileWorkerPort;
-
-    // Create the worker
     this.worker = new WorkerController(workerUrl);
   }
   
+
+  /**
+   * Send a message to the worker and wait for a response
+   */
+
+
+  /**
+   * Initialize the video player
+   */
   async initialize(): Promise<void> {
     // Create the offscreen canvas
     this.offscreenCanvas = this.canvas.transferControlToOffscreen();
+
+    // Initialize the worker with the offscreen canvas and file worker port
     const initialized = await this.worker.sendMessage('init', {
       canvas: this.offscreenCanvas,
       fileWorkerPort: this.fileWorkerPort
     }, [this.offscreenCanvas, this.fileWorkerPort]);
 
+
     // Emit initialization event
     this.emit('initialized', initialized);
   }
 
+
+
+  /**
+   * Seek to a specific time
+   */
   async seek(time: number): Promise<void> {
     // Send seek command to worker
     await this.worker.sendMessage('seek', { time });
   }
+
+  /**
+   * Get debug information from the video worker
+   */
+  async getDebugInfo(): Promise<any> {
+    return await this.worker.sendMessage('get-debug-info', {});
+  }
+
 
   async setTrackData(videoMetadata: any, duration: number): Promise<void> {
     await this.worker.sendMessage('set-track-data', {
@@ -1367,15 +1555,28 @@ export class VideoWorker extends EventEmitter {
    * Clean up resources
    */
   terminate(): void {
+
+    // Terminate the worker
     this.worker.sendMessage('terminate').catch(console.error);
+    
+    // Clean up
     this.worker.terminate();
     this.offscreenCanvas = null;
-    this.emit('terminated', null);
+    
+    // Emit terminate event
+    this.emit('terminated');
   }
 
+  /**
+
+  /**
+   * Update the current frame (animation loop)
+   */
 
 
   render(time: number): void {
+
+    // Send render command to worker
     this.worker.sendMessage('render', { time: time });
   }
 }
@@ -1390,11 +1591,338 @@ With all three of those components, we'll be able to run render calls `video.ren
 
 #### Clock
 
-Next, 
+Next, we have the Clock class which will manage the update loop via the `tick` handler, and broadcast updates to the VideoWorker and AudioRenderer.
 
+<details>
+<summary>Clock class</summary>
+
+```typescript
+import EventEmitter from '../utils/EventEmitter';
+import { WebAudioPlayer } from './renderers/audio/audio';
+import { VideoWorker } from './renderers/video/video';
+
+export class Clock extends EventEmitter {
+
+  private audioPlayer: WebAudioPlayer;
+  private videoWorker: VideoWorker;
+  private isPlaying: boolean = false;
+  private animationFrame: number | null = null;
+  private duration: number;
+
+  // Frame rate management
+  private readonly TARGET_FPS = 30; // Target 30fps for smooth playback
+  private readonly FRAME_INTERVAL: number;
+  private lastFrameTime = 0;
+
+  /**
+   * Create a new Clock
+   * @param audioPlayer - Audio player with Web Audio timeline
+   * @param videoWorker - Video worker for passive rendering
+   * @param duration - Total video duration in seconds
+   */
+  constructor(audioPlayer: WebAudioPlayer, videoWorker: VideoWorker, duration: number) {
+    super();
+
+    this.audioPlayer = audioPlayer;
+    this.videoWorker = videoWorker;
+    this.duration = duration;
+    this.FRAME_INTERVAL = 1000 / this.TARGET_FPS;
+  }
+
+  /**
+   * Start playback
+   *
+   * Starts the audio player and begins the tick loop.
+   * The tick loop queries the audio timeline and drives video rendering.
+   */
+  async play(): Promise<void> {
+    if (this.isPlaying) return;
+
+    this.isPlaying = true;
+
+    // Start audio playback (this starts the timeline)
+    await this.audioPlayer.play();
+
+    // Start the tick loop
+    this.lastFrameTime = performance.now();
+    this.tick();
+
+    this.emit('play');
+  }
+
+  /**
+   * Pause playback
+   *
+   * Pauses audio and stops the tick loop.
+   */
+  pause(): void {
+    if (!this.isPlaying) return;
+
+    this.isPlaying = false;
+
+    // Pause audio
+    this.audioPlayer.pause();
+
+    // Stop the tick loop
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+
+    this.emit('pause');
+  }
+
+  /**
+   * Seek to a specific time
+   *
+   * @param time - Time in seconds
+   */
+  async seek(time: number): Promise<void> {
+    const clampedTime = Math.max(0, Math.min(time, this.duration));
+
+    // Seek both video and audio
+    this.videoWorker.seek(clampedTime);
+    await this.audioPlayer.seek(clampedTime);
+
+    this.emit('seek', clampedTime);
+  }
+
+  /**
+   * Get the current playback time
+   *
+   * Queries the audio player's timeline, which is the source of truth.
+   *
+   * @returns Current time in seconds
+   */
+  getCurrentTime(): number {
+    return this.audioPlayer.getCurrentTime();
+  }
+
+  /**
+   * Check if currently playing
+   */
+  playing(): boolean {
+    return this.isPlaying;
+  }
+
+  private tick(): void {
+    if (!this.isPlaying) return;
+
+    const now = performance.now();
+    const elapsed = now - this.lastFrameTime;
+
+    // Frame rate throttling: only update at TARGET_FPS
+    // This prevents unnecessary rendering and saves CPU/battery
+    if (elapsed < this.FRAME_INTERVAL) {
+      this.animationFrame = requestAnimationFrame(() => this.tick());
+      return;
+    }
+
+    this.lastFrameTime = now;
+
+    // Get current time from audio timeline (source of truth)
+    const currentTime = this.audioPlayer.getCurrentTime();
+
+    // Check if we've reached the end
+    if (currentTime >= this.duration - 0.1) {
+      this.pause();
+      this.emit('ended');
+      return;
+    }
+
+    // Emit tick event for UI updates
+    // UI should listen to this rather than polling getCurrentTime()
+    this.emit('tick', currentTime);
+
+    // Tell video worker to render at this time (passive)
+    // Video worker doesn't track time itself - it just renders whatever we tell it
+    this.videoWorker.render(currentTime);
+    this.audioPlayer.checkForPreLoad();
+
+    // Schedule next tick
+    this.animationFrame = requestAnimationFrame(() => this.tick());
+  }
+
+  /**
+   * Update duration (if needed after initialization)
+   */
+  setDuration(duration: number): void {
+    this.duration = duration;
+  }
+
+  /**
+   * Clean up resources
+   */
+  destroy(): void {
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+    this.isPlaying = false;
+  }
+}
+```
+</details>
 
 #### Player
 
+Finally, we'll include the player interface as described previously, which will instantiate all the components, and expose the pause/play/seek methods as well as avent handlers via the `on` listener (which passes through to the Clock);
+
+<details>
+
+<summary> Player Class </summary>
+
+```typescript
+import { VideoTrackData } from "./renderers/video/decoder";
+import EventEmitter from "../utils/EventEmitter";
+import { WorkerController } from '../utils/WorkerController';
+import { AudioTrackData, WebAudioPlayer } from "./renderers/audio/audio";
+import { VideoWorker } from "./renderers/video/video";
+import { Clock } from "./clock";
+import workerUrl from './file.ts?worker&url';
+// Note to Claude: Do not edit this file or make suggestions unless I specifically ask you to.
+
+export interface WebCodecsPlayerParams {
+  src: File;
+  canvas: HTMLCanvasElement;
+}
+
+export interface TrackData {
+  duration: number,
+  audio?: AudioTrackData
+  video?: VideoTrackData
+}
+
+export class WebCodecsPlayer  {
+  private canvas: HTMLCanvasElement | null = null;
+  private params: WebCodecsPlayerParams;
+  private file: File;
+  duration: number = 0;
+  private renderer: VideoWorker | null = null;
+  private audioPlayer: WebAudioPlayer | null = null;
+  private worker: WorkerController | null = null;
+  private clock: Clock | null = null;
+  private trackData: TrackData | null = null;
+
+  constructor(params: WebCodecsPlayerParams) {
+    this.params = params;
+    this.worker = new WorkerController(workerUrl);
+    this.file = params.src;
+    this.canvas = params.canvas;
+    this.duration = 0;
+  }
 
 
 
+  async play() {
+    if (!this.clock) {
+      throw new Error('Player not initialized. Call initialize() first.');
+    }
+
+    await this.clock.play();
+  }
+
+  async pause() {
+    if (!this.clock) {
+      throw new Error('Player not initialized. Call initialize() first.');
+    }
+
+    this.clock.pause();
+  }
+
+  async seek(time: number) {
+    if (!this.clock) {
+      throw new Error('Player not initialized. Call initialize() first.');
+    }
+
+    await this.clock.seek(time);
+  }
+
+  getCurrentTime(): number {
+    return this.clock?.getCurrentTime() || 0;
+  }
+
+
+  terminate(){
+    // Clean up clock
+    if (this.clock) {
+      this.clock.destroy();
+      this.clock = null;
+    }
+
+    // Clean up audio resources
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      // Any additional cleanup for audio...
+    }
+
+    // Clean up renderer resources
+    if (this.renderer) {
+      if (this.renderer instanceof VideoWorker) {
+        this.renderer.terminate();
+      } 
+      this.renderer = null;
+    }
+
+  }
+
+  async initialize(): Promise<void> {
+
+    // Create file demuxer worker
+    this.worker = new WorkerController(workerUrl);
+
+    // Create MessageChannel for file worker <-> video worker communication
+    const videoChannel = new MessageChannel();
+
+    // Initialize file worker with video port
+    await this.worker.sendMessage('init', {
+      file: this.file,
+      videoPort: videoChannel.port1
+    }, [videoChannel.port1]);
+
+    // Get track metadata from file worker
+    const trackData = <TrackData> await this.worker.sendMessage('get-tracks', {});
+    console.log("Track data", trackData);
+
+    this.trackData = trackData;
+    this.duration = trackData.duration;
+
+    // Initialize video worker with port to file worker
+    this.renderer = new VideoWorker({
+      src: this.file,
+      canvas: this.canvas!,
+      fileWorkerPort: videoChannel.port2
+    });
+
+    await this.renderer.initialize();
+
+    // Send track metadata to video worker
+    await this.renderer.setTrackData(trackData.video!, trackData.duration);
+
+    // Initialize audio player with file worker
+    this.audioPlayer = new WebAudioPlayer({
+      worker: this.worker,
+      audioConfig: trackData.audio!,
+      duration: trackData.duration,
+      file: this.file
+    });
+
+    // Create clock to manage playback timing
+    // The clock coordinates audio and video using the audio timeline as source of truth
+    this.clock = new Clock(this.audioPlayer, this.renderer, this.duration);
+
+    // Forward clock events to external listeners
+
+  }
+
+  on(event, listener){
+    this.clock.on(event, listener)
+  }
+
+  // Add more methods as needed
+}
+
+export default WebCodecsPlayer; 
+```
+
+</details>
