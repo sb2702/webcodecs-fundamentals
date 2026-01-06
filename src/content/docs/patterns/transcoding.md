@@ -546,7 +546,7 @@ export async function transcodePipeline( file: File, ): Promise<Blob> {
   const bitrate = getBitrate(width, height, 30, 'good');
 
   const videoEncoderConfig: VideoEncoderConfig = {
-    codec: getCodecString('avc', width, height, 30),
+    codec: getCodecString('avc', width, height, bitrate),
     width: width,
     height: height,
     bitrate: Math.round(bitrate),
