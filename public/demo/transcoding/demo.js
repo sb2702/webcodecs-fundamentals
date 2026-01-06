@@ -95,6 +95,7 @@ function showPreview(originalFile, transcodedBlob) {
   // Set up download link
   downloadLink.href = transcodedUrl;
   downloadLink.download = originalFile.name.replace(/\.[^/.]+$/, '') + '-transcoded.mp4';
+  downloadLink.target = '_blank';
   downloadLink.style.display = 'inline-block';
 
   // Show preview container
