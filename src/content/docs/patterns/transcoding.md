@@ -476,7 +476,7 @@ Here's the full pipeline in code:
 
 ```typescript
 
-import { getBitrate, InMemoryStorage } from 'webcodecs-utils';
+import { getBitrate, InMemoryStorage, getCodecString } from 'webcodecs-utils';
 import { WebDemuxer } from "web-demuxer";
 import { Muxer, StreamTarget } from 'mp4-muxer';
 
@@ -554,11 +554,11 @@ export async function transcodePipeline( file: File, ): Promise<Blob> {
   const bitrate = getBitrate(width, height, 30, 'good');
 
   const videoEncoderConfig: VideoEncoderConfig = {
-    codec: 'avc1.42001f',
+    codec: getCodecString('avc', width, height, 30),
     width: width,
     height: height,
     bitrate: Math.round(bitrate),
-    framerate: 24,
+    framerate: 30,
   };
 
   // Step 5: Build the pipeline 
@@ -594,4 +594,14 @@ export async function transcodePipeline( file: File, ): Promise<Blob> {
 ```
 
 
-### Demo
+### Transcoding Demo
+
+
+As we discussed in the pipeline section, we'll use H264 to just transcode the input video
+
+
+ here's a quick vibe-coded demo
+
+
+
+<iframe src="/demo/transcoding/index.html" frameBorder="0" width="720" style="height: 600px;" ></iframe>

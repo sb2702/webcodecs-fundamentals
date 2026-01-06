@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebCodecs Transcoding Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #2d3748;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .info-banner {
+      margin: 0 0 20px 0;
+      padding: 15px;
+      background-color: #edf2f7;
+      border-left: 4px solid #3182ce;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #2d3748;
+    }
+
+    .info-banner a {
+      color: #3182ce;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .info-banner a:hover {
+      text-decoration: underline;
+    }
+
+    .main-content {
+      max-width: 100%;
+    }
+
+    .control-panel {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 15px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .button-group button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 15px;
+      box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+      max-width: 250px;
+    }
+
+    .button-group button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .button-group button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #status {
+      padding: 12px;
+      background-color: #f7fafc;
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      color: #2d3748;
+      border-left: 3px solid #48bb78;
+    }
+
+    #status.error {
+      border-left-color: #f56565;
+      background-color: #fff5f5;
+      color: #c53030;
+    }
+
+    #status.processing {
+      border-left-color: #667eea;
+    }
+
+    .stats-panel {
+      background-color: #1a202c;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 15px;
+    }
+
+    .stats-panel h3 {
+      margin: 0 0 15px 0;
+      color: #63b3ed;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat-section {
+      padding: 12px;
+      background-color: #2d3748;
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      font-size: 11px;
+    }
+
+    .stat-section h4 {
+      margin: 0 0 8px 0;
+      color: #48bb78;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #4a5568;
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: #a0aec0;
+      font-size: 10px;
+    }
+
+    .stat-value {
+      color: #f7fafc;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .preview-container {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .preview-container h3 {
+      margin: 0 0 15px 0;
+      color: #2d3748;
+      font-size: 16px;
+    }
+
+    .video-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .video-box {
+      background-color: #000;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .video-box video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .video-label {
+      padding: 10px;
+      background-color: #2d3748;
+      color: #fff;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .download-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #48bb78;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .download-link:hover {
+      background: #38a169;
+      transform: translateY(-1px);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <div class="main-content">
+      <div class="control-panel" id="controlPanel">
+        <div class="button-group">
+          <button id="uploadBtn">📁 Select Video File</button>
+        </div>
+        <input type="file" id="fileInput" accept="video/*">
+
+        <div style="margin-top: 10px; padding: 10px; background: #f7fafc; border-radius: 6px; font-size: 12px; color: #4a5568;">
+          <strong>Demo file:</strong> Download
+          <a href="https://katana-misc-files.s3.us-east-1.amazonaws.com/videos/bbb-fixed.mp4"
+             style="color: #3182ce; text-decoration: none; font-weight: 600;">
+            https://katana-misc-files.s3.us-east-1.amazonaws.com/videos/bbb-fixed.mp4
+          </a>
+          and select it using the button above.
+        </div>
+      </div>
+
+      <div id="status" style="display: none;">
+        Ready. Select a video file to begin transcoding.
+      </div>
+
+      <div class="stats-panel" id="statsPanel" style="display: none;">
+        <h3>Transcoding</h3>
+        <div class="stats-grid">
+          <div class="stat-section">
+            <h4>Performance</h4>
+            <div class="stat-row">
+              <span class="stat-label">FPS:</span>
+              <span class="stat-value" id="stat-fps">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Elapsed:</span>
+              <span class="stat-value" id="stat-elapsed">0s</span>
+            </div>
+          </div>
+
+          <div class="stat-section">
+            <h4>Demuxer</h4>
+            <div class="stat-row">
+              <span class="stat-label">Buffer:</span>
+              <span class="stat-value"><span id="stat-demuxer-buffer">0</span> / 20</span>
+            </div>
+          </div>
+
+          <div class="stat-section">
+            <h4>Decoder</h4>
+            <div class="stat-row">
+              <span class="stat-label">Queue:</span>
+              <span class="stat-value"><span id="stat-decoder-queue">0</span> / 20</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Buffer:</span>
+              <span class="stat-value"><span id="stat-decoder-buffer">0</span> / 10</span>
+            </div>
+          </div>
+
+          <div class="stat-section">
+            <h4>Render</h4>
+            <div class="stat-row">
+              <span class="stat-label">Buffer:</span>
+              <span class="stat-value"><span id="stat-render-buffer">0</span> / 5</span>
+            </div>
+          </div>
+
+          <div class="stat-section">
+            <h4>Encoder</h4>
+            <div class="stat-row">
+              <span class="stat-label">Queue:</span>
+              <span class="stat-value"><span id="stat-encoder-queue">0</span> / 20</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Buffer:</span>
+              <span class="stat-value"><span id="stat-encoder-buffer">0</span> / 10</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="previewContainer" class="preview-container" style="display: none;">
+ 
+        <div class="video-grid">
+          <div class="video-box" style="display: none;">
+            <div class="video-label">Original</div>
+            <video id="originalVideo" controls></video>
+          </div>
+          <div class="video-box">
+            <div class="video-label">Transcoded</div>
+            <video id="transcodedVideo" controls></video>
+          </div>
+        </div>
+        <a id="downloadLink" class="download-link" style="display: none;">📥 Download Transcoded Video</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./demo.js"></script>
+</body>
+</html>
