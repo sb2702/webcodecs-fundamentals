@@ -58,6 +58,7 @@ export default defineConfig({
 					items: [
 						{ label: 'CPU vs GPU', slug: 'concepts/cpu-vs-gpu' },
 						{ label: 'Offscreen vs Main thread', slug: 'concepts/threading' },
+						{ label: 'Streams', slug: 'concepts/streams' },
 						{ label: 'File Handling', slug: 'concepts/file-handling' },
 					],
 				},

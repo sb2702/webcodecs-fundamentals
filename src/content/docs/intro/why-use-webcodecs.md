@@ -10,8 +10,9 @@ This enables web application developers to develop high-performance video applic
 A few common examples of types of applications where WebCodecs would be relevant:
 
 * Browser based video editing software (like [Diffusion Studio](https://www.diffusion.studio/) or [Clipchamp](https://www.clipchamp.com))
+* Streaming media to/from browser with more control than WebRTC (e.g. [Media Over Quic](https://moq.dev/))
 * Video utilities to [convert](https://www.remotion.dev/convert) or [enhance](https://free.upscaler.video) videos in the browser
-* High performance streaming (such as [Media Over Quic](https://moq.dev/))
+
 
 
 While WebCodecs would almost certainly enable entirely new use cases, there is a lot of value in simply developing applications that fit in existing video software categories as client-side web-applications via WebCodecs, instead of as desktop software or server-side software.
