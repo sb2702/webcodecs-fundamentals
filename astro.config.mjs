@@ -48,9 +48,17 @@ export default defineConfig({
 						{ label: 'What is WebCodecs?', slug: 'intro/what-is-webcodecs' },
 						{ label: 'Why use WebCodecs?', slug: 'intro/why-use-webcodecs' },
 						{ label: 'Harder than it looks', slug: 'intro/reality-check' },
-						{ label: 'MediaBunny: ffmpeg for the web', slug: 'intro/media-bunny' },
 					],
 				},
+
+				{
+					label: 'Projects',
+					items: [
+						{ label: 'MediaBunny: ffmpeg for the web', slug: 'projects/media-bunny' },
+						{ label: 'Media Over Quic', slug: 'projects/moq' }
+					],
+				},
+
 
 
 				{
