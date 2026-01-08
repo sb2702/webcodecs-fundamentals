@@ -44,15 +44,13 @@ Let's start with the example of sending a video stream from the browser to a ser
 
 ![](/assets/patterns/livestreaming/encoded-chunk-2.svg)
 
-For a streaming, we'd need to send a bunch of these chunks, in real time, in order, over a network.
+For a streaming, we'd need to send a bunch of these chunks, in real time, in order, over a network, in a bidirectional manner.
 
 ![](/assets/patterns/livestreaming/encoded-chunk-3.svg)
 
-You could theoretically choose any of a number of ways to send this data from a browser to a server. Here are a few options:
+###### HTTP
 
-###### HTTP Endpoint
-
-You could just expose an HTTP endpoint on your server and `POST` every frame as data. Here's a simplified example where metadata is sent as a header
+You could theoretically expose an HTTP endpoint on your server and `POST` every frame as data. Here's a simplified example where metadata is sent as a header
 
 <Tabs>
 
@@ -91,12 +89,12 @@ app.post('/upload', (req, res) => {
   </TabItem>
 </Tabs>
 
-You'd be sending 30+ chunks per second, and also audio, and this is failure prone. You could make this work with optimizations, such as grouping chunks of frames together, but there are inherently more suiable options.
+But then you'd be sending 30 http requests per second, which is slow and error prone. There's also no way to send data back to the client. There are optimizations you could make, but there are also inherently more suitable options.
 
 
 ###### Web Sockets
 
-Web Sockets enables you create a persistent connection with a server, and send enables you to send a stream of multiple messages of data. Here you could come up with your own binary encoding scheme to fit metadata and chunk data together into a single binary buffer and send that.
+Web Sockets enables you create a persistent connection with a server, and it enables bidirectional flows of data. Here you could come up with your own binary encoding scheme to fit metadata and chunk data together into a single binary buffer and send those between server and client.
 
 <Tabs>
 
@@ -206,7 +204,10 @@ frameSource.pipeThrough(videoEncoder).pipeTo(writer);
  I've intentionally kept this code examples high-level / pseudocde, because the rest of this tutorial will use WebTransport, but indirectly via Media Over Quic
 
 
-#### Web Transport
+## Media Over Quic
+
+
+
 
 ## Server to browser
 
