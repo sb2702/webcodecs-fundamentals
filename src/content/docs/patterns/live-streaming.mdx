@@ -1,0 +1,244 @@
+---
+title: Live Streaming with WebCodecs
+description: Low-latency encoder pipelines
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+There are many ways to stream video over the internet, and of all the ways to deal with video streaming in the browser (`<video>`, MSE, WebRTC), WebCodecs provides the lowest level control. 
+
+Emerging technologies like [Media Over Quic](../../projects/moq.md) use WebCodecs to provide lower latency and higher scalability than with previous options.
+
+Unlike a transcoding pipeline, where it's pretty clear cut what needs to be done, how you would build a video-streaming application depends entirely on what you are trying to do.
+
+Here are just a few kinds of applications with some form of video streaming:
+* An application to watch live sports broadcasts
+* Recording software to stream your webcam to multiple social-media live-streaming platforms
+* A webinar tool where a few hosts stream content to many attendees
+
+Each would have a different architecture, and for each there might be multiple ways to accomplish the same thing, so the choice of WebCodecs vs MSE vs WebRTC etc.. becomes a design choice.
+
+ To make this manageable, I'll focus on how to do the following with WebCodecs:
+
+* Stream video from a browser to a browser (e.g. video conferencing)
+* Stream video from a browser to a server (e.g. recording studio)
+* Stream video from a server to a browser (e.g. live broadcast)
+
+I'll then provide a quick overview of the alternatives (WebRTC, MSE) and include some real world case studies of streaming applications and their architectures, to help you decide if and where WebCodecs makes sense.
+
+Because WebCodecs works with binary encoded video data, it's a lot easier to integrate with server media processing libraries like ffmpeg and gstreamer. 
+I'll therefore assume you can do whatever prcessing you need based on your application's business logic with server media processing libraries, and I'll stick to how you'd stream video to/from the browser with WebCodecs.
+
+## Data transfer
+
+Raw video is too large to stream over a network, so in any streaming we'll be working with encoded video and audio data. For WebCodecs specifically, we'll primarily be working with `EncodedVideoChunk` and `EncodedAudioChunk` objects.
+
+Other browser APIs like `WebRTC`and `MSE` have data transfer built-in and application developers don't normally manage how individual video packets are sent over the network.
+
+The strength and weakness of WebCodecs is that it is very low-level, so you absolutely can control how individual video packets are sent over the network, but then you have to figure out how to send invidual video packets over the network.
+
+#### It's just data (+metadata)
+
+Let's start with the example of sending a video stream from the browser to a server. Our `VideoEncoder` gives us `EncodedVideoChunk` objects, and an `EncodedVideoChunk` is just binary data with some meta data attached.
+
+![](/assets/patterns/livestreaming/encoded-chunk-2.svg)
+
+For a streaming, we'd need to send a bunch of these chunks, in real time, in order, over a network.
+
+![](/assets/patterns/livestreaming/encoded-chunk-3.svg)
+
+You could theoretically choose any of a number of ways to send this data from a browser to a server. Here are a few options:
+
+###### HTTP Endpoint
+
+You could just expose an HTTP endpoint on your server and `POST` every frame as data. Here's a simplified example where metadata is sent as a header
+
+<Tabs>
+
+  <TabItem label="Client">
+
+
+  ```typescript
+const buffer = new Uint8Array(chunk.byteLength)
+chunk.copyTo(buffer);
+
+fetch('/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      'X-Timestamp': chunk.timestamp.toString(),
+      'X-Index': chunkIndex.toString(),
+      'X-Keyframe': chunk.type === 'key' ? '1' : '0',
+    },
+    body: chunk.data,
+});
+
+```
+  
+  </TabItem>
+
+  <TabItem label="Server">
+```typescript
+app.post('/upload', (req, res) => {
+    const timestamp = parseInt(req.headers['x-timestamp']);
+    const keyframe = req.headers['x-keyframe'] === '1';
+    const chunkIndex = parseInt(req.headers['x-index']);
+    const data = req.body;
+    res.json({ ok: true });
+});
+```
+  </TabItem>
+</Tabs>
+
+You'd be sending 30+ chunks per second, and also audio, and this is failure prone. You could make this work with optimizations, such as grouping chunks of frames together, but there are inherently more suiable options.
+
+
+###### Web Sockets
+
+Web Sockets enables you create a persistent connection with a server, and send enables you to send a stream of multiple messages of data. Here you could come up with your own binary encoding scheme to fit metadata and chunk data together into a single binary buffer, and send that over.
+
+<Tabs>
+
+
+  <TabItem label="Client">
+
+
+  ```typescript
+const ws = new WebSocket('ws://localhost:3000/upload');
+
+const encoder = new VideoEncoder({
+    output: (chunk) => {
+        const binaryData = <Uint8Array> customBinaryEncodingScheme(chunk);
+        ws.send(binaryData);
+    },
+    error: (e)=>{} //error handling
+ });
+
+
+```
+  
+  </TabItem>
+
+  <TabItem label="Custom Binary Scheme">
+  ```typescript
+// Just an example, this is not official or canonical but it would work
+function customBinaryEncodingScheme(chunk: EncodedVideoChunk): Uint8Array {
+
+      const metadata = {
+        timestamp: chunk.timestamp,
+        keyframe: chunk.type === 'key',
+        size: chunk.data.byteLength,
+      };
+      
+      // Format: [metadata JSON length (4 bytes)] [metadata JSON] [binary data]
+      const metadataStr = JSON.stringify(metadata);
+      const metadataBytes = new TextEncoder().encode(metadataStr);
+      
+      const frame = new ArrayBuffer(4 + metadataBytes.length + chunk.data.byteLength);
+      const view = new DataView(frame);
+      
+      // Write metadata length as 32-bit integer
+      view.setUint32(0, metadataBytes.length, true);
+      
+      // Write metadata
+      new Uint8Array(frame, 4, metadataBytes.length).set(metadataBytes);
+      
+      // Write binary data
+      return new Uint8Array(frame, 4 + metadataBytes.length).set(new Uint8Array(chunk.data)
+};
+```
+  </TabItem>
+
+  <TabItem label="Server">
+```typescript
+const express = require('express');
+const WebSocket = require('ws');
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+ 
+  ws.on('message', (data) => {
+       // data is a Buffer
+       const chunk = parseCustomBinary(data);
+  });
+
+});
+
+
+```
+  </TabItem>
+</Tabs>
+
+
+
+###### Web Transport
+
+WebTransport is like a successor to WebSockets, but enables better peformance and uses the [Streams API](../../concepts/streams)
+
+ ```typescript
+const transport = await WebTransport.connect('https://localhost:3000/upload');
+const stream = await transport.createUnidirectionalStream();
+const writer = stream.getWriter();
+
+const encoder = new VideoEncoder({
+    output: (chunk) => {
+        const binaryData = <Uint8Array> customBinaryEncodingScheme(chunk);
+        await writer.write(binaryData);
+    },
+    error: (e)=>{} //error handling
+ });
+
+ ```
+
+With the StreamsAPI you could re-write this as a pipeline, where the video frame source (e.g. a user webcam) gets piped through the encooder (a `TransformStream` wrapper) and piped to the writer.
+
+ ```typescript
+ //PseudoCode
+const transport = await WebTransport.connect('https://localhost:3000/upload');
+const stream = await transport.createUnidirectionalStream();
+const writer = stream.getWriter();
+
+frameSource.pipeThrough(videoEncoder).pipeTo(writer);
+ ```
+ I've intentionally kept this code examples high-level / pseudocde, because the rest of this tutorial will use WebTransport, but indirectly via Media Over Quic
+
+
+#### Web Transport
+
+## Server to browser
+
+-- Production gotchas
+
+
+
+### You need to stream somewhere
+
+### Different Options (http requests, whatever)
+
+### Media Over Quic
+-- Helo world demo
+
+
+
+## Browser to Browser
+
+-- Production gotchas
+
+
+## Browser to Server
+
+-- parsing the data locally
+
+-- Saving it locally
+
+-- Production gotchas
+
+
+## Alternatives
+
+#### WebRTC
+
+#### Media Source Extensions
