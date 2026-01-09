@@ -77,14 +77,16 @@
     }
 
     .demo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      display: block;
+
     }
 
-    iframe {
-      width: 100%;
+    .demo-grid iframe {
+     
+      float:left;
+      min-width: 0;
       height: 450px;
+      width: 49%;
       border: 1px solid #cbd5e0;
       border-radius: 8px;
       background: white;
@@ -92,7 +94,7 @@
 
     @media (max-width: 768px) {
       .demo-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
       }
 
       iframe {
@@ -121,21 +123,48 @@
     </div>
 
     <div class="demo-grid">
-      <iframe id="publisherFrame" src="publisher.html?relay=https://interop-relay.cloudflare.mediaoverquic.com:443&broadcast=my-broadcast&track=chat"></iframe>
-      <iframe id="subscriberFrame" src="subscriber.html?relay=https://interop-relay.cloudflare.mediaoverquic.com:443&broadcast=my-broadcast&track=chat"></iframe>
+      <iframe id="publisherFrame" src="about:blank"></iframe>
+      <iframe id="subscriberFrame" src="about:blank"></iframe>
     </div>
   </div>
 
   <script>
+    // Generate random broadcast name on load
+    function generateBroadcastName() {
+      const adjectives = ['happy', 'clever', 'swift', 'bright', 'calm', 'bold', 'wise', 'kind'];
+      const nouns = ['panda', 'tiger', 'eagle', 'dolphin', 'fox', 'wolf', 'hawk', 'bear'];
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const noun = nouns[Math.floor(Math.random() * nouns.length)];
+      const num = Math.floor(Math.random() * 1000);
+      return `${adj}-${noun}-${num}`;
+    }
+
+    // Set initial random broadcast name
+    const initialBroadcast = generateBroadcastName();
+    document.getElementById('broadcastName').value = initialBroadcast;
+
+    // Update iframes with initial broadcast name
+    const relay = 'https://interop-relay.cloudflare.mediaoverquic.com:443';
+    const initialTrack = document.getElementById('trackName').value;
+    const initialParams = `relay=${encodeURIComponent(relay)}&broadcast=${encodeURIComponent(initialBroadcast)}&track=${encodeURIComponent(initialTrack)}`;
+    document.getElementById('publisherFrame').src = `publisher.html?${initialParams}`;
+    document.getElementById('subscriberFrame').src = `subscriber.html?${initialParams}`;
+
     document.getElementById('updateBtn').addEventListener('click', () => {
       const broadcast = document.getElementById('broadcastName').value;
       const track = document.getElementById('trackName').value;
-      const relay = 'https://interop-relay.cloudflare.mediaoverquic.com:443';
 
       const baseParams = `relay=${encodeURIComponent(relay)}&broadcast=${encodeURIComponent(broadcast)}&track=${encodeURIComponent(track)}`;
 
       document.getElementById('publisherFrame').src = `publisher.html?${baseParams}`;
-      document.getElementById('subscriberFrame').src = `subscriber.html?${baseParams}`;
+
+      setTimeout(function(){
+        document.getElementById('subscriberFrame').src = `subscriber.html?${baseParams}`;
+     
+      
+      }, 100)
+      
+
     });
   </script>
 </body>

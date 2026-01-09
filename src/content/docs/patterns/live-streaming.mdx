@@ -266,12 +266,17 @@ for (;;) {
 </Tabs>
 
 
+Here's a quick demo of MoQ using Cloudlflare's public relay:
+
+<iframe src="/demo/moq/index.html" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
+
+
+
 Media over Quic greatly simplifies the networking aspect (you don't even need to host your own server) while also being performant (CDN relays scale better than any WebRTC server) and providing low-level control over how and when you send encoded video chunks.
 
 This all makes it ideal for our use case of streaming encoded chunks, so that's what we'll use in the rest of our examples.  You are of course free to use any data transfer mechanism you see fit, that is one of the benefits of WebCodecs.
 
 
-<iframe src="/demo/moq/index.html" style="width: 100%; height: 600px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
 
 You can find out more about Media over Quic [here](../../projects/moq), it's worth a read in general but for now it's time to get to code.
 
