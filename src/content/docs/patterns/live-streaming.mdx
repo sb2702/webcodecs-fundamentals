@@ -285,6 +285,82 @@ You can find out more about Media over Quic [here](../../projects/moq), it's wor
 
 ## Getting webcam data
 
+We're going to start with streaming video and audio from the browser. Presumably the most common use case is to stream webcam audio and video and so that's what we're going to start with.
+
+
+**getUserMedia**
+
+Our first step is to call [getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) which is an async call which will request the user's webcam, specifically the audio you request
+
+```typescript
+const stream = <MediaStream> await navigator.mediaDevices.getUserMedia({
+  video: { width: 1280, height: 720 },
+  audio: true,
+});
+```
+
+This returns a `MediaStream` object, which allows us to both preview the video, and is necessary for reading raw video frames or audio samples, or with use in other APIs like WebRTC.
+
+We then extract the tracks:
+
+```typescript
+const videoTrack = <MediaStreamTrack> stream.getVideoTracks()[0];
+const audioTrack = <MediaStreamTrack> stream.getAudioTracks()[0];
+```
+
+And this lets get the specific track for audio and video.
+
+
+**MediaStreamTrackProcessor**
+
+To actually get raw audio and video data from the stream, we'll need a [MediaStreamTrackProcessor](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrackProcessor). It's not yet supported on Safari or Firefox, but we can use a polyfill:
+
+```typescript
+import { MediaStreamTrackProcessor } from 'webcodecs-utils'  
+const videoProcessor = new MediaStreamTrackProcessor({ track: videoTrack });
+```
+
+We can then start reading `VideoFrame` objects:
+
+```typescript
+const reader = videoProcessor.readable.getReader();
+
+while (true) {
+  const { done, value: frame } = await reader.read();
+  if (done) break;
+
+  // Process the VideoFrame
+  console.log('Frame timestamp:', frame.timestamp);
+
+  // Don't forget to close frames when done!
+  frame.close();
+}
+```
+
+Each `VideoFrame` contains the raw video data along with metadata like timestamp. We need to close frames after processing to free memory.
+
+**Audio works the same way:**
+
+```typescript
+const audioProcessor = new MediaStreamTrackProcessor({ track: audioTrack });
+const reader = audioProcessor.readable.getReader();
+
+while (true) {
+  const { done, value: audioData } = await reader.read();
+  if (done) break;
+
+  // Process the AudioData
+  console.log('Audio sample rate:', audioData.sampleRate);
+  console.log('Number of frames:', audioData.numberOfFrames);
+
+  // Don't forget to close audio data when done!
+  audioData.close();
+}
+```
+
+The audio processor returns `AudioData` objects containing raw audio samples along with metadata like sample rate and channel count.
+
+
 1) MediaDevices getUserMedia
 
 2) VideoEncoder (transform stream)
