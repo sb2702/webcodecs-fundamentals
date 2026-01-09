@@ -273,13 +273,23 @@ Here's a quick demo of MoQ using Clouldflare's public relay, where one iframe wi
 
 
 
-Media over Quic greatly simplifies the networking aspect (you don't even need to host your own server) while also being performant (CDN relays scale better than any WebRTC server) and providing low-level control over how and when you send encoded video chunks.
+Media over Quic greatly simplifies the networking aspect (you don't even need to host your own server) while also being performant (CDN relays scale better than a WebRTC server) and providing low-level control over how and when you send encoded video chunks.
 
 This all makes it ideal for our use case of streaming encoded chunks, so that's what we'll use in the rest of our examples.  You are of course free to use any data transfer mechanism you see fit, that is one of the benefits of WebCodecs.
 
 
 
 You can find out more about Media over Quic [here](../../projects/moq), it's worth a read in general but for now it's time to get to code.
+
+
+
+## Getting webcam data
+
+1) MediaDevices getUserMedia
+
+2) VideoEncoder (transform stream)
+
+3) Instorage Memory
 
 ## Examples
 
