@@ -32,7 +32,7 @@ I'll therefore assume you can do whatever prcessing you need based on your appli
 
 ## Data transfer
 
-Raw video is too large to stream over a network, so in any streaming we'll be working with encoded video and audio data. For WebCodecs specifically, we'll primarily be working with `EncodedVideoChunk` and `EncodedAudioChunk` objects.
+Raw video is too large to stream over a network, so in any streaming scenario we'll be working with encoded video and audio data. For WebCodecs specifically, we'll primarily be working with `EncodedVideoChunk` and `EncodedAudioChunk` objects.
 
 Other browser APIs like `WebRTC`and `MSE` have data transfer built-in and application developers don't normally manage how individual video packets are sent over the network.
 
@@ -96,7 +96,7 @@ app.post('/upload', (req, res) => {
   </TabItem>
 </Tabs>
 
-But then you'd be sending 30 http requests per second, which is slow and error prone. There's also no way to send data back to the client. There are optimizations you could make, and you could make this work if you just need to upload media in chunks without worrying about real-time delivery, but there are also inherently more suitable options.
+For streaming this is impractical, as you'd be sending dozens of http requests per second which is slow and error prone. There is also no way to send data back to the client. You could make http work if you just need to upload media in chunks without worrying about real-time, but there are also inherently more suitable options.
 
 
 ###### Web Sockets
@@ -194,33 +194,109 @@ frameSource.pipeThrough(videoEncoder).pipeTo(writer);
 
 This is a practical option for unidirectional streams, though like WebSockets, if you need to enable data from one browser to another, you’d need to set up your own routing system.
 
-#### Media Over Quic
+#### Media over Quic
 
-Media Over Quic is a protocol
+[Media over Quic](../../projects/moq) is a new protocol specifically designed for this use case of facilitating delivery of WebCodecs and other low-level streaming data without the need for 'do-it-yourself' networking.
+
+It works as a [pub-sub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) system, where a *publisher* can publish a stream of data to a *relay*, and a *subscriber* can subscribe to streams of data from a *relay*.
+
+![](/assets/patterns/livestreaming/media-over-quic.svg)
+
+Unlike WebRTC servers (which are also relays) Media over Quic relays are content-agnostic and don't rely on 'session state', making it more scalable. You can self host a relay [[2](https://github.com/moq-dev/moq)], but several CDN providers also offer Media Over Quick relays [[3](https://blog.cloudflare.com/moq/)].
 
 
 
-## Server to browser
+
+<Tabs>
+
+
+  <TabItem label="Publisher">
+
+
+  ```typescript
+import * as Moq from "@moq/lite";
+
+const connection = await Moq.connect("https://relay.moq.some-cdn.com");
+
+const broadcast = new Moq.Broadcast();
+
+connection.publish('my-broadcast', broadcast);
+
+// Pull-mode, tracks are created when subscribers subscribe
+const {track, priority} =  await broadcast.requested();
+
+if(track.name ==='chat'){
+    const group = track.appendGroup();
+    group.writeString("Hello, MoQ!");
+    group.close();
+}
+
+
+```
+  
+  </TabItem>
+
+  <TabItem label="Subscriber">
+
+```typescript
+
+import * as Moq from "@moq/lite";
+
+const connection = await Moq.connect("https://relay.moq.some-cdn.com");
+
+// Subscribe to a broadcast
+const broadcast = connection.consume("my-broadcast");
+
+// Subscribe to a specific track
+const track = await broadcast.subscribe("chat");
+
+// Read data as it arrives
+for (;;) {
+	const group = await track.nextGroup();
+	if (!group) break;
+
+	for (;;) {
+		const frame = await group.readString();
+		if (!frame) break;
+        console.log("Received:", frame);
+    }
+}
+```
+  </TabItem>
+</Tabs>
+
+
+Media over Quic greatly simplifies the networking aspect, while also being performant and providing low-level control, making it ideal for this use case, so that's what we'll use in the rest of our examples. 
+
+You're of course free to use any data transfer mechanism you see fit, that is one of the benefits of WebCodecs.
+
+You can find out more about Media over Quic [here](../../projects/moq).
+
+
+
+
+
+
+
+
+## Examples
+
+### Browser to Browser
 
 -- Production gotchas
 
 
 
-### You need to stream somewhere
 
-### Different Options (http requests, whatever)
-
-### Media Over Quic
--- Helo world demo
-
-
-
-## Browser to Browser
+### Server to browser
 
 -- Production gotchas
 
 
-## Browser to Server
+
+
+
+### Browser to Server
 
 -- parsing the data locally
 
