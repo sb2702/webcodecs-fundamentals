@@ -7,6 +7,7 @@ const startWebcamBtn = document.getElementById('startWebcamBtn');
 const startRecordingBtn = document.getElementById('startRecordingBtn');
 const stopRecordingBtn = document.getElementById('stopRecordingBtn');
 const downloadBtn = document.getElementById('downloadBtn');
+const reloadBtn = document.getElementById('reloadBtn');
 const status = document.getElementById('status');
 const preview = document.getElementById('preview');
 const playback = document.getElementById('playback');
@@ -56,7 +57,16 @@ stopRecordingBtn.addEventListener('click', async () => {
     status.textContent = 'Stopping...';
     const blob = await recorder.stop();
 
+    // Stop camera
+    stream.getTracks().forEach(track => track.stop());
+    preview.srcObject = null;
+
     status.textContent = `Recording complete! Size: ${(blob.size / 1024 / 1024).toFixed(2)} MB`;
+
+    // Hide recording buttons
+    startWebcamBtn.style.display = 'none';
+    startRecordingBtn.style.display = 'none';
+    stopRecordingBtn.style.display = 'none';
 
     // Show playback
     const url = URL.createObjectURL(blob);
@@ -72,8 +82,9 @@ stopRecordingBtn.addEventListener('click', async () => {
     };
     downloadBtn.style.display = 'inline-block';
 
-    startRecordingBtn.disabled = false;
-    stopRecordingBtn.disabled = true;
+    // Show reload button
+    reloadBtn.style.display = 'inline-block';
+
     recorder = null;
   } catch (error) {
     status.textContent = `Error: ${error.message}`;
