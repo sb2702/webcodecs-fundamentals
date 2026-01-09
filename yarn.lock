@@ -3840,20 +3840,20 @@ web-namespaces@^2.0.0:
   resolved "https://registry.npmjs.org/web-namespaces/-/web-namespaces-2.0.1.tgz"
   integrity sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==
 
-webcodecs-examples@^0.1.9:
-  version "0.1.9"
-  resolved "https://registry.npmjs.org/webcodecs-examples/-/webcodecs-examples-0.1.9.tgz"
-  integrity sha512-y7PIIDO4VmLsWEZLCD7L08nI5q+f0FzlvD8e3ewoZtRIVTNR0FnFjY3/w+iduOumTeNtFW6rReaOb65kjInU/w==
+webcodecs-examples@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.npmjs.org/webcodecs-examples/-/webcodecs-examples-0.1.10.tgz"
+  integrity sha512-yTHad2/WHddk2xEv5rbE9cbK1q35aiD4LBzSUd+zpWeTNlbR24NvCZZK6TZHHJeAUehHCazT6TAlyQW8j7AIIg==
   dependencies:
     localforage "^1.10.0"
     mp4-muxer "^5.2.1"
     mp4box "^0.5.4"
-    webcodecs-utils "^0.2.2"
+    webcodecs-utils "^0.2.5"
 
-webcodecs-utils@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/webcodecs-utils/-/webcodecs-utils-0.2.2.tgz"
-  integrity sha512-5EAlZZWYaai46GkpzUBR56k7Nb7vtSCcbR5HAPrcOeM4ULQI9yuIfaZOtKIR9c5MiNsC9qGbm3MOBdrAWEJLvw==
+webcodecs-utils@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.npmjs.org/webcodecs-utils/-/webcodecs-utils-0.2.5.tgz"
+  integrity sha512-NYkyNMEqoCBEqjQJmYmdfgjGCbLGLZWPVoLuBsvJWMDDCPRA9069LHYmAEj10IYQky74OXDo5lTwGdp5vm/eOg==
   dependencies:
     lamejs "^1.2.1"
     mediabunny "^1.27.3"
