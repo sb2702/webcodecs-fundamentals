@@ -741,7 +741,9 @@ While MoQ was built to be content agnostic, one reason for including `groups` as
 
 With the Hang protocol, we now have everything to start streaming WebCodecs audio and video  over MoQ. We'll start by defining a publisher, which takes in the Audio/Video Config, listens for audio/video tracks, and creates audio/video pipelines to stream over MoQ.
 
-###### Publisher
+<details>
+
+<summary>Publisher </summary>
 
 ```typescript
 import { MediaStreamTrackProcessor, getSampleRate } from 'webcodecs-utils';
@@ -898,8 +900,13 @@ export class MoqPublisher {
 }
 
 ```
-###### Subscriber
+</details>
+
 Next we define the subscriber
+
+<details>
+
+<summary> Subscriber </summary>
 
 
 ```typescript
@@ -1045,9 +1052,16 @@ export class MoqSubscriber {
 
 ```
 
-##### Audio Player
+</details>
+
+
+
 
 We still need the audio player
+
+<details> 
+<summary>Audio Player </summary>
+
 
 ```typescript
 export class AudioPlayer {
@@ -1107,10 +1121,15 @@ export class AudioPlayer {
 
 ```
 
+</details>
 
-###### Interface
 
 Now finally we can add the interface which will load the publisher and subscriber respectively
+
+<details>
+
+<summary> Interface </summary>
+
 
 
 <Tabs>
@@ -1399,8 +1418,7 @@ Now finally we can add the interface which will load the publisher and subscribe
   </TabItem>
 </Tabs>
 
-
-###### Demo
+</details>
 
 We can now finally put everything together in a live demo, where it will stream your webcam through Media over Quic (via a public cloudflare relay) from the publisher tab to the subscriber tab.
 
