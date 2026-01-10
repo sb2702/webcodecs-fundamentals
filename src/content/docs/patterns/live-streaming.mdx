@@ -314,7 +314,7 @@ And this lets get the specific track for audio and video.
 
 #### MediaStreamTrackProcessor
 
-To actually get raw audio and video data from the stream, we'll need a [MediaStreamTrackProcessor](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrackProcessor). It's not yet supported on Safari or Firefox, but we can use a polyfill:
+To actually get raw audio and video data from the stream, we'll need a [MediaStreamTrackProcessor](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrackProcessor). It's not yet supported on Safari or Firefox, but we can use a [polyfill](https://github.com/sb2702/webcodecs-utils/blob/main/src/polyfills/media-stream-track-processor.ts):
 
 ```typescript
 import { MediaStreamTrackProcessor } from 'webcodecs-utils'  
@@ -536,7 +536,136 @@ See the full code [here](https://github.com/sb2702/webcodecs-examples/blob/main/
 
 
 
-## Examples
+## Streaming video over MoQ
+
+Now that we can covered:
+
+1. How to send data over a Media over Quic (MoQ) relay
+2. How to grba a stram of encoded audio & video from a webcam
+
+The next obvious step is to send encoded video over the network. The way to send arbitrary binary data over a track using the `@moq/lite` library is as follows:
+
+```typescript
+// Pull-mode, tracks are created when subscribers subscribe
+const {track, priority} =  await broadcast.requested();
+
+if(track.name ==='video'){
+  const group = track.appendGroup();
+  group.writeFrame(<Uint8Array> buffer); //whatever you want
+  group.close();
+}
+```
+
+Where you create a *group*, and in that *group* you can attach an arbitrary number of `Uint8Array` buffers. And as we saw, `EncodedVideoChunk` objects are just binary data + metadata.
+
+MoQ doesn't provide a specific protocol for how to send video or audio data. A core aspect of MoQ is that it is content agnostic, so you can come up with any schema you want for transmitting encoded chunks, as long as it is packaged as a `Uint8Array`.
+
+This goes well with WebCodecs, in that both technologies gives you much more control over encoding/data-transfer than is possible with WebRTC. 
+
+If you just want something that works though, you can use an existing protocol like Hang which both works and is incredibly simple.
+
+#### Hang Protocol
+
+Hang is a protocol for transmitting streaming media via MoQ. There is a [library](https://github.com/moq-dev/moq/tree/main/js/hang) to implement this, but the protocol is simple enough to implement yourself.
+
+
+###### Catalog.json
+Hang works by the publisher publishing a track called `'catalog.json'` with the available video and audio tracks to consume with the following structure:
+
+```json
+
+{
+  "video": {
+    "renditions": {
+       /*video0 is the name of the video track */
+      "video0": {
+        "codec": "avc1.64001f",
+        "description": "0164001fffe100196764001fac2484014016ec0440000003004000000c23c60c9201000568ee32c8b0",
+        "codedWidth": 1280,
+        "codedHeight": 720
+      }
+    },
+    "priority": 1
+  },
+  "audio": {
+    "renditions": {
+      /*audio1 is the name of the audio track */
+      "audio1": {
+        "codec": "mp4a.40.2",
+        "sampleRate": 44100,
+        "numberOfChannels": 2,
+        "bitrate": 283637
+      }
+    },
+    "priority": 2
+  }
+}
+
+```
+
+Where you specify available 'audio' tracks under 'audio' and video tracks under 'video'. Each available track is listed under `'renditions'`, and you'd specify the track name for each track.
+
+The value for `catalog.video.tracks[trackName]` is the `VideoDecoderConfig` you need to decode the video track, and `catalog.audio.tracks[trackName]` has the config needed for `AudioDecoderConfig`.
+
+
+So to actually connect to a session, and be ready to start sending data, we'd have the publisher publish a broadcast, and have each subscriber subscribe to a broadcast, which provides the namespace.
+
+<Tabs>
+
+
+  <TabItem label="Publisher">
+
+
+  ```typescript
+import * as Moq from "@moq/lite";
+const connection = await Moq.connect("https://relay.moq.some-cdn.com");
+const broadcast = new Moq.Broadcast();
+connection.publish('my-broadcast', broadcast);
+```
+  
+  </TabItem>
+
+  <TabItem label="Subscriber">
+
+```typescript
+import * as Moq from "@moq/lite";
+const connection = await Moq.connect("https://relay.moq.some-cdn.com");
+const broadcast = connection.consume("my-broadcast");
+```
+  </TabItem>
+</Tabs>
+
+Then, the publisher will publish track info via catalog.json. Because MoQ lite is built in a pull manner, the publisher listens for `catalog.json` track requests.
+
+``` typescript
+for (;;) {
+    const trackRequest = await broadcast.requested();
+    const requestedTrack = trackRequest.track;
+    if (requestedTrack.name === 'catalog.json') {
+      const catalogJson = JSON.stringify(catalogData);
+      const group = requestedTrack.appendGroup();
+      group.writeString(catalogJson);
+      group.close();
+    }
+}
+```
+Any subscriber can then listen for `catalog.json` in the broadcast, and once it receives the catelog, it can start listening for the video and audio tracks, as well as set up the `AudioDecoder` and `VideoDecoder`
+
+```typescript
+const catalogTrack = broadcast.subscribe('catalog.json');
+
+for (;;) {
+  const catalogGroup = await catalogTrack.nextGroup();
+  if (catalogGroup) {
+    const catalogJson = await catalogGroup.readString();
+    const catalog = JSON.parse(catalogJson);
+    // You know what tracks to listen for
+  }
+}
+```
+
+
+###### Streaming chunks
 
 ### Browser to Browser
 
