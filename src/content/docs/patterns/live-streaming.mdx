@@ -673,6 +673,8 @@ The catalog has most of the data now needed to decode video or audio chunks, but
 
 First, to encode the timestamp, we'll actally use a fixed 8-byte header to store the timestamp as an unsigned 8-byte integer.
 
+
+
 ```typescript
 //EncodedVideoChunk or EncodedAudioChunk
 const timestamp = chunk.timestamp; 
@@ -680,6 +682,7 @@ const header = new Uint8Array(8);
 const view = new DataView(header.buffer, header.byteOffset, 8);
 view.setBigUint64(0, BigInt(timestamp));
 ```
+
 Then, to encode the chunk, we'll create a `Uint8Array` which is the size of the encoded chunk + the header byteLength, and then we set the header at position 0, and the chunk data at position 8 (header byteLength).
 
 ```typescript
@@ -688,7 +691,13 @@ data.set(header, 0);
 chunk.copyTo(data.subarray(header.byteLength));  
 ```
 
+
+![](/assets/patterns/livestreaming/hang.svg)
+
+
+
 The receiver would parse the header to get the timestamp, and rest of the array would be the actual chunk data. 
+
 
 This just leaves the question of which chunks are keyFrames. The way we can handle this is by writing chunks in groups
 
@@ -902,7 +911,7 @@ export class MoqPublisher {
 ```
 </details>
 
-Next we define the subscriber
+Next we define the subscriber, which will listen for `catalog.json`, and then when it's available, it will parse the catalog, and setup a `VideoDecoder` for the video track, an `AudioDecoder` for the audio track, and then it will start listening for each track, retreiving each group of frames and sending them for decode.
 
 <details>
 
@@ -1054,10 +1063,7 @@ export class MoqSubscriber {
 
 </details>
 
-
-
-
-We still need the audio player
+We'll render the video frames to a `<canvas>` which is simple enough, but we also need to play back the `AudioData` objects via WebAudio, so we'll create an Audio Player class.
 
 <details> 
 <summary>Audio Player </summary>
@@ -1124,7 +1130,7 @@ export class AudioPlayer {
 </details>
 
 
-Now finally we can add the interface which will load the publisher and subscriber respectively
+Now finally we can add the interface which will load the publisher and subscriber respectively, use `getUserMedia` to get the source from the publisher, and start publishing data to the subscriber(s).
 
 <details>
 
