@@ -1,6 +1,6 @@
 ---
-title: Live Streaming with WebCodecs
-description: Low-latency encoder pipelines
+title: Streaming video with WebCodecs
+description: How to live stream with WebCodecs and Media over Quic (MoQ)
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -269,7 +269,7 @@ for (;;) {
 Here's a quick demo of MoQ using Clouldflare's public relay, where one iframe will publish text messages in a track, and the other a iframe will subscribe to the same track, and listen for messages from the relay
 
 
-<iframe src="/demo/moq/index2.html" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
+<iframe src="/demo/moq/index.html" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
 
 
 
@@ -669,17 +669,745 @@ for (;;) {
 
 ###### Streaming chunks
 
-* timestamp
+The catalog has most of the data now needed to decode video or audio chunks, but there's still two key bits of info needed: which chunks are key frames, and the timestamp of each chunk.
 
+First, to encode the timestamp, we'll actally use a fixed 8-byte header to store the timestamp as an unsigned 8-byte integer.
+
+```typescript
+//EncodedVideoChunk or EncodedAudioChunk
+const timestamp = chunk.timestamp; 
+const header = new Uint8Array(8);
+const view = new DataView(header.buffer, header.byteOffset, 8);
+view.setBigUint64(0, BigInt(timestamp));
+```
+Then, to encode the chunk, we'll create a `Uint8Array` which is the size of the encoded chunk + the header byteLength, and then we set the header at position 0, and the chunk data at position 8 (header byteLength).
+
+```typescript
+const data = new Uint8Array(header.byteLength + chunk.byteLength);
+data.set(header, 0);
+chunk.copyTo(data.subarray(header.byteLength));  
+```
+
+The receiver would parse the header to get the timestamp, and rest of the array would be the actual chunk data. 
+
+This just leaves the question of which chunks are keyFrames. The way we can handle this is by writing chunks in groups
+
+```typescript
+
+let group: Moq.Group | undefined;
+
+const encoder = new VideoEncoder({
+  output: (frame: EncodedVideoChunk) => {
+    if (frame.type === "key") {
+      groupTimestamp = frame.timestamp as Time.Micro;
+      group?.close();
+      group = track.appendGroup();
+    } 
+    const buffer = encodeFrame(frame); // Logic from above
+    group?.writeFrame(buffer);
+  },
+  error: (err: Error) => {
+    track.close(err);
+    group?.close(err);
+  },
+});
+
+```
+
+Then, when the subscriber listens for new groups in the track, the first frame in the group is always a key frame
+
+```typescript
+
+const track = await broadcast.subscribe("videoTrack");
+
+// Read data as it arrives
+for (;;) {
+	const group = await track.nextGroup();
+	if (!group) break;
+  let keyframe = true; // First is always a key frame
+	for (;;) { 
+		const frame = await group.readFrame(); 
+    if(frame){
+        parseFrame(frame, keyframe);
+        keyframe = false;
+    }
+  }
+}
+```
+
+While MoQ was built to be content agnostic, one reason for including `groups` as a core aspect was to enable sending groups of pictures (a key frame and all it's subsequent delta frames), to improve streaming stability
 
 #### Browser to Browser Streaming
 
-#### Publisher
+With the Hang protocol, we now have everything to start streaming WebCodecs audio and video  over MoQ. We'll start by defining a publisher, which takes in the Audio/Video Config, listens for audio/video tracks, and creates audio/video pipelines to stream over MoQ.
 
-#### Subscriber
+###### Publisher
+
+```typescript
+import { MediaStreamTrackProcessor, getSampleRate } from 'webcodecs-utils';
+import { VideoEncoderStream } from './video-encoder-stream'; // TransformStream discussed above
+import { AudioEncoderStream } from './audio-encoder-stream'; // TransformStream discussed above
+
+export class MoqPublisher {
+  private videoTrack: MediaStreamTrack;
+  private audioTrack: MediaStreamTrack;
+  private broadcast: any;
+  private videoConfig: VideoEncoderConfig;
+  private audioConfig: AudioEncoderConfig;
+  private videoMoqTrack: any = null;
+  private audioMoqTrack: any = null;
+  private abortController: AbortController | null = null;
+
+  constructor(
+    videoTrack: MediaStreamTrack,
+    audioTrack: MediaStreamTrack,
+    broadcast: any,
+    videoConfig: VideoEncoderConfig,
+    audioConfig: AudioEncoderConfig
+  ) {
+    this.videoTrack = videoTrack;
+    this.audioTrack = audioTrack;
+    this.broadcast = broadcast;
+    this.videoConfig = videoConfig;
+    this.audioConfig = audioConfig;
+  }
+
+  async start(): Promise<void> {
+    if (this.abortController) {
+      throw new Error('Already publishing');
+    }
+
+    this.abortController = new AbortController();
+    
+    for(;;){ // Listen for track requests
+      const trackRequest = this.broadcast.requested();
+      if(trackRequest) this.handleTrackRequest(trackRequest)
+      await new Promise((r)=>requestAnimationFrame(r));
+    }
+
+  
+  }
+
+  async handleTrackRequest(trackRequestPromise){
+
+    const trackRequest = await trackRequestPromise;
+    const requestedTrack = trackRequest.track;
+
+    if (requestedTrack.name === 'video' && !this.videoMoqTrack) {
+
+      this.videoMoqTrack = requestedTrack;
+
+      // Video pipeline
+      const videoProcessor = new MediaStreamTrackProcessor({ track: this.videoTrack });
+      const videoEncoderStream = new VideoEncoderStream(this.videoConfig);
+
+      // Start video pipeline
+      videoProcessor.readable
+        .pipeThrough(videoEncoderStream)
+        .pipeTo(this.createVideoWriter(this.videoMoqTrack), {
+          signal: this.abortController.signal
+        });
+    } else if (requestedTrack.name === 'audio' && !this.audioMoqTrack) {
+      this.audioMoqTrack = requestedTrack;
+
+          // Audio pipeline
+    const audioProcessor = new MediaStreamTrackProcessor({ track: this.audioTrack });
+    const audioEncoderStream = new AudioEncoderStream(this.audioConfig);
+
+      // Start audio pipeline
+      audioProcessor.readable
+        .pipeThrough(audioEncoderStream)
+        .pipeTo(this.createAudioWriter(this.audioMoqTrack), {
+          signal: this.abortController.signal
+        });
+    }
+
+  }
+
+  private createVideoWriter(moqTrack: any): WritableStream<{ chunk: EncodedVideoChunk; meta: EncodedVideoChunkMetadata }> {
+    let currentGroup: any = null;
+
+    return new WritableStream({
+      async write(value: EncodedVideoChunk) {
+        // Start new group on keyframe (GOP - group of pictures)
+        if (value.chunk.type === 'key') {
+          if (currentGroup) {
+            currentGroup.close();
+          }
+          currentGroup = moqTrack.appendGroup();
+        }
+
+        if (!currentGroup) {
+          // First chunk must be a keyframe
+          currentGroup = moqTrack.appendGroup();
+        }
+
+        // Hang format: [timestamp (8 bytes)] [data]
+        const chunkData = new Uint8Array(value.chunk.byteLength);
+        value.chunk.copyTo(chunkData);
+
+        const buffer = new Uint8Array(8 + chunkData.byteLength);
+        const view = new DataView(buffer.buffer);
+
+        // Write timestamp as 64-bit integer (microseconds)
+        view.setBigUint64(0, BigInt(value.chunk.timestamp), true);
+
+        // Write chunk data
+        buffer.set(chunkData, 8);
+
+        currentGroup.writeFrame(buffer);
+      },
+      async close() {
+        if (currentGroup) {
+          currentGroup.close();
+        }
+      }
+    });
+  }
+
+  private createAudioWriter(moqTrack: any): WritableStream<EncodedAudioChunk> {
+    return new WritableStream({
+      async write(chunk: EncodedAudioChunk) {
+        const group = moqTrack.appendGroup();
+
+        // Hang format: [timestamp (8 bytes)] [data]
+        const chunkData = new Uint8Array(chunk.byteLength);
+        chunk.copyTo(chunkData);
+
+        const buffer = new Uint8Array(8 + chunkData.byteLength);
+        const view = new DataView(buffer.buffer);
+
+        // Write timestamp as 64-bit integer (microseconds)
+        view.setBigUint64(0, BigInt(chunk.timestamp), true);
+
+        // Write chunk data
+        buffer.set(chunkData, 8);
+
+        group.writeFrame(buffer);
+        group.close();
+      }
+    });
+  }
+
+  stop(): void {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+    }
+  }
+}
+
+```
+###### Subscriber
+Next we define the subscriber
 
 
-#### Demo
+```typescript
+export interface MoqFrame {
+  timestamp: number;
+  type?: 'key' | 'delta';
+  data: Uint8Array;
+}
+
+export class MoqSubscriber {
+  private videoTrack: any;
+  private audioTrack: any;
+  private videoDecoder: VideoDecoder | null = null;
+  private audioDecoder: AudioDecoder | null = null;
+  private catalog: any;
+
+  constructor(catalog: any, videoTrack: any, audioTrack: any) {
+    this.catalog = catalog;
+    this.videoTrack = videoTrack;
+    this.audioTrack = audioTrack;
+  }
+
+  async startVideo(onFrame: (frame: VideoFrame) => void): Promise<void> {
+    // Get video config from catalog
+    const videoRendition = Object.values(this.catalog.video.renditions)[0] as any;
+
+    this.videoDecoder = new VideoDecoder({
+      output: onFrame,
+      error: (e) => console.error('Video decoder error:', e),
+    });
+
+    const config: VideoDecoderConfig = {
+      codec: videoRendition.codec,
+      codedWidth: videoRendition.codedWidth,
+      codedHeight: videoRendition.codedHeight,
+    };
+
+    this.videoDecoder.configure(config);
+
+    // Start reading video frames
+    (async () => {
+      try {
+        while (true) {
+          const group = await this.videoTrack.nextGroup();
+          if (!group) break;
+
+          // First frame in group is always a keyframe
+          let isKeyframe = true;
+
+          // Read all frames in the group
+          for (;;) {
+            const frameData = await group.readFrame();
+            if (!frameData) break;
+
+            const frame = this.parseVideoFrame(frameData, isKeyframe);
+
+            const chunk = new EncodedVideoChunk({
+              timestamp: frame.timestamp,
+              type: frame.type!,
+              data: frame.data,
+            });
+
+            this.videoDecoder!.decode(chunk);
+            isKeyframe = false; // Subsequent frames are delta
+          }
+        }
+      } catch (error) {
+        console.error('Video read error:', error);
+      }
+    })();
+  }
+
+  async startAudio(onData: (audioData: AudioData) => void): Promise<void> {
+    // Get audio config from catalog
+    const audioRendition = Object.values(this.catalog.audio.renditions)[0] as any;
+
+    this.audioDecoder = new AudioDecoder({
+      output: onData,
+      error: (e) => console.error('Audio decoder error:', e),
+    });
+
+    this.audioDecoder.configure({
+      codec: audioRendition.codec,
+      sampleRate: audioRendition.sampleRate,
+      numberOfChannels: audioRendition.numberOfChannels,
+    });
+
+    // Start reading audio frames
+    (async () => {
+      try {
+        while (true) {
+
+          const group = await this.audioTrack.nextGroup();
+          if (!group) break;
+
+          const frameData = await group.readFrame();
+          const frame = this.parseAudioFrame(frameData);
+
+          const chunk = new EncodedAudioChunk({
+            timestamp: frame.timestamp,
+            type: 'key',
+            data: frame.data,
+          });
+
+          this.audioDecoder!.decode(chunk);
+        }
+      } catch (error) {
+        console.error('Audio read error:', error);
+      }
+    })();
+  }
+
+  private parseVideoFrame(buffer: Uint8Array, isKeyframe: boolean): MoqFrame {
+    // Hang format: [timestamp (8 bytes)] [data]
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
+
+    const timestamp = Number(view.getBigUint64(0, true));
+    const type = isKeyframe ? 'key' : 'delta';
+    const data = buffer.slice(8);
+
+    return { timestamp, type, data };
+  }
+
+  private parseAudioFrame(buffer: Uint8Array): MoqFrame {
+    // Hang format: [timestamp (8 bytes)] [data]
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
+
+    const timestamp = Number(view.getBigUint64(0, true));
+    const data = buffer.slice(8);
+
+    return { timestamp, data };
+  }
+
+  stop(): void {
+    if (this.videoDecoder && this.videoDecoder.state !== 'closed') {
+      this.videoDecoder.close();
+    }
+    if (this.audioDecoder && this.audioDecoder.state !== 'closed') {
+      this.audioDecoder.close();
+    }
+  }
+}
+
+```
+
+##### Audio Player
+
+We still need the audio player
+
+```typescript
+export class AudioPlayer {
+  private audioContext: AudioContext;
+  private gainNode: GainNode;
+  private sampleRate: number;
+  private numberOfChannels: number;
+  private nextPlayTime: number = 0;
+
+  constructor(sampleRate: number, numberOfChannels: number) {
+    this.sampleRate = sampleRate;
+    this.numberOfChannels = numberOfChannels;
+    this.audioContext = new AudioContext({ sampleRate });
+    this.gainNode = this.audioContext.createGain();
+    this.gainNode.connect(this.audioContext.destination);
+  }
+
+  play(audioData: AudioData): void {
+    // Extract PCM data from AudioData
+    const numberOfFrames = audioData.numberOfFrames;
+    const buffer = this.audioContext.createBuffer(
+      this.numberOfChannels,
+      numberOfFrames,
+      this.sampleRate
+    );
+
+    // Copy data for each channel
+    for (let channel = 0; channel < this.numberOfChannels; channel++) {
+      const channelData = new Float32Array(numberOfFrames);
+      audioData.copyTo(channelData, {
+        planeIndex: channel,
+        format: 'f32-planar',
+      });
+      buffer.copyToChannel(channelData, channel);
+    }
+
+    // Create and schedule buffer source
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.gainNode);
+
+    const currentTime = this.audioContext.currentTime;
+    const playTime = Math.max(currentTime, this.nextPlayTime);
+
+    source.start(playTime);
+    this.nextPlayTime = playTime + buffer.duration;
+  }
+
+  setVolume(volume: number): void {
+    this.gainNode.gain.value = volume;
+  }
+
+  close(): void {
+    this.audioContext.close();
+  }
+}
+
+```
+
+
+###### Interface
+
+Now finally we can add the interface which will load the publisher and subscriber respectively
+
+
+<Tabs>
+
+  <TabItem label="Publisher">
+
+
+  ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoQ Publisher</title>
+</head>
+<body>
+  <div class="container">
+    <h3>📤 Publisher</h3>
+    <div id="status" class="status">Initializing...</div>
+
+    <div class="controls">
+      <button id="startWebcamBtn">Start Webcam</button>
+      <button id="startPublishBtn" disabled>Start Publishing</button>
+    </div>
+
+    <video id="preview" autoplay muted playsinline style="width: 100%; max-width: 355px; border-radius: 4px; margin: 10px 0;"></video>
+
+    <div class="log" id="log"></div>
+  </div>
+
+
+
+  <script type="module">
+    import * as Moq from 'https://esm.sh/@moq/lite';
+    import { MoqPublisher } from '../../../src/moq/moq-publisher.ts';
+    import { getSampleRate, getBitrate, getCodecString } from 'webcodecs-utils';
+    
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const broadcastName = params.get('broadcast') || 'my-broadcast';
+
+    // UI Elements
+    const startWebcamBtn = document.getElementById('startWebcamBtn');
+    const startPublishBtn = document.getElementById('startPublishBtn');
+    const preview = document.getElementById('preview');
+
+    // State
+    let connection = null;
+    let broadcast = null;
+    let videoTrack = null;
+    let audioTrack = null;
+    let stream = null;
+    let publisher = null;
+
+
+    async function startWebcam() {
+      try {
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: true,
+        });
+
+        videoTrack = stream.getVideoTracks()[0];
+        audioTrack = stream.getAudioTracks()[0];
+
+        preview.srcObject = stream;
+
+        startWebcamBtn.disabled = true;
+        startPublishBtn.disabled = false;
+      } catch (error) {
+ 
+        console.log('Webcam error: ' + error.message, 'error');
+      }
+    }
+
+    async function startPublishing() {
+      try {
+
+        connection = await Moq.Connection.connect(new URL(relayUrl));
+        broadcast = new Moq.Broadcast();
+        connection.publish(broadcastName, broadcast);
+
+
+        startPublishBtn.disabled = true;
+
+        // Create encoder configs
+        const videoSettings = videoTrack.getSettings();
+        const audioSettings = audioTrack.getSettings();
+        const sampleRate = await getSampleRate(audioTrack);
+
+        const codec = 'avc';
+        const bitrate = getBitrate(videoSettings.width, videoSettings.height, 30, 'good');
+        const codecString = getCodecString(codec, videoSettings.width, videoSettings.height, bitrate);
+
+        const videoConfig = {
+          codec: codecString,
+          width: videoSettings.width,
+          height: videoSettings.height,
+          bitrate: Math.round(bitrate),
+          framerate: 30,
+        };
+
+        const audioConfig = {
+          codec: 'opus',
+          sampleRate: sampleRate,
+          numberOfChannels: Math.min(audioSettings.channelCount || 2, 2),
+          bitrate: 128000,
+        };
+
+        // Get description using the same config
+        const description = await MoqPublisher.getDescription(videoTrack, videoConfig);
+
+        const catalogData = {
+          video: {
+            renditions: {
+              video0: {
+                codec: codecString,
+                codedWidth: videoSettings.width,
+                codedHeight: videoSettings.height,
+                description
+              }
+            },
+            priority: 1
+          },
+          audio: {
+            renditions: {
+              audio0: audioConfig
+            },
+            priority: 2
+          }
+        };
+
+        // Handle catalog requests
+        (async () => {
+          while (true) {
+            const trackRequest = await broadcast.requested();
+            const requestedTrack = trackRequest.track;
+
+            if (requestedTrack.name === 'catalog.json') {
+              const catalogJson = JSON.stringify(catalogData);
+              const group = requestedTrack.appendGroup();
+              group.writeString(catalogJson);
+              group.close();
+            }
+          }
+        })();
+
+        // Start MoQ publisher with configs
+        publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig);
+        await publisher.start();
+        log('Publisher started', 'success');
+
+      } catch (error) {
+        console.log('Error: ' + error.message, 'error');
+      }
+    }
+    // Event listeners
+    startWebcamBtn.addEventListener('click', startWebcam);
+    startPublishBtn.addEventListener('click', startPublishing);
+  </script>
+</body>
+</html>
+
+
+```
+  
+  </TabItem>
+
+  <TabItem label="Subscriber">
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoQ Subscriber</title>
+</head>
+<body>
+  <div class="container">
+    <h3>📥 Subscriber</h3>
+    <div id="status" class="status">Initializing...</div>
+
+    <canvas id="canvas" width="640" height="360" style="width: 100%; max-width: 355px; border-radius: 4px; margin: 10px 0; background: #000;"></canvas>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module">
+    import * as Moq from 'https://esm.sh/@moq/lite';
+    import { MoqSubscriber, AudioPlayer } from '../../../src/moq/index.ts';
+
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const broadcastName = params.get('broadcast') || 'my-broadcast';
+
+    // UI Elements
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // State
+    let connection = null;
+    let subscriber = null;
+    let frameCount = 0;
+
+
+    async function getCatalog(broadcast) {
+      try {
+        const catalogTrack = broadcast.subscribe('catalog.json');
+
+        for (;;) {
+          const catalogGroup = await catalogTrack.nextGroup();
+
+          if (catalogGroup) {
+            const catalogJson = await catalogGroup.readString();
+            const catalog = JSON.parse(catalogJson);
+            log('Received catalog', 'success');
+            console.log('Catalog:', catalog);
+            return catalog;
+          }
+        }
+      } catch (e) {
+        await new Promise((r) => setTimeout(r, 500));
+        return await getCatalog(broadcast);
+      }
+    }
+
+
+
+
+    async function init() {
+      try {
+      
+        connection = await Moq.Connection.connect(new URL(relayUrl));
+
+        const broadcast = connection.consume(broadcastName);
+
+        const catalog = await getCatalog(broadcast);
+
+
+        const videoTrack = await broadcast.subscribe('video');
+
+       const audioTrack = await broadcast.subscribe('audio');
+
+ 
+
+        // Create audio player
+        const audioRendition = Object.values(catalog.audio.renditions)[0];
+        const audioPlayer = new AudioPlayer(audioRendition.sampleRate, audioRendition.numberOfChannels);
+
+        subscriber = new MoqSubscriber(catalog, videoTrack, audioTrack);
+
+        // Start video decoding and rendering
+        subscriber.startVideo((frame) => {
+          ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+          frame.close();
+          frameCount++;
+        });
+
+        // Start audio decoding and playback
+        subscriber.startAudio((audioData) => {
+          audioPlayer.play(audioData);
+          audioData.close();
+        });
+
+        updateStatus('Receiving stream', 'success');
+        log('Decoders started', 'success');
+
+      } catch (error) {
+        updateStatus('Connection failed', 'error');
+        log('Init error: ' + error.message, 'error');
+      }
+    }
+
+    // Initialize
+    init();
+  </script>
+</body>
+</html>
+
+```
+  </TabItem>
+</Tabs>
+
+
+###### Demo
+
+We can now finally put everything together in a live demo, where it will stream your webcam through Media over Quic (via a public cloudflare relay) from the publisher tab to the subscriber tab.
+
+<iframe src="/demo/moq-browser-to-browser/index.html" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
+
+
+
 
 
 ### Browser to Server
