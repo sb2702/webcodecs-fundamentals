@@ -176,7 +176,7 @@
         updateStatus('Requesting webcam access...', 'info');
 
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720 },
+          video: { width: 640, height: 360 },
           audio: true,
         });
 
