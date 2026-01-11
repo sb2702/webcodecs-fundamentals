@@ -1692,28 +1692,59 @@ You'll be able to stream encoded video data to the local server over webcodecs, 
 
 ### Server to browser
 
+#### HLS & Dash
+
 The primary use case for streaming video from a server to a browser would be your typical "live streaming" use case where a server broadcasts some live stream of video from a source (like a sports match), which is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[3](https://www.mux.com/articles/hls-vs-dash-what-s-the-difference-between-the-video-streaming-protocols)].
 ![](/assets/patterns/livestreaming/server-browser-3.svg)
 
-![](/assets/patterns/livestreaming/server-to-browser-2.svg)
+You then have video player software like [hls.js](https://github.com/video-dev/hls.js) or [shaka player](https://github.com/shaka-project/shaka-player) on each viewer's device which progressively fetch chunks of the video from a CDN using normal HTTP requests.
+
+![](/assets/patterns/livestreaming/server-browser-4.svg)
+
+
+#### Media over Quic
+
+Previously in the browser to browser streaming case, we saw that a Media over Quic relay (also a CDN) could enable an individual browser to stream to many subscribers at the scale of traditional streaming, but without the server processing and latency overhead of traditional streaming.
 
 ![](/assets/patterns/livestreaming/server-to-browser-1.svg)
 
+It's also possible to stream video to a Media over Quic relay from a server to subscribers, accomplishing roughly the same behaviour and scale as HLS/DASH streaming.
+
+![](/assets/patterns/livestreaming/server-to-browser-2.svg)
+
+One key difference though is the `Quic` part of Media over Quic, whereby in this case, viewers are not fetching video segments from a CDN, but instead maintaining an active, open connection to the relay using the [Quic protocol](https://en.wikipedia.org/wiki/QUIC).
+
+This means that video never has to go through an intermediate step of being muxed and saved to `ts` files, and then fetched by player software. With Media over Quic, encoded video and audio can directly be sent in a continious stream to subscribers and decoded with WebCodecs, with the real-time latency of a video call, but at the scale of a CDN with millions of subscribers.
+
+Compared to traditional HLS/DASH streaming, this reduces latency by quite a bit, which is why many companies are excited about it [[3](https://blog.cloudflare.com/moq/)][[4](https://github.com/facebookexperimental/moq-encoder-player)]
+
+#### WebCodecs needs Media Over Quic for streaming
+
+Without the Media over Quic layer, using WebCodecs to stream video from a server to many devices (say via WebSockets) is impractical. You'd be better off using established technologies like WebRTC for real-time, low-volume streaming, or HLS/DASH streaming for high-volume streaming with some latency.
+
+So, for livestreaming with WebCodecs from the server to many clients, Media over Quic is the necessary enabling network layer, and WebCodecs + Media over Quic as a stack has concerete advantages compared to WebRTC and HLS/DASH streaming (low latency and high volume).
 
 
+#### Do you need a server?
 
-Livestreaming one to many
+Most of the time in streaming, the source of your video isn't actually your server, typical broadcast workflows include sending video from source cameras via an older protocol like RTMP[[5](https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol)] to a media server, which then processes the stream into an HLS or DASH format for consumption.
 
--- WebSockets is likely impractical
+There's no reason you couldn't have a server that ingests RTMP and outputs to Media over Quic, but RTMP itself adds latency, reducing the primary benefit of Media over Quic. For traditional broadcast workflows (like sports streaming), which also involves specialized hardware, you'd need to replace RTMP and also handle multi-track encoding at the source for Media over Quic to be viable, so there are many incentives to stick with established workflows for traditional broadcasters.
 
--- gstreamer plugin
--- Rust CLI for hang
+On the other hand, ff you're an application developer who wants to stream video but also controls the video source, you may not even need a server. In the case of video conferencing, webinars or browser-based live-streaming tools, where the publisher is a user, you don't even need a server, as client devices are the publisher:
 
--- MediaOverQuic is in it's infancy
+![](/assets/patterns/livestreaming/server-to-browser-1.svg)
+
+In cases where your application owns the end broadaster -> viewer stack, Media over Quic + WebCodecs makes much more sense as there are concrete performance and costs benefits compared to older workflows, and in that scenario you might not even need a server to stream video.
 
 
-Mention the WARP format and hang format
+#### Still early for Media Over Quic
 
+As mentioned earlier however, [Media over Quic](../../projects/moq) is a new project, and tooling is limited. For server streaming, there is an established Media over Quic client for [Rust](https://github.com/moq-dev/moq) and a plugin for [GStreamer](https://github.com/moq-dev/gstreamer)
+
+Because Rust is too far outside the scope of this WebCodecs tutorials project(<small>also I don't know rust</small>) I'll refer you to the rust clients ([moq-lite](https://github.com/moq-dev/moq/tree/main/rs/moq-lite), [hang](https://github.com/moq-dev/moq/tree/main/rs/hang)). 
+
+I will update this with a server streaming tutorial when there's a server-side javascript or python client for Media over Quic, to broadcast multi-track streaming encoded audio and video via Media over Quic to a browser subscriber.
 
 
 ## Productionization
