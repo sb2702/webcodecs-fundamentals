@@ -386,7 +386,7 @@ To write `EncodedVideoChunk` objects to a file, you need a muxer. Here the prima
 
 import {
   EncodedPacket,
-  EncodedPacketVideoSource,
+  EncodedVideoPacketSource,
   BufferTarget,
   Mp4OutputFormat,
   Output
@@ -399,7 +399,7 @@ async function muxChunks(function(chunks: EncodedVideoChunk[]): Promise <Blob>{
         target: new BufferTarget(),
     });
 
-    const source = new EncodedVideoPacketSource({codec: 'avc'});
+    const source = new EncodedVideoPacketSource('avc');
     output.addVideoTrack(source);
 
     await output.start();

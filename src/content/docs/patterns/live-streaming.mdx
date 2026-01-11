@@ -1434,90 +1434,35 @@ We can now finally put everything together in a live demo, where it will stream 
 And that's it! That's the basics of streaming audio and video over Media over Quic. You can find the source code for the demo here: ([HTML](https://github.com/sb2702/webcodecs-examples/tree/main/demos/moq/browser-to-browser), [JS](https://github.com/sb2702/webcodecs-examples/tree/main/src/moq)).
 
 
-### Browser to Server
+A lot of this was manually implemented, but you can also use the [hang library](https://github.com/moq-dev/moq/tree/main/js/hang) directly for a more out-of-box experience.
 
--- parsing the data locally
 
--- Saving it locally
+## Streaming to and from a server
 
--- Production gotchas
 
+- MoQ doesn't work in Node, fallback to websockets
+
+This may make sense in cases where you want recordings 
 
 
 ### Server to browser
 
--- Creating a live stream
+Livestreaming one to many
+
+-- WebSockets is likely impractical
+
+-- gstreamer plugin
+-- Rust CLI for hang
+
+-- MediaOverQuic is in it's infancy
+
+
+Mention the WARP format and hang format
 
 
 
+## Productionization
 
+#### Authentication
 
-
-
-## Alternatives
-
-#### WebRTC
-
-#### Media Source Extensions
-
-
-## Case Studies
-
-Now that you've seen how WebCodecs works and how to stream, let's look at some concrete examples of actual streaming applications and their architectures: [Session](https://www.youtube.com/watch?v=WispwTzPS9A) (a webinar tool, discontinued), and [Streamyard](https://streamyard.com/) (a browser based recording studio). I worked on both products in a previous role.
-
-#### Session (Webinars)
-
-Session was a webinar product which enabled several hosts to conduct video webinars with up to 5000 participants. It had common interactive webinar features like polls, Q&A and breakout rooms.
-
-![](/assets/patterns/livestreaming/session2.jpeg)
-
-Session was built with [WebRTC](https://webrtc.org/), which is an WebAPI that is specifically designed to facilitate video conferencing, and is what is used in browser based video conference tools like Google Meet.
-
-Session used a router/relay model, in which every participant streamed audio/video a routing server, and then a server (specifically an [SFU](https://bloggeek.me/webrtcglossary/sfu/)) would then apply it's business logic to route some subset of streams to each participant without re-encoding.
-
-![](/assets/patterns/livestreaming/session-stack.svg)
-
-In the webinar use case, the hosts would broadcast to all participants (few to many), but each participant would only see a subset of other participants, and this subset could change based on factors like joining a breakout room, and participants joining and leaving.
-
-WebRTC was probably the best solution in this case, as it facilitates coordination of codec choice among all participants, abstracts the encoding details and is optimized for real-time delivery. However, there were still some challenges with using WebRTC for Session:
-
-**Scale**: WebRTC starts facing scalability issues beyond 100 participants [[1](https://bloggeek.me/how-many-users-webrtc-call/)]. This was fine for most webinars, but a few high-value webinars attracted thousands of participants, and Session was only able to scale to 5000 participants through in-house WebRTC expertise.
-
-**Video Quality**: WebRTC provided limited control over video quality, and by necessity provided lower quality to ensure low latency. This became relevant when enabling recording of webinars (a common use case), where the recording was essentially a server joining the webinar as a participant, and recording the compressed video feeds in real time, resulting in *okay* quality recordings, but not matching the level of locally recorded content.
-
-WebCodecs via Media over Quic could likely have solved the scale issue, handling many more concurrent subscribers than is possible with WebRTC. Media over Quic is particularly well suited to this "middle-ground" for webinars where there are too many participants for a normal video conferencing call (for which WebRTC was designed), but not enough scale for full-fledged HLS/DASH streaming with millions of viewers.
-
-
-However as a newer protocol with fewer supporting libraries, and more decision making required on codec configuration and delivery, it would have required more up-front engineering and experimentation to work. 
-
-
-#### Streamyard
-
-Streamyard is a browser based recording studio, that enables participants to live stream their webcam feeds to multiple social media destinations (like Facebook Live, YouTube live) simultaneously.
-
-![](/assets/patterns/livestreaming/streamyard.png)
-
-Streamyard had a more complicated setup where participants streamed their webcam feeds via WebRTC through a routing server. Functionally, it operated like a WebRTC conferencing call, but there were also recording servers listening to each "call" as another WebRTC participant (running a version of the app on the server via headless browsers), recording the feeds from each participant and compositing them into the layout the host specified in the studio.
-
-![](/assets/patterns/livestreaming/streamyard-stack.svg)
-
-This composited feed would then be encoded into an RTMP live stream that would then be simultaneously distributed to multiple destinations (e.g. Facebook Like, YouTube live etc...). Streamyard was built before WebCodecs was released, so it wasn't an option when the product first launched.
-
-**Video Quality**: Many live streamers wanted higher quality versions of their recordings which they could edit after the live stream. Because the WebRTC feeds provided lower video quality (to ensure latency), Streamyard implemented a system to record higher-quality versions of each stream within the browser (called "local crecordings"), and send that to the server in chunks, in parallel to the WebRTC stream. This meant that in practice, the browser was recording two video streams in parallel.
-
-
-**Complexity**: Because feeds were being converted to RTMP feeds and sent to livestreaming destinations with their own CDNs, Streamyard never faced a scale issue, however the mixing of numerous technologies added complexity and failure points, and it worked at a business level only because of lots of engineering and a deep internal focus on stability.
-
-
-While working with RTMP was a core requirement (that's what live-streaming destinations required as inputs), Streamyard had multiple options for sending video from the browser to the server, and in practice ended up using two parallel systems (WebRTC for the livestream, an in-house solution for local recordings).
-
-If you were to build a product like Streamyard today, given the product's core focus on stability, using the established WebRTC protocol over a newer, more experimental setup with WebCodecs probably makes sense. That said, I do know that the Streamyard team specifically preferred controlling certain aspects of their stack to obtain more reliability and performance compared to off-the-shelf solutions, and so having more fine-grained control over encoding and networking compared to WebRTC might would have also made it a sensible choice.
-
-For the local recordings use case (recording higher-quality versions of the stream locally, uploading that in chunks), that seems like a pretty good use case for WebCodecs.
-
-
-#### Depends on your use case
-
-Hopefully you can see from the above-two examples that how you architect a streaming application depends on what you are doing, you may have multiple options for streaming media, each option has it's strengths and weaknesses, and business requirements would often require custom logic beyond what any standard technology can provide by itself.
-
-Maybe WebCodecs doesn't make sense for your application, or maybe it's a no brainer, or maybe it might make sense for certain features.  Whatever the case, hopefully this article gave you an idea of how WebCodecs can be used in streaming contexts, and provided enough info to make a more informed decision on how to architect a streaming application.
+#### Retry
