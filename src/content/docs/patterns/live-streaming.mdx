@@ -1443,21 +1443,21 @@ The idea behind MoQ is that a server can act as a publisher or a subscriber just
 
 #### Server to Browser
 
-A primary use case for streaming from a browser to a server would be for "recording" features, such as preserving a meeting recording, or recording high-definition versions of user's web-cameras, which are common features of meeting, webinar and live-streaming softwares.
+A primary use case for streaming from a browser to a server would be for "recording" features, such as recording a meeting / webinar, or recording high-definition versions of user's web-cameras, which are common features of meeting, webinar and live-streaming softwares.
 
-Here we'll have a server connect to a MoQ relay, and subscribe to the same stream that subscribers listen to.
+To accomplish this, we'll have a server connect to a MoQ relay, and subscribe to the same stream that subscribers listen to.
 
 ![](/assets/patterns/livestreaming/live-streaming-recording.svg)
 
 
-Many existing platforms use a similar approach with WebRTC where the sever joins a session as a participant and just 'records', usually involving decoding the WebRTC stream, and re-encoding it to a file.
+Many existing platforms use a similar approach with WebRTC where the sever joins a session as a participant and just 'records', however this usually involves decoding the video from the WebRTC stream and re-encoding it, which is compute intensive and limits scalability.
 
 One advantage of Webcodecs is that we can avoid a decode/encode process and directly mux video to hard disk which is much more efficient. Because WebCodecs provides raw encoded video/audio data, it can work with server-side media processing libraries like [PyAV](https://github.com/PyAV-Org/PyAV) and [NodeAV](https://github.com/seydx/node-av), which are server-runtime bindings for ffmpeg, allowing you to mux encoded video data on the server (to record a user's stream). 
 
 Because [MediaBunny](../../projects/mediabunny) works on the server, we'll use that as our example, but you can use whatever media processing library is available for your target language:
 
 
-On the server, for each file you record you'd create a new output with the file you want to write to 
+Using MediaBunny to mux files in a javascript/typescript run time, here's how you'd set up the muxer to write the encoded stream to disk:
 
 ```typescript
 import { Output, EncodedPacket, EncodedVideoPacketSource,EncodedAudioPacketSource, FilePathTarget,  Mp4OutputFormat, WebMOutputFormat } from 'mediabunny';
@@ -1493,7 +1493,8 @@ function handleFrame(frame, meta) {
     }
 }
 ```
-Where `frame` and `meta` are essentially what come out from the `AudioEncoder` and `VideoEncoder`, but because we are transmitting data via binary, we need to encode it to binary on the client, and decode it to binary on the server.
+Where `frame` and `meta` are essentially what come out from the `AudioEncoder` and `VideoEncoder`, but because we are transmitting data via binary, and `EncodedVideoChunk` and `EncodedAudioChunk` don't exist in server run timestamp we need to encode it to binary on the client, and decode it from binary on the server and just preserve the data structure of `EncodedVideoChunk`.
+
 
 <Tabs>
 
@@ -1645,19 +1646,32 @@ Here's a full Serialization/Deserialization example
 </details>
 
 
+Then, when you start listening on the server for the stream of data, you'd essentially do something like this:
+
+
+```typescript
+
+function onDataFromNetwork(buffer: Uint8Array){
+    const frame = parseFrame(buffer); //parse the frame
+    handleFrame(frame); //Mux it to disk
+}
+
+```
+
+
 When you're done recording, just call `output.finalize()`
 
 ```typescript
 await output.finalize(); // File saved to disk
 ```
 
-The file will be saved to disk. Muxing is efficient enough that you could record dozens of streams in parallel on a single server.
+The file will be saved to disk. Muxing is efficient enough that you could record dozens of streams in parallel on a single server. 
 
 ###### WebSockets Demo
 
 [Media over Quic](../../projects/moq) is a new project, and so as of December 2025, there are Moq clients for Rust and for the browser, but there aren't many established client libraries for other server runtimes.
 
-For streaming encoded video to the browser, we'll use WebSockets for now. You'll also notice I didn't quite use the Hang format here in the serialization, I changed it a bit to make it easier to work with WebSockets and MediaBunny.
+Unfortunately, there is not yet a server javascript MoQ client, so for the demo of streaming encoded video to the browser, we'll use WebSockets which isn't ideal but not impractical (still more efficient than what many companies do in production). You'll notice I didn't use MoQ in the above code, nor did I use the Hang format here in the serialization, I changed it a bit to make it easier to work with WebSockets and MediaBunny.
 
 
 
