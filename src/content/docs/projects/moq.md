@@ -66,25 +66,47 @@ Because the infrastructure model is so simple, it greatly simplifies the network
 Media over Quic is still in a very early stage, and relies on several components which are still being developed:
 
 
-**Web Transport:**
+#### Web Transport
 Along with WebCodecs, Media over Quic relies on [WebTransport](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport) for connections over Quic to scale to millions of concurrent subscribers, but while Chromium browsers support WebTransport, it is still in development in Firefox and Safari.
 
 
-**Server/tooling:**
+#### Server/tooling
 The client libraries to implement Media over Quic networking like `@moq/lite`  are still in development, with only [client side Javascript](https://github.com/moq-dev/moq/tree/main/js/moq-lite) and [Rust](https://github.com/cloudflare/moq-rs)  clients available. There is also a [Gstreamer plugin](https://github.com/moq-dev/gstreamer), but core libraries and integrations are missing for other server runtimes and tools.
 
 
-**Production relays:**
-Several CDN providers have announced creating MoQ relays, however currently Cloudflare is the biggest CDN to have a public moq relay available for testing
+#### Production relays
+Several CDN providers have announced creating MoQ relays. Here are two that can be used for testing:
+
+###### moq.dev
+
+You can use moq.dev which has 3 public relays:
+
+- https://usc.cdn.moq.dev
+- https://euc.cdn.moq.dev
+- https://sea.cdn.moq.dev
+
+These are managed by the maintainers of the MoQ project and has the latest, up-to-date deployment with authentication, WebSockets fallbacks etc...
+
+###### Cloudflare
+
+Cloudflare also has a public relay
 
 - https://interop-relay.cloudflare.mediaoverquic.com:443
 
-**Specification status:**
+It is using an older version of MoQ, and does not yet have key fatures like authentication, websockets
+
+
+##### Self hosted
+
+You can self host a relay, [here are the docs](https://doc.moq.dev/setup/production.html) to get started
+
+
+#### Specification status:
 - IETF draft (not finalized)
 - Breaking changes still possible
 - Multiple implementations converging on interoperability
 
-**In practice:**
+#### In practice:
 Media over Quic has enough tooling and support for early adopters to start building with it, but it still requires a lot of 'DIY' adaptations and implementations, and is still too early for a seamless developer experience.
 
 ## Alternatives for Streaming
@@ -153,7 +175,7 @@ Some examples might include:
 
 ###### More control and relability than WebRTC
 
-Media over Quic would also be helpful in scenarios where low-level control over video delivery is required, such as in real-time AI video pipelines, where you need to run AI models on a per-frame basis, either for understanding what is going on in a live video feed or transform the video feed, or remote control scenarios. 
+Media over Quic would also be helpful in scenarios where low-level control over video delivery is required, such as in scenarios with remote camera feeds (security cameras, drones, remotely operated vehicles) or in  real-time AI video pipelines, where you need to run AI models on a per-frame basis, either for understanding what is going on in a live video feed or transform the video feed.
 
 WebRTC is often used in these scenarios (yes, really) but here low-level control of data-packets and the ability to customize the data-feed with custom encodings, along with the more robust connectivity of HTTP3/Quic make Media over Quic an attractive option. 
 
@@ -169,6 +191,7 @@ For everything else there's ~~Mastercar~~ WebRTC and HLS/DASH. If you are buildi
 
 **Official Resources:**
 - [moq.dev](https://moq.dev/) - Official MoQ project site
+- [moq setup] (https://doc.moq.dev/setup/) - How to get started with MoQ
 - [IETF MoQ Working Group](https://datatracker.ietf.org/group/moq/about/) - Specification development
 
 **Libraries:**
