@@ -115,6 +115,7 @@ export default defineConfig({
 						{ label: 'Video Player', slug: 'media-bunny/playback' },
 						{ label: 'Transcoding', slug: 'media-bunny/transcoding' },
 						{ label: 'Video Editing', slug: 'media-bunny/editing' },
+						{ label: 'Live Streaming', slug: 'media-bunny/live-streaming' },
 					],
 				},
 

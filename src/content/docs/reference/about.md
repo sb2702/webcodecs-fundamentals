@@ -1,6 +1,6 @@
 ---
-title: Why WebCodecs is harder than it looks
-description: Why WebCodecs is harder than it looks
+title: About WebCodecsFundamentals
+description: Why I built it, about me
 ---
 
-TBD
+My name is [Sam Bhattacharyya](https://sambhattacharyya.com/), I'm busy building this website but I'll update this section when I'm finished with the website.

@@ -191,7 +191,7 @@ For everything else there's ~~Mastercar~~ WebRTC and HLS/DASH. If you are buildi
 
 **Official Resources:**
 - [moq.dev](https://moq.dev/) - Official MoQ project site
-- [moq setup] (https://doc.moq.dev/setup/) - How to get started with MoQ
+- [moq setup](https://doc.moq.dev/setup/) - How to get started with MoQ
 - [IETF MoQ Working Group](https://datatracker.ietf.org/group/moq/about/) - Specification development
 
 **Libraries:**
