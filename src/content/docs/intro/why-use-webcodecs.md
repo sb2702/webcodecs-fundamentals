@@ -17,7 +17,7 @@ A few common examples of types of applications where WebCodecs would be relevant
 
 While WebCodecs would almost certainly enable entirely new use cases, there is a lot of value in simply developing applications that fit in existing video software categories as client-side web-applications via WebCodecs, instead of as desktop software or server-side software.
 
-Presuming you have or plan to build some form of application which does video processing, the question of "Why Webcodecs" comes down to the advantages/disadvantes of client-side video processing in the browser, compared to the other main options of (1) Desktop app with local processing (2) Web-app with server-side processing.
+Presuming you have or plan to build some form of application which does video processing, the question of "Why Webcodecs" comes down to the advantages/disadvantages of client-side video processing in the browser, compared to the other main options of (1) Desktop app with local processing (2) Web-app with server-side processing.
 
 
 #### Versus Desktop
@@ -36,12 +36,12 @@ You could also build an application using server-side processing and a web-appli
 
 * No server-side costs
 
-I can't provide specifics for other companies, however having worked for companies like [Streamyard](https://streamyard) (browser-based live streaming tool), I know that server-side video processing was one of the biggest costs, and when it came time to build my own [video editing software](https://katana.video) I chose to implement in WebCodecs to enable trivially low operating costs even at scale.
+I can't provide specifics for other companies, however having worked for companies like [Streamyard](https://streamyard.com) (browser-based live streaming tool), I know that server-side video processing was one of the biggest costs, and when it came time to build my own [video editing software](https://katana.video) I chose to implement in WebCodecs to enable trivially low operating costs even at scale.
 
 
 #### WebCodecs is the best of both worlds
 
-Webcodecs provides the best of both worlds, the simplicity of web-applications, with the cost-effectiveness of locally run software, and I'll provide an where the same application could have been built as a desktop tool, a server-side tool or a WebCodecs tool, and where the WebCodecs tool is obviously better.
+Webcodecs provides the best of both worlds, the simplicity of web-applications, with the cost-effectiveness of locally run software, and I'll provide an example where the same application could have been built as a desktop tool, a server-side tool or a WebCodecs tool, and where the WebCodecs tool is obviously better.
 
 Let's say someone gave you a WebM file and you needed to convert it to an MP4. 
 
@@ -51,7 +51,7 @@ Previously, you could download software like [Handbrake](https://handbrake.fr/)
 
 ![](https://handbrake.fr/img/slides/slide2_lin.jpg)
 
-Handbrake is great that it's free an open source, but it does require (1) installation and configuration (2) knowledge of web codecs and 'what you are doing', and the interface is dated.
+Handbrake is great that it's free and open source, but it does require (1) installation and configuration (2) knowledge of web codecs and 'what you are doing', and the interface is dated.
 
 
 **Server Option**:
@@ -76,4 +76,4 @@ By combining the best of both worlds, WebCodecs enables building video experienc
 
 Some developers had realized the potential of client-side video processing before Browser vendors even came up with WebCodecs. Previously many tools used [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/), a port of ffmpeg to the browser, and run via Web Assembly, to handle video decoding in the browser.
 
-Becuase these were 'hacks', that also didn't take full advantage of hardware encoding/decoding, the performance was much worse than WebCodecs, and so WebCodecs was conceieved in part to give developers an official, high-performance option to do what many were already doing via cumbersome workarounds.
+Because these were 'hacks', that also didn't take full advantage of hardware encoding/decoding, the performance was much worse than WebCodecs, and so WebCodecs was conceived in part to give developers an official, high-performance option to do what many were already doing via cumbersome workarounds.

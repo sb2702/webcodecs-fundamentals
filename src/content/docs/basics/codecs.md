@@ -8,7 +8,7 @@ Codecs are the algorithms for turning raw video frames into compact binary encod
 ![](/assets/basics/codecs/codec.png)
 
 
-We won't go into how these algorithms actually work (video compression is it's own big-buck-bunny-sized rabbit hole) but this article will cover the practical basics that you need to know as a developer building a WebCodecs application.
+We won't go into how these algorithms actually work (video compression is its own big-buck-bunny-sized rabbit hole) but this article will cover the practical basics that you need to know as a developer building a WebCodecs application.
 
 
 ### Main Video Codecs
@@ -21,12 +21,12 @@ There are a few major video codecs used in the industry, here are the ones you n
 
 **VP8** - Open source video codec, used often in WebRTC because it is very fast for encoding, though the quality of compression is not as good as other codecs.
 
-**VP9** - Successor to VP8, also open source, devloped at Google, many videos on YouTube are encoded with VP9 and also fairly well supported
+**VP9** - Successor to VP8, also open source, developed at Google, many videos on YouTube are encoded with VP9 and also fairly well supported
 
 **AV1** - The latest, most advanced open source codec, with better compression than all the above options, developed by an independent consortium of organizations. Decoding/playback is widely supported across devices and browsers, but because encoding is significantly slower / more expensive than VP9, encoding support on consumer devices is not as widespread.
 
 
-#### How to practically chose a codec
+#### How to practically choose a codec
 
 **Decoding**
 
@@ -53,11 +53,11 @@ const decoderConfig = await videoTrack.getDecoderConfig();
 
 Here you do have a choice of what codec to use. Here's the TLDR version:
 
-* If you're generating user-facing videos, espcially if you want to output .mp4 files, use h264
+* If you're generating user-facing videos, especially if you want to output .mp4 files, use h264
 * If it's for internal use and/or you want to use .webm files, use VP9 (open source, better compression)
 * If you have strong opinions or object to the above, this section isn't for you
 
-##### Compatability
+##### Compatibility
 
 Don't forget that not all containers work with all codecs. Here's the simplified version of which codecs are supported by which containers.
 
@@ -88,10 +88,10 @@ Instead, you need a fully qualified *codec string* such as: `vp09.00.10.08` whic
 Even more unhelpfully, W3C doesn't keep a list of valid codec strings[[1](https://www.w3.org/TR/webcodecs-codec-registry/#video-codec-registry)].
 
 
-If you just want to encode a video and get on with your life, here's a quick & easy list of codec strings to maximize compatability.
+If you just want to encode a video and get on with your life, here's a quick & easy list of codec strings to maximize compatibility.
 
 ##### h264
-*  'avc1.42001f' - base profile, most comptable, supports up to 720p
+*  'avc1.42001f' - base profile, most compatible, supports up to 720p
 *  'avc1.42003e' - base profile, level 6.2 (supports up to 8k)
 *  'avc1.4d0034' - main profile, level 5.2 (supports up to 4K)   
 *  'avc1.64003e' - high profile - level 6.2 (supports up to 8k)
@@ -140,7 +140,7 @@ for (const frame of frames){
 
 #### "Good enough" option
 
-If you don't want to ue MediaBunny, and just want some code that works and mimimizes the chance of issues,  you can also just specify a bunch of options (best quality /least supported to worst quality/best supported), and pick the first one that is supported.
+If you don't want to use MediaBunny, and just want some code that works and minimizes the chance of issues,  you can also just specify a bunch of options (best quality /least supported to worst quality/best supported), and pick the first one that is supported.
 
 ##### H264
 

@@ -39,7 +39,7 @@ When a video player reads a video file for playback, it needs more info than jus
 
 ![](/assets/basics/muxing/video-container.png)
 
-It also need to have enough info to tell the video player where each encoded chunk is in the source file.
+It also needs to have enough info to tell the video player where each encoded chunk is in the source file.
 
 ```javascript
 const chunk = new EncodedChunk({
@@ -49,7 +49,7 @@ const chunk = new EncodedChunk({
 
 ```
 
-Each video file format, such as MP4 and WebM, has it's own specification for how to store metadata and audio/video data in a file, as well as how to extract that information. 
+Each video file format, such as MP4 and WebM, has its own specification for how to store metadata and audio/video data in a file, as well as how to extract that information. 
 
 Storing data into a file (according to the specification) is called muxing, and extracting data from a file (according to the specification) is called demuxing.
 
@@ -85,7 +85,7 @@ A given container format can actually support video encoded in various different
 | **VP9** | 🟡  | ✅  |
 | **AV1** | 🟡   | ✅ |
 
-Though as the 🟡 suggests, support depends on the invidual video player or encoding software.
+Though as the 🟡 suggests, support depends on the individual video player or encoding software.
 
 ### Demuxing
 
@@ -142,7 +142,7 @@ reader.read().then(async function processPacket({ done:boolean, value: EncodedVi
 
 ##### MP4Demuxer
 
-If you want even more control, and are okay with just using MP4 inputs, you can use [MP4Demuxer](https://github.com/sb2702/webcodecs-utils/blob/main/src/demux/mp4-demuxer.ts), which is a WebCodecs wraper around [MP4Box.js](https://github.com/gpac/mp4box.js).
+If you want even more control, and are okay with just using MP4 inputs, you can use [MP4Demuxer](https://github.com/sb2702/webcodecs-utils/blob/main/src/demux/mp4-demuxer.ts), which is a WebCodecs wrapper around [MP4Box.js](https://github.com/gpac/mp4box.js).
 
 Unlike the other two libraries, MP4Box wasn't built to integrate with WebCodecs, so I wrote MP4Demuxer to read and extract `EncodedVideoChunk` and `EncodedVideoChunk` objects from MP4Box, and MP4Demuxer is what my production apps use (I built it before the previous libraries existed).
 
@@ -169,7 +169,7 @@ const chunks = await demuxer.extractSegment('video', 0, 30); //First 30 seconds
 
 **MP4 Files**:
 
-MP4 files store data in the form of 'boxes', and there are different types of boxes, like *mdat* (audio/video data) and *moov* (metadata) which each contain different types of data, and syntax for storing or parsing that data. Boxes can be nested, and so you'd need to read through a file, seperate out all the boxes, and parse the data from each box.
+MP4 files store data in the form of 'boxes', and there are different types of boxes, like *mdat* (audio/video data) and *moov* (metadata) which each contain different types of data, and syntax for storing or parsing that data. Boxes can be nested, and so you'd need to read through a file, separate out all the boxes, and parse the data from each box.
 
 Here is a [list](https://mp4ra.org/registered-types/boxes) of boxes, and you can inspect the [source code](https://github.com/gpac/mp4box.js) of MP4Box to see how they parse boxes and how they handle [each box type](https://github.com/gpac/mp4box.js/tree/main/src/boxes).
 
@@ -185,7 +185,7 @@ WebM files use format called [Extensible Binary Meta Language](https://en.wikipe
 ```javascript
 import * as EBML from 'ts-ebml';
 const decoder = new ebml.Decoder();
-const arrayBufer = await file.arrayBuffer();
+const arrayBuffer = await file.arrayBuffer();
 const ebmlElms = decoder.decode(arrayBuffer);
 ```
 

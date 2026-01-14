@@ -29,7 +29,7 @@ async function playFile(file: File){
     decoder.configure(config);
 
     for (const chunk of chunks){
-        deocder.decode(chunks)
+        decoder.decode(chunks)
     }
 
 }
@@ -72,7 +72,7 @@ You not only need to extract raw audio from video, you'd also need to play it ba
 
 `VideoFrame` objects are memory intensive - a single 4K video frame would take about 24 MB of Video memory on a graphics card, meaning that a modest graphics card (~5GB of Video Memory)  would at most be able to have 200 frames in memory (~7 seconds of video) in the best case scenario.
 
-So if you have a 4K video that is longer than 7 seconds, the above code would crash most computers. Managing lifecycle memory for `VideoFrame` objects isn't a 'performace optimization', WebCodecs code just won't work without managing memory.
+So if you have a 4K video that is longer than 7 seconds, the above code would crash most computers. Managing lifecycle memory for `VideoFrame` objects isn't a 'performance optimization', WebCodecs code just won't work without managing memory.
 
 You can very easily free up memory by calling `frame.close()` to free up the video memory from a `VideoFrame` once you are done using it, which is fine enough for this use case, but keep in mind that real world implementations will involve keeping a buffer of `VideoFrame` objects in memory where memory management is an ongoing concern.
 
@@ -80,7 +80,7 @@ You can very easily free up memory by calling `frame.close()` to free up the vid
 
 ### Less Obvious issues
 
-After years of working on WebCodecs, I can assure you that the above concers are just scratching the surface. I'm going to throw a laundry list of less obvious concerns that you'd need to keep in mind:
+After years of working on WebCodecs, I can assure you that the above concerns are just scratching the surface. I'm going to throw a laundry list of less obvious concerns that you'd need to keep in mind:
 
 
 **Decode/Encode queue** 
@@ -94,7 +94,7 @@ import { getVideoChunks } from 'webcodecs-utils'
 
 const chunks = <EncodedVideoChunk[]> await getVideoChunks(file);
 for (const chunk of chunks){
-    deocder.decode(chunks)
+    decoder.decode(chunks)
 }
 
 ```
@@ -116,7 +116,7 @@ let encoderConfig;
 for (config of configs){
 
     const isSupported = await VideoEncoder.isConfigSupported(config);
-    if(isSupprted.supported){
+    if(isSupported.supported){
         encoderConfig = config;
     }
 }
@@ -139,7 +139,7 @@ Some times, a video might have a corrupted frame, and the decoder will just fail
 
 ### Making your life easier
 
-I ommitted a ton of issues from just off the top of my head because there are so many, and I don't want to overwhelm you. Hopefully I convinced you that WebCodecs is complex, and honestly, that's why I'm creating this whole website, to go over all this stuff not covered in hello-world tutorials.
+I omitted a ton of issues from just off the top of my head because there are so many, and I don't want to overwhelm you. Hopefully I convinced you that WebCodecs is complex, and honestly, that's why I'm creating this whole website, to go over all this stuff not covered in hello-world tutorials.
 
 That said, there's another way to make your life significantly easier with WebCodecs, and that is to use [MediaBunny](https://mediabunny.dev/), which handles many of these implementation details for you,  and which I'll talk about in the next section.
 

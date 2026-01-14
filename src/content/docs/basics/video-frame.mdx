@@ -7,7 +7,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 Video is essentially just a series of images (called frames) with timestamps, indicating which frame to show at a given time during video playback.
 
-![](/assets/basics/video-frames/bbb-fames.png)
+![](/assets/basics/video-frames/bbb-frames.png)
 
 The javascript `VideoFrame` class,  likewise, is represented as a combination of pixel data (like RGB values) and some metadata (including the timestamp). <mark>Keep in mind that VideoFrame and other WebCodecs interfaces represent time in microseconds.</mark>
 ![](/src//assets//content//basics/video-frames/video-frame.svg)
@@ -47,7 +47,7 @@ const decoder = new VideoDecoder({
 decoder.configure(config);
 
 for (const chunk of chunks){
-    deocder.decode(chunks)
+    decoder.decode(chunks)
 }
 ```
 
@@ -76,7 +76,7 @@ Like with the `VideoDecoder`, when grabbing frames from a `<video>`, it will hav
 
 ##### Canvas Element
 
-You can also construct a `VideoFrame` from a `<canvas>`, which lets you create custom rendering pipelines or construct artifical video.
+You can also construct a `VideoFrame` from a `<canvas>`, which lets you create custom rendering pipelines or construct artificial video.
 
 
 ```typescript
@@ -102,7 +102,7 @@ function renderFrame(timestamp) {
 requestAnimationFrame(renderFrame);
 ```
 
-In this case though, you do need to suppy the timestamp as the `<canvas>` just has pixel data, though you can also specify other metadata, such as the *duration*, *format* etc...
+In this case though, you do need to supply the timestamp as the `<canvas>` just has pixel data, though you can also specify other metadata, such as the *duration*, *format* etc...
 
 
 ##### From raw pixel data
@@ -166,7 +166,7 @@ requestAnimationFrame(renderFrame);
 ```
 
 
-This provides full flexibility to programatically construct a `VideoFrame` with individual pixel-level manipulation, but keep in mind that VideoFrame objects reside in graphics memory, and sending data to/from typed arrays (`ArrayBuffer`, `UInt8Array`) incurs memory copy operations and performance overhead [[1](../../concepts/cpu-vs-gpu)]
+This provides full flexibility to programmatically construct a `VideoFrame` with individual pixel-level manipulation, but keep in mind that VideoFrame objects reside in graphics memory, and sending data to/from typed arrays (`ArrayBuffer`, `UInt8Array`) incurs memory copy operations and performance overhead [[1](../../concepts/cpu-vs-gpu)]
 
 
 ### Using Video Frames
@@ -252,7 +252,7 @@ async function playFile(file: File){
     decoder.configure(config);
 
     for (const chunk of chunks){
-        deocder.decode(chunks)
+        decoder.decode(chunks)
     }
 
 }

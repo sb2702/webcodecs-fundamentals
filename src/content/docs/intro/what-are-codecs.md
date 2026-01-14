@@ -4,7 +4,7 @@ description: Beyond the spec - understanding the WebCodecs API and its place in 
 ---
 
 
-Many readers will be well ware of what codecs are, so if you already have a good grasp of video processing feel free to [skip this section](../what-is-webcodecs/).
+Many readers will be well aware of what codecs are, so if you already have a good grasp of video processing feel free to [skip this section](../what-is-webcodecs/).
 
 Presumably if you are reading this, you are interested in doing some form of video processing in the browser, and when working with video, you need to understand what codecs are, and what video encoding / decoding is, and how those fit into a video application.
 
@@ -12,7 +12,7 @@ Presumably if you are reading this, you are interested in doing some form of vid
 
 The reason we even need a "codec" is because raw video is impractically large, even with the most advanced hardware and fastest internet connections. 
 
-Consider the simplest possible video, a simple bouning ball:
+Consider the simplest possible video, a simple bouncing ball:
 
 ![](/assets/basics/codecs/bouncing-ball.gif)
 
@@ -32,7 +32,7 @@ Most videos are not that small, so instead, consider a 240p video, which is prob
 
 Let's go to a reasonable viewing size, 720p at 30fps, that would be 79.1 megabytes/second or 278 Gigabytes per hour.
 
-Finally, a 4K video at 60fps would be 1.39 Gigabytes per second, or 5.4 Terrabytes per hour of video.
+Finally, a 4K video at 60fps would be 1.39 Gigabytes per second, or 5.4 Terabytes per hour of video.
 
 
 Most standard consumer hard drives aren't even big enough to store a single hour of raw 4K video, and even the best internet connections in the world would struggle with streaming raw 4K video.
@@ -43,11 +43,11 @@ If you've ever downloaded large videos before, you'd know that actual video file
 
 A video codec is essentially an algorithm (or software/hardware implementation of one) to turn raw video into a compressed format (Video Encoding) and to parse compressed video data back into raw video (Video Decoding).
 
-How these algorithms manage to 'compress' video files by 100x while still looking pretty good is a whole other interesting topic outside the scope of this guide, but here are a few interesting resources if you are curious [[1](https://www.youtube.com/watch?v=Q2aEzeMDHMA)][2][3]
+How these algorithms manage to 'compress' video files by 100x while still looking pretty good is a whole other interesting topic outside the scope of this guide, but here are a few interesting resources if you are curious [[1](https://www.youtube.com/watch?v=Q2aEzeMDHMA)]
 
 ###### Some popular codecs
 
-For somone getting started with video processing, there are a few popular codecs which are fairly standard in the industry which you should know about:
+For someone getting started with video processing, there are a few popular codecs which are fairly standard in the industry which you should know about:
 
 * H264 - By far the most common codec. Most "mp4" files that you will find will typically use the h264 codec. This is a patented codec, so while users can freely use h264 players to watch video, large organizations which encode lots of video using h264 may be liable to pay patent royalties.
 
@@ -55,7 +55,7 @@ For somone getting started with video processing, there are a few popular codecs
 
 * VP8 - Open source video codec, used often in WebRTC because it is very fast for encoding, though the quality of compression is not as good as other codecs.
 
-* VP9 - Successor to VP8, also open source, devloped at Google, many videos on YouTube are encoded with VP9 and also fairly well supported
+* VP9 - Successor to VP8, also open source, developed at Google, many videos on YouTube are encoded with VP9 and also fairly well supported
 
 * AV1 - The latest, most advanced open source codec, with better compression than all the above options, developed by an independent consortium of organizations. Decoding/playback is widely supported across devices and browsers, but because decoding is significantly slower / more expensive than VP9,
 it is still being rolled out, with the encoding speed making it not very relevant for client-side WebCodecs applications.

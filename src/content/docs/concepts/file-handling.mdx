@@ -54,7 +54,7 @@ worker.postMessage({"file": <File> file}); // This is totally fine
 
 When sending a `File` between threads, there is no need to 'transfer' it, as the `File` is just a reference and sending it is essentially an efficient zero-copy operation, you can send a 100 GB `File` object to a worker thread on a low-end netbook and it'd be fine, because you're only passing the reference which is less than a few kilobytes of data.
 
-When you do actually want to read the data, you hava some options for how to read it; You can directly read the file in one go as an `ArrayBuffer` (simple, faster),  or you can read the file in a using a `ReadableStream` (more complex, better control over memory).
+When you do actually want to read the data, you have some options for how to read it; You can directly read the file in one go as an `ArrayBuffer` (simple, faster),  or you can read the file in a using a `ReadableStream` (more complex, better control over memory).
 
 <Tabs>
 
@@ -503,7 +503,7 @@ The key thing with the manual implementation is to read the video meta data firs
 If instead you are writing to large files, you will also run into the 2GB `ArrayBuffer` limit, and the solution is also to use Streams, but writing works a little differently compared to reading a file as a stream.
 
 
-The primary way to mux media files is via MediaBunny (or [it's predecessor](https://github.com/Vanilagy/mp4-muxer)), so if you want to write an MP4 file with WebCodecs, your script might look something like this:
+The primary way to mux media files is via MediaBunny (or [its predecessor](https://github.com/Vanilagy/mp4-muxer)), so if you want to write an MP4 file with WebCodecs, your script might look something like this:
 
 ```typescript
 import { BlobSource, BufferTarget, Input, MP4, Mp4OutputFormat, Output, QUALITY_HIGH, VideoSampleSink, VideoSampleSource } from 'mediabunny';
@@ -714,7 +714,7 @@ async function transcodeFile(file: File): Promise<Blob> {
 
 The above is a bit of a hack, and while simple in order to keep things in memory, it can crash a user's computer if the target video approaches the devices's available memory. 
 
-The proper way to handle writing large files would be to use the [FileSystem API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API), whereby you ask the user for permision to save the target file to disk:
+The proper way to handle writing large files would be to use the [FileSystem API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API), whereby you ask the user for permission to save the target file to disk:
 
 ```javascript
 
@@ -767,7 +767,7 @@ async function transcodeFile(file: File, outputHandle: FileSystemFileHandle) {
 
 While this will add an extra UI prompt up-front asking the user where they want to store the file, this will gracefully handle for files which could bigger than the user's available memory, and would write to disk in chunks, as part of the video processing loop instead of afterwards.
 
-When using Streams, you could transcode a 20GB file to a 40GB on a $200 netbook within the browser without crashing, and logs from my [free upscaling tool](https://free.upscaler.video) inicate this isn't theoretical or pendantic, real users actually do upload incredibly large files, it just takes a while to process.
+When using Streams, you could transcode a 20GB file to a 40GB on a $200 netbook within the browser without crashing, and logs from my [free upscaling tool](https://free.upscaler.video) indicate this isn't theoretical or pedantic, real users actually do upload incredibly large files, it just takes a while to process.
 
 
 

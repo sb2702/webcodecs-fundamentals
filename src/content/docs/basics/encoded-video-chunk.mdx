@@ -6,14 +6,14 @@ description: EncodedVideoChunk
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 
-The `EncodedVideoChunk` class, the other main type in WebCodecs, repesents the compressed (or "encoded") version of a single `VideoFrame`.
+The `EncodedVideoChunk` class, the other main type in WebCodecs, represents the compressed (or "encoded") version of a single `VideoFrame`.
 
 
 ![](/assets/basics/chunks/encoded-chunk.svg)
 
 The `EncodedVideoChunk` contains binary data (the encoded `VideoFrame`) and some metadata, and there is a 1:1 correspondence between `EncodedVideoChunk` and `VideoFrame` objects - if you encode 100 `VideoFrame` objects, you should expect 100 `EncodedVideoChunk` objects from the encoder.
 
-Unlike a `VideoFrame`, an `EncodedVideoChunk` objects can't be directly rendered or displayed because the data is enocoded,but they can be directly read from, or written to video files (via [muxing](../muxing)).
+Unlike a `VideoFrame`, an `EncodedVideoChunk` objects can't be directly rendered or displayed because the data is encoded,but they can be directly read from, or written to video files (via [muxing](../muxing)).
 
 
 
@@ -185,7 +185,7 @@ self.addEventListener('message', (e) => {
 
 </details>
 
-Here's what the deta flow looks like when adding in the encoder/decoder.
+Here's what the data flow looks like when adding in the encoder/decoder.
 
 <video width="640" height="480" loop muted autoplay>
   <source src="/assets/basics/chunks/encoded-chunks-animation.webm" type="video/webm" />
@@ -228,7 +228,7 @@ To send a full video, you could send the first frame (called a *key frame*), and
 
 ![](/assets/basics/chunks/frame-diff-4.png)
 
-This is exacly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames.
+This is exactly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames.
 
 The `EncodedVideoChunk` represents this property via the `type` attribute, with *key frames* having a `key` type, and delta frames having a `delta type`
 
@@ -249,7 +249,7 @@ Typically, videos will add in a fresh key frame every 30 to 60 frames, though th
 An important consequence is that you can't just decode a *delta frame* by itself. To reconstruct a *delta frame*, you need to decode every single frame, in order, from the previous *key frame* up until the *delta frame* you want to decode, and we'll cover this later in [playback design](../../patterns/playback)
 
 
-So while there is a 1:1 correspondence between each `EncodedVideoChunk` and each `VideoFrame` in a file in WebCodecs, where decoding 100 `EncodedVideoChunk` objects will result in 100 `VideoFrame` objects, and encoding 100 `VideoFrame` objects will result in 100 `EncodedVidoChunk` objects, you can't deal with an `EncodedVideoChunk` in isolation in the way you can with a `VideoFrame`.
+So while there is a 1:1 correspondence between each `EncodedVideoChunk` and each `VideoFrame` in a file in WebCodecs, where decoding 100 `EncodedVideoChunk` objects will result in 100 `VideoFrame` objects, and encoding 100 `VideoFrame` objects will result in 100 `EncodedVideoChunk` objects, you can't deal with an `EncodedVideoChunk` in isolation in the way you can with a `VideoFrame`.
 
 You need to work with `EncodedVideoChunk` objects as a sequence, and when decoding, you need to decode them in the exact correct order.
 
@@ -261,7 +261,7 @@ You can get an `EncodedVideoChunk` by either encoding a video or demuxing a sour
 
 ##### Encoding
 
-`VideoEncoder` will naturally just give you `EncodedVideoFrame` objects read to use, you never have to construct them.
+`VideoEncoder` will naturally just give you `EncodedVideoChunk` objects ready to use, you never have to construct them.
 
 ```typescript
 
@@ -310,7 +310,7 @@ There are other demuxing libraries, we'll go into more detail [in the next secti
 
 ##### Manual Construction
 
-If you **know what you are doing**, you can manually create valid `EncodedVideoChunk` objects by hand via a the `new EncodedvideoChunk()` constructor.  Manual construction might look something like this:
+If you **know what you are doing**, you can manually create valid `EncodedVideoChunk` objects by hand via a the `new EncodedVideoChunk()` constructor.  Manual construction might look something like this:
 
 ```typescript
 const [sampleDataOffset, sampleDataLength] = calculateSampleDataOffset(0); //First sample
@@ -357,7 +357,7 @@ const decoder = new VideoDecoder({
 decoder.configure(config);
 
 for (const chunk of chunks){
-    deocder.decode(chunks)
+    decoder.decode(chunks)
 }
 ```
 

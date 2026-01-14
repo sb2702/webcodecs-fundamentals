@@ -41,7 +41,7 @@ const start = performance.now();
 
 setInterval(function(){
     const currentTimeMicroSeconds = (performance.now() - start)*1e3;
-    const frame = new VideoFrame(canvas, {timestamp: currenTimeMicroSeconds });
+    const frame = new VideoFrame(canvas, {timestamp: currentTimeMicroSeconds });
     encoder.encode(frame, {keyFrame: framesSent%60 ==0}); //Key Frame every 60 frames;
     frame.close();
     framesSent++;
@@ -51,7 +51,7 @@ setInterval(function(){
 
 
 
-Like the `VideoDecoder` though, there is a big gap between hello world dmeos and producton pipelines, so in this article we'll focus specifically on the `VideoEnocder` and how to actually manage an encoder in a production pipeline.
+Like the `VideoDecoder` though, there is a big gap between hello world demos and production pipelines, so in this article we'll focus specifically on the `VideoEncoder` and how to actually manage an encoder in a production pipeline.
 
 [MediaBunny](../media-bunny/intro) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use MediaBunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
@@ -60,7 +60,7 @@ Like the `VideoDecoder` though, there is a big gap between hello world dmeos and
 
 ## Configuration
 
-Unlike the `VideoDecoder`, where you get the decoding config from the video source file/stream, you have a choice on how to encode your video, and you'd specify your encoding proferences via `encoder.configure(config)` as shown below 
+Unlike the `VideoDecoder`, where you get the decoding config from the video source file/stream, you have a choice on how to encode your video, and you'd specify your encoding preferences via `encoder.configure(config)` as shown below 
 
 
 ```typescript
@@ -87,7 +87,7 @@ You need to specify a *codec string* such as  'vp9.00.10.08.00' or 'avc1.42003e'
 ##### Bitrate
 Video codecs apply a trade-off between file size and video quality, where you can have high quality video with large file sizes, or you can have compact files with low quality video. This tradeoff is specified in the bitrate, where higher bitrates result in larger files but higher quality. 
 
-Here's an visualization of how bitrate affects quality, with the same [1080p file](https://larmoire.org/jellyfish/) transcoded at different bitrates
+Here's a visualization of how bitrate affects quality, with the same [1080p file](https://larmoire.org/jellyfish/) transcoded at different bitrates
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px;">
   <div style="text-align: center;">
@@ -181,12 +181,12 @@ In either case, you'd need to specify the timestamp for each frame that gets enc
 If your video frame comes from a `VideoDecoder` (decoding), the resulting frame will already have a timestamp associated with it. If you are just transcoding a video and the timestamp is correct, you don't need to do anything.  If the timestamp is not correct (e.g. if you are making cuts in the video, or otherwise adjusting the timeline), you'll need to construct a new frame with your desired timestamp.
 
 ```javascript
-new VideoFrame(frame, {timestamp: /*adjustedTimestamp in microsseconds}*/});
+new VideoFrame(frame, {timestamp: /*adjustedTimestamp in microseconds}*/});
 ```
 
 
 **VideoElement**
-IF you construct a `VideoFrame` from a `<video>` element as in `new VideoFrame(<HTMLVideoElement> video)`, then by default it will have the timestamp from the underlying video. Otherwise, you can manually override it by specifing the timestmap
+IF you construct a `VideoFrame` from a `<video>` element as in `new VideoFrame(<HTMLVideoElement> video)`, then by default it will have the timestamp from the underlying video. Otherwise, you can manually override it by specifying the timestamp
 
 
 **Any other method**
@@ -196,7 +196,7 @@ IF you construct a `VideoFrame` from any other source (`<canvas>`, `ImageBitmap`
 new VideoFrame(canvas, {timestamp: /*timestamp in microseconds*/});
 ```
 
-In either case, just keep in mind that the timestamps used in `VideoFRame`  are in *microseconds*, even if the encoder config uses frames/second and bits/second for the `framerate` and `bitrate` properties respectively.
+In either case, just keep in mind that the timestamps used in `VideoFrame`  are in *microseconds*, even if the encoder config uses frames/second and bits/second for the `framerate` and `bitrate` properties respectively.
 
 
 #### KeyFrames: 
@@ -249,7 +249,7 @@ Much like the [VideoDecoder](../video-decoder), you shouldn't think of the `enco
 
 ![](/assets/basics/encoder/rube-goldber-encoder.png)
 
-You might need to feed in a few frames before the encoder starts outputing chunks, and when you've finished feeding frames, the last few chunks might get 'stuck' (because there's nothing to push the frames along), requiring a call to `encoder.flush()`
+You might need to feed in a few frames before the encoder starts outputting chunks, and when you've finished feeding frames, the last few chunks might get 'stuck' (because there's nothing to push the frames along), requiring a call to `encoder.flush()`
 
 
 #### Chaining Pipelines
@@ -262,7 +262,7 @@ This makes things complicated because now you have two machines which can both g
 
 You now also have to manage memory bottlenecks at multiple points (`decoder.decodeQueueSize`,  number of open `VideoFrame` objects, `encoder.encodeQueueSize`).
 
-When you build a pipleine with both a `VideoDecoder` and `VideoEncoder` in WebCodecs, you really do have to pay attention to data flows, progress and memory bottlenecks.
+When you build a pipeline with both a `VideoDecoder` and `VideoEncoder` in WebCodecs, you really do have to pay attention to data flows, progress and memory bottlenecks.
 
 Some of this gets easier with libraries like [MediaBunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
 
@@ -276,7 +276,7 @@ If you have some type of rendering pipeline involving WebGPU or WebGL (such as i
 
 Fortunately, because rendering can be treated like a simple async task, it doesn't add much complexity to the overall pipeline. Just keep in mind:
 
-**Do not wait for the the GPU to finish it's work before sending the frames for encoding**
+**Do not wait for the the GPU to finish its work before sending the frames for encoding**
 
 e.g, don't run
 

@@ -37,9 +37,9 @@ WebCodecs is intentionally low-level—it gives you `EncodedVideoChunk` and `Enc
 - Quality degradation during network congestion
 - Scalable relay infrastructure
 
-The irony is that while Media over Quic is 100% content agnostic, it was still specifically designed with WebCodecs in mind, generallly to facilitate delivery of encoded video and audio, but those designing the spec specifically have WebCodecs in mind.
+The irony is that while Media over Quic is 100% content agnostic, it was still specifically designed with WebCodecs in mind, generally to facilitate delivery of encoded video and audio, but those designing the spec specifically have WebCodecs in mind.
 
-For non-real-time use cases, or for low volumes (10 to 100 current streams), you could use HTTP requets or WebSockets to send encoded video and audio from a browser to a server.
+For non-real-time use cases, or for low volumes (10 to 100 current streams), you could use HTTP requests or WebSockets to send encoded video and audio from a browser to a server.
 
 For streaming from a server to a browser though, Media over Quic is the only practical mechanism to stream encoded audio/video at scale in a way that can be consumed with WebCodecs.  Any other mechanism (e.g. WebSockets) would be worse than just using WebRTC or HLS/DASH streaming.
 
@@ -93,7 +93,7 @@ Cloudflare also has a public relay
 
 - https://interop-relay.cloudflare.mediaoverquic.com:443
 
-It is using an older version of MoQ, and does not yet have key fatures like authentication, websockets
+It is using an older version of MoQ, and does not yet have key features like authentication, websockets
 
 
 ##### Self hosted
@@ -117,7 +117,7 @@ To understand Media over Quic and whether it's something you need to consider fo
 
 **What it is:**
 
-When most people talk about live streams, such as a live-streamed sports match, HLS/DASH + MSE is almost always the stack being used. It is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[3](https://www.mux.com/articles/hls-vs-dash-what-s-the-difference-between-the-video-streaming-protocols)].
+When most people talk about live streams, such as a live-streamed sports match, HLS/DASH + MSE is almost always the stack being used. It is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[1](https://www.mux.com/articles/hls-vs-dash-what-s-the-difference-between-the-video-streaming-protocols)].
 ![](/assets/patterns/livestreaming/server-browser-3.svg)
 
 You then have video player software like [hls.js](https://github.com/video-dev/hls.js) or [shaka player](https://github.com/shaka-project/shaka-player) on each viewer's device which progressively fetch chunks of the video from a CDN using normal HTTP requests.
@@ -128,7 +128,7 @@ This enables massive scale, enabling millions of concurrent viewers to watch a s
 
 On the downside, it introduces 3 to 30 second latency from the video camera source (e.g. the sports stadium, or news cameras on the ground) to what viewers on their phone or TV see.
 
-It also uses a media encoding server to handle the incoming video streames, transcode and package them and send them to a CDN which incurs sometimes substantial server costs.
+It also uses a media encoding server to handle the incoming video streams, transcode and package them and send them to a CDN which incurs sometimes substantial server costs.
 
 ### WebRTC
 
@@ -142,9 +142,9 @@ Applications which use WebRTC (especially for video conferencing) typically use 
 
 This routing model enables a video call to have 50 participants, while each individual participant isn't simultaneously streaming 49 other video streams from their home internet connection, only a subset (which is mediated by the relay).
 
-This enables real-time interactive video sessions (e.g. video conferencing), but because the routing server needs to maintain state over how many participants there are, and needs to know about the media details (codecs, bandidth) of each stream, it's not easy to 'chain' servers together, and each server starts facing scalability challanges beyond 100 participants.
+This enables real-time interactive video sessions (e.g. video conferencing), but because the routing server needs to maintain state over how many participants there are, and needs to know about the media details (codecs, bandwidth) of each stream, it's not easy to 'chain' servers together, and each server starts facing scalability challenges beyond 100 participants.
 
-Most video conferencing apps will have caps on the number of participants for that reason, and scaling to thousands or tends of thousands of participants in a single WebRTC session requires incredible amounts of effort and engineering, and/or most likely it's just expensive.
+Most video conferencing apps will have caps on the number of participants for that reason, and scaling to thousands or tens of thousands of participants in a single WebRTC session requires incredible amounts of effort and engineering, and/or most likely it's just expensive.
 
 WebRTC is very well established though, with a mature ecosystem of libraries, vendors and information available.
 
@@ -160,7 +160,7 @@ I'll give the boring answer that it depends on your use case. If you want the TL
 | **MoQ** | <1s | Millions | Nascent |
 
 
-Media over Quic is still very nascent without major well-known apps implementing it in production at scale. There are experiments by large tech companies and there are adventurous startups using it live [[5]](https://github.com/facebookexperimental/moq-encoder-player)  [[6](https://hang.live/)], but it still requires more development and tooling to become mainstream.
+Media over Quic is still very nascent without major well-known apps implementing it in production at scale. There are experiments by large tech companies and there are adventurous startups using it live [[2]](https://github.com/facebookexperimental/moq-encoder-player)  [[3](https://hang.live/)], but it still requires more development and tooling to become mainstream.
 
 That said, performance benefits are real and so early adopters would likely see competitive advantages compared to established products. 
 
@@ -173,17 +173,17 @@ Some examples might include:
 * Broadcasting virtual events where speakers typically stream few=>many, but which often involve interactive Q&A
 * Browser based live-streaming tools, which stream video from browsers to servers and other participants, while simultaneously streaming social media platforms like Facebook like or YouTube live
 
-###### More control and relability than WebRTC
+###### More control and reliability than WebRTC
 
 Media over Quic would also be helpful in scenarios where low-level control over video delivery is required, such as in scenarios with remote camera feeds (security cameras, drones, remotely operated vehicles) or in  real-time AI video pipelines, where you need to run AI models on a per-frame basis, either for understanding what is going on in a live video feed or transform the video feed.
 
-WebRTC is often used in these scenarios (yes, really) but here low-level control of data-packets and the ability to customize the data-feed with custom encodings, along with the more robust connectivity of HTTP3/Quic make Media over Quic an attractive option. 
+WebRTC is often used in these scenarios (yes, really) but here low-level control of data-packets and the ability to customize the data-feed with custom encodings, along with the more robust connectivity of HTTP3/Quic make Media over Quic an attractive option.
 
-Here, the scale benefit of Media over Quic is irrelevant, and using a self-hosted relay would likely be preferrable to a public CDN, it's more about the other aspects of Media over Quic that make it attractive while not needing to invent and maintin a custom networking protocol.
+Here, the scale benefit of Media over Quic is irrelevant, and using a self-hosted relay would likely be preferable to a public CDN, it's more about the other aspects of Media over Quic that make it attractive while not needing to invent and maintain a custom networking protocol.
 
 ###### For everything else
 
-For everything else there's ~~Mastercar~~ WebRTC and HLS/DASH. If you are building standard cookie-cutter video conferencing, WebRTC is the clear better technology. For traditional broadcasting livestreaming, HLS/DASH streaming are still the obvious choice.
+For everything else there's ~~Mastercard~~ WebRTC and HLS/DASH. If you are building standard cookie-cutter video conferencing, WebRTC is the clear better technology. For traditional broadcasting livestreaming, HLS/DASH streaming are still the obvious choice.
 
 
 

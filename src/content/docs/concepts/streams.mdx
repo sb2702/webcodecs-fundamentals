@@ -20,7 +20,7 @@ for (let i=0; i < numChunks; i++){
 }
 ```
 
-Thats because the `VideoDecoder` and `VideoEncoder` often need to work with batches of data, so you need to send 3 chunks to the `VideoDecoder` before it will start decoding frames. Chunks can also get stuck in the encoder / decoder and need to be 'flushed' before finishing.
+That's because the `VideoDecoder` and `VideoEncoder` often need to work with batches of data, so you need to send 3 chunks to the `VideoDecoder` before it will start decoding frames. Chunks can also get stuck in the encoder / decoder and need to be 'flushed' before finishing.
 
 Instead, you need to think of it as a **pipeline** where multiple stages process data simultaneously, with each stage holding multiple chunks or frames at once.
 

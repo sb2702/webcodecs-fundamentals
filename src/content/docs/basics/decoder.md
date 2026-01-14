@@ -184,7 +184,7 @@ Here are some core concepts we'll need to start with:
 let decodeChunkIndex=0;
 ```
 
-**BATCH_DECODE_SIZE**: We will send chunks for decoding in batches. You can set the batch size, if it' too low (below 5) the decoder might get stuck. If it's too high, you might run into memory issues. 10 is a safe value.
+**BATCH_DECODE_SIZE**: We will send chunks for decoding in batches. You can set the batch size, if it's too low (below 5) the decoder might get stuck. If it's too high, you might run into memory issues. 10 is a safe value.
 
 ```typescript
 const BATCH_DECODE_SIZE=10;
@@ -707,7 +707,7 @@ Putting this all together, we can finally see an actual video play back at norma
 </details>
 
 
-If that seems like a lot of code for simple video playback, well, yes. We are working with low level APIs, and by it's nature you have lots of control but also lots to manage yourself.
+If that seems like a lot of code for simple video playback, well, yes. We are working with low level APIs, and by its nature you have lots of control but also lots to manage yourself.
 
 
 

@@ -12,7 +12,7 @@ Most devices actually have 4 to 16 CPU processors called *cores*, allowing them 
 
 Work comes in the form of a *thread*, which is the smallest schedulable unit of work.
 
-Each application runs as a *process*, with it's own sandbox of memory, and each process can run multiple threads, all with access to the processes' sanboxed memory, but which can be run by different CPU cores in parallel. 
+Each application runs as a *process*, with it's own sandbox of memory, and each process can run multiple threads, all with access to the processes' sandboxed memory, but which can be run by different CPU cores in parallel. 
 
 An example would be a server script (like a NodeJS or python script) that could download multiple files in parallel, where the main script is a single process, but which can span multiple threads which run in parallel, often each on a different CPU core.
 
@@ -28,23 +28,23 @@ When a user opens a new tab and navigates to your website, the browser allocates
 
 This means that the browser cannot update the UI at the same time that it is executing Javascript. Modern Browsers use [optimized engines](https://v8.dev/) execute Javascript so quickly that UI delays aren't noticeable, unless the web-app is doing particularly heavy processing.
 
-Video Processing absolutely counts as "particularly heavy processing", which is why running everything on the main thread (the default) is not ideal. A web-applicaiton using WebCodecs, implemented without workers, would in practice have a very laggy UI that would freeze or crash the tab during key moments when reading large files, rendering or encoding.
+Video Processing absolutely counts as "particularly heavy processing", which is why running everything on the main thread (the default) is not ideal. A web-application using WebCodecs, implemented without workers, would in practice have a very laggy UI that would freeze or crash the tab during key moments when reading large files, rendering or encoding.
 
 
 ### Workers and Offscreen Canvas
 
-The solution to this problem is to use [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers), which let you run javascript is a seperate thread, so that you can run compute intensive processes such as reading large files, running AI models or encoding video without making the UI freeze / unresponsive.
+The solution to this problem is to use [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers), which let you run javascript is a separate thread, so that you can run compute intensive processes such as reading large files, running AI models or encoding video without making the UI freeze / unresponsive.
 
 
 
 
 The downside of workers is that:
 * They do not have access to the DOM - e.g. they cannot modify HTML/CSS or directly react to UI event handlers
-* Many web APIs and interfaces, like `HTMLVideoElement` and [WebAudio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API), cannot be accssed in a worker thread
+* Many web APIs and interfaces, like `HTMLVideoElement` and [WebAudio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API), cannot be accessed in a worker thread
 * Workers do not share the same memory scope as the main thread, so you either define variables in the worker thread, or you can transfer [some types](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects) of objects.
 
 
-`OffscreenCanvas` is a special case where you can update what the usuer visually sees from a worker thread, and this will be the primary way to render video in WebCodecs applications.
+`OffscreenCanvas` is a special case where you can update what the user visually sees from a worker thread, and this will be the primary way to render video in WebCodecs applications.
 
 
 You would first create a `<canvas>` element on the main thread, turn it into an [OffscreenCanvas](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) using the `transferControlToOffscreen()` method, transfer it to a worker, and then render to the `OffscreenCanvas` in the worker thread. We'll cover how to do rendering [later](../../basics/rendering).
@@ -62,7 +62,7 @@ For video processing, there are a few key steps you'd be better off doing inside
 
 **File Loading**: For a video editing application for example, a user may have source videos that are several GB in size, and you'll regularly need to read portions of the file (covered in more detail in the [next section](../file-handling)), and even just reading file data from hard disk to memory takes quite a lot of CPU cycles.
 
-**Rendering**: If you have a video player, and especially if you are applying visual effects (like filters or transforms in a video editing pipeline), you would be best of having your decoder and rendering pipeline work entirely in an a worker thread. Canvas2d rendering is CPU intensive, and even if working with a fully WebGL or WebGPU pipeline, coordinating the movement of decoded frames to a shader context and coordinating which shaders still requires lots of CPU calls,
+**Rendering**: If you have a video player, and especially if you are applying visual effects (like filters or transforms in a video editing pipeline), you would be best off having your decoder and rendering pipeline work entirely in an a worker thread. Canvas2d rendering is CPU intensive, and even if working with a fully WebGL or WebGPU pipeline, coordinating the movement of decoded frames to a shader context and coordinating which shaders still requires lots of CPU calls,
 
 **Decoding**: Decoding is typically not that compute intensive, but since fetching file data and rendering can be compute intensive, depending on the architecture, it'd probably be a good idea to keep the decoder in the same thread as your file loader or renderer to minimize data transfers.
 
@@ -105,4 +105,4 @@ Building a video player is quite a bit more complex, but here's the simplest ver
 Where the `OffscreenCanvas` and `File` are sent to the worker thread on initialization, and the `VideoDecoder` and render logic are implemented in the worker thread, while audio info is returned to the main thread, and the audio player (implemented with WebAudio) dictate current time, which is sent to the worker thread on every render cycle to render the next frame at current time.
 
 
-We'll cover actual real-world examples in [subsequent sections](../../patterns/playback), but just keep in mind that much of your could should run in a worker, and especially since the Player UI and WebAudio need to run on the main thread, you will need quite a bit of main thread <> worker communication.
+We'll cover actual real-world examples in [subsequent sections](../../patterns/playback), but just keep in mind that much of your code should run in a worker, and especially since the Player UI and WebAudio need to run on the main thread, you will need quite a bit of main thread <> worker communication.

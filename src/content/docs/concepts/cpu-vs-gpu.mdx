@@ -33,14 +33,14 @@ But actually, it's not just those APIs, many Web APIs that deal with graphics us
 
 #### Most Graphics cards have a specific hardware module for video encoding and decoding
 
-The reason that all the video-related Web APIs use the graphics card is because video encoding/decoding is usually done by specific encoder/decoder hardware sub-module located within the graphics card (seperate from the 'normal' graphics processor used for graphics & ML).
+The reason that all the video-related Web APIs use the graphics card is because video encoding/decoding is usually done by specific encoder/decoder hardware sub-module located within the graphics card (separate from the 'normal' graphics processor used for graphics & ML).
 
-An mostly* accurate view of a generalized consumer device system might look like this:
+A mostly* accurate view of a generalized consumer device system might look like this:
 
 ![](/assets/basics/cpu/system.svg)
 
 
-\*  In reality, integrated graphics cards actually do use the same physical RAM device as the CPU, but the operating system reserves a portion for the graphics card, and the graphics card manages the memory seperately, and often use different cacheing/storage mechanisms so that, for practical purposes, GPU memory and CPU memory act as seperate stores, requiring CPU cycles and data copies to move data between GPU and the CPU [[1](https://people.ece.ubc.ca/sasha/papers/ismm-2017.pdf)][[2](https://gpuweb.github.io/gpuweb/explainer/#:~:text=2.2.&text=When%20using%20a%20discrete%20GPU,process%20and%20the%20content%20process.)][[3](https://www.w3.org/2021/03/media-production-workshop/talks/paul-adenot-webcodecs-performance.html)].
+\*  In reality, integrated graphics cards actually do use the same physical RAM device as the CPU, but the operating system reserves a portion for the graphics card, and the graphics card manages the memory separately, and often use different caching/storage mechanisms so that, for practical purposes, GPU memory and CPU memory act as separate stores, requiring CPU cycles and data copies to move data between GPU and the CPU [[1](https://people.ece.ubc.ca/sasha/papers/ismm-2017.pdf)][[2](https://gpuweb.github.io/gpuweb/explainer/#:~:text=2.2.&text=When%20using%20a%20discrete%20GPU,process%20and%20the%20content%20process.)][[3](https://www.w3.org/2021/03/media-production-workshop/talks/paul-adenot-webcodecs-performance.html)].
 
 
 
@@ -70,14 +70,14 @@ Many different methods and functions you will encounter in video processing will
 
 | Method   | What is Happening |
 | -------- | ------- |
-| Canvas2d.drawImage | depends on the browser[[1](https://www.middle-engine.com/blog/posts/2020/08/21/cpu-versus-gpu-with-the-canvas-web-api)]   |
+| Canvas2d.drawImage | depends on the browser[[4](https://www.middle-engine.com/blog/posts/2020/08/21/cpu-versus-gpu-with-the-canvas-web-api)]   |
 | createImageBitmap(VideoFrame) | GPU -> GPU (local copy)    |
 | createImageBitmap(ImageData) | CPU -> GPU    |
 | createImageBitmap(Canvas or OffscreenCanvas) | GPU -> GPU  (local copy)  |
 | createImageBitmap(Blob) | CPU -> GPU   |
 | getImageData  | GPU -> CPU   |
 | putImageData  | CPU -> GPU    |
-| transferFromImageBitamap | GPU -> GPU  (local copy)   |
+| transferFromImageBitmap | GPU -> GPU  (local copy)   |
 | importExternalTexture | GPU->GPU (zero copy)  |
 | copyExternalImageToTexture | GPU->GPU (local copy)  |
 | decode| CPU->GPU     |
@@ -90,7 +90,7 @@ It's important to keep this in mind, because in many cases, for a simple task li
 
 #### Flow of data during video processing
 
-For somone just getting started, it might be hard to just read a long table full of data types and methods you may have never heard of, so to make this much clearer, here are several animations illustrating the flow of data between devices for the primary methods used when transcoding a video file in WebCodecs.
+For someone just getting started, it might be hard to just read a long table full of data types and methods you may have never heard of, so to make this much clearer, here are several animations illustrating the flow of data between devices for the primary methods used when transcoding a video file in WebCodecs.
 
 **file.arrayBuffer()**
 
@@ -114,7 +114,7 @@ The next step is Demuxing (extracting `EncodedVideoChunk` objects from the file 
 
 **Decode**
 
-When you set up a `VideoDeocder` and start sending chunks via `decoder.decode()`, it will send the chunks from RAM into the graphics card's specialized Video Decoder module (assuming hardware acceleration).
+When you set up a `VideoDecoder` and start sending chunks via `decoder.decode()`, it will send the chunks from RAM into the graphics card's specialized Video Decoder module (assuming hardware acceleration).
 
 <video width="640" height="480" loop muted autoplay>
   <source src="/assets/basics/cpu/decode.webm" type="video/webm" />
@@ -124,7 +124,7 @@ When you set up a `VideoDeocder` and start sending chunks via `decoder.decode()`
 
 **Rendering**
 
-While rendering isn't a step in transcoding, I'll include it here anyway. There's a number of ways you can render a `VideoFrame` to a `canvas` / the deplay, which will be covered [here](../../basics/rendering), but following best practices of using methods like `importExternalTexture` will send each `VideoFrame` in the most efficient way through the graphics processor to the final display.
+While rendering isn't a step in transcoding, I'll include it here anyway. There's a number of ways you can render a `VideoFrame` to a `canvas` / the display, which will be covered [here](../../basics/rendering), but following best practices of using methods like `importExternalTexture` will send each `VideoFrame` in the most efficient way through the graphics processor to the final display.
 
 <video width="640" height="480" loop muted autoplay>
   <source src="/assets/basics/cpu/render.webm" type="video/webm" />
@@ -153,10 +153,10 @@ Finally, muxing is the mirror image of demuxing, taking `EncodedVideoChunk` data
 
 #### Best practices
 
-For the best performance, **don't needlessly shuffle data back and forth between the CPU, GPU and Hard Disk**, there are real perfomance penalties for each data transfer operation.
+For the best performance, **don't needlessly shuffle data back and forth between the CPU, GPU and Hard Disk**, there are real performance penalties for each data transfer operation.
 
 This is especially important for `VideoFrame` objects - they reside in GPU memory. Outside of encoding/decoding, please try to keep any operations involving `VideoFrame` objects on the graphics card (via methods like `createImageBitmap`), and avoid reading `VideoFrame` data to the CPU with operations like `copyTo`.
 
 
-The reason to go through all this trouble to understand the CPU vs the GPU, where each data type resides, and what the data flows look like, is to explain why this guide will make specific recommendations on which methods to use (like `importExternalTexture`) and which not to use (like `drawImage`), and why we're recommending certain best practices, to follow the above princples.
+The reason to go through all this trouble to understand the CPU vs the GPU, where each data type resides, and what the data flows look like, is to explain why this guide will make specific recommendations on which methods to use (like `importExternalTexture`) and which not to use (like `drawImage`), and why we're recommending certain best practices, to follow the above principles.
 

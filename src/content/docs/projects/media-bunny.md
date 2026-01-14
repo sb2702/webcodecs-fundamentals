@@ -57,7 +57,7 @@ As of writing this article in December 2025, MediaBunny is still new but emergin
 
 In my own WebCodecs applications, I manually implemented my own implementations of decoder /encoder management, progressive file reading, etc..., so I understand how complex it is to build all of that functionality, and it doesn't make sense for every application to re-invent the same core logic that almost every video application would need.
 
-If this guide in any way becomes considered authoratative, I am putting in my vote that MediaBunny should be the standard go-to library for web application developers working with WebCodecs, and I would highly recommend using it unless you really need specific low-level control.
+If this guide in any way becomes considered authoritative, I am putting in my vote that MediaBunny should be the standard go-to library for web application developers working with WebCodecs, and I would highly recommend using it unless you really need specific low-level control.
 
 
 #### I'll cover both
