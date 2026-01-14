@@ -3,7 +3,7 @@ title: Why Use WebCodecs?
 description: Use cases where WebCodecs shines
 ---
 
-WebCodecs enables low-level video processing in the browser, with native or near-native level encoding and decoding performance [1].
+WebCodecs enables low-level video processing in the browser, with native or near-native level encoding and decoding performance.
 
 This enables web application developers to develop high-performance video applications that were previously either the domain of desktop software, or which required server-side video processing. 
 

@@ -62,7 +62,7 @@ Consider the following mock example of streaming video a canvas in one worker to
 <details>
   <summary>Source Code</summary>
 
-Here is the pseudocode for the two workers (full code [here](./tbd))
+Here is the pseudocode for the two workers
   <Tabs>
 
   
@@ -132,7 +132,7 @@ Let's take the same exact example, but now we encode the video chunks before sen
 <details>
   <summary>Source Code</summary>
 
-  Here is the pseudo code for the two workers (full code [here](./tbd)):
+  Here is the pseudo code for the two workers (full code  for [encoder](/demo/encoded-chunk-throughput/encoder-worker.js), [decoder](/demo/encoded-chunk-throughput/decoder-worker.js)):
 
 <Tabs>
 
@@ -228,7 +228,7 @@ To send a full video, you could send the first frame (called a *key frame*), and
 
 ![](/assets/basics/chunks/frame-diff-4.png)
 
-This is exacly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames [[do the study, make the citation](./tbd))].
+This is exacly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames.
 
 The `EncodedVideoChunk` represents this property via the `type` attribute, with *key frames* having a `key` type, and delta frames having a `delta type`
 

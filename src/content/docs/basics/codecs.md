@@ -222,8 +222,8 @@ const codec_string = getCodecString('avc', 1920, 1080, bitrate);
 
 ### Comprehensive list of codec strings
 
-See [here](./tbd)
+See [here](../../datasets/codec-strings)
 
 ### Device support
 
-See [here](./tbd)
+See [here](../../datasets/codec-support)
