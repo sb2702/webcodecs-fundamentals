@@ -60,8 +60,7 @@ src/content/docs/
 
 ## License
 
-[To be determined]
+MIT
 
 ---
 
-Built by the team at [Free.Upscaler.Video](https://free.upscaler.video)
