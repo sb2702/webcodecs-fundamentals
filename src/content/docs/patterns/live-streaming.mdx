@@ -1751,7 +1751,80 @@ I will update this with a server streaming tutorial when there's a server-side j
 
 #### Authentication
 
-All the examples thus far have been without authentication. There is an [authentication mechanism](https://github.com/moq-dev/moq/tree/main/rs/moq-token) for Media over Quic but it is still not well documented. 
+All the examples thus far have used public, un-authenticated relays. MoQ does have authentication built in,  you'll need to manage your own relay server and set up authentication for it.
+
+MoQ relays use signed JWT tokens for stateless authentication. You first generate a key, then configure your server to use the key, and finally you create keys to authenticate users.
+
+
+###### Setting up your own sever
+
+
+**Step 1**
+Clone the moq relay repo
+
+```bash
+git clone https://github.com/moq-dev/moq.git
+cd moq
+```
+
+**Step 2**
+Install [Nix](https://nixos.org/download/) 
+
+**Step 3**
+Enable [Nix flakes](https://nixos.wiki/wiki/Flakes)
+
+**Step 4**
+Run the server
+```bash
+nix develop -c just dev
+```
+
+
+See the [setup docs](https://github.com/moq-dev/moq#) for more details
+
+###### Generate a key
+
+You can use either a CLI or a Rust/JS library to generate a key. Here's how you'd install the CLI (Rust is a prequisite)
+
+**Step 1** Install the CLI
+
+```bash
+cargo install moq-token-cli
+```
+
+**Step 2** Generate a key
+```bash
+moq-token --key "root.jwk" generate
+```
+
+**Step 3**: Configure the server to use the key
+
+You need to edit or create `config.toml` in the root of the server repo, and include the following
+
+```text
+[auth]
+key = "root.jwk" # Path to the key we generated.
+```
+
+By specifying the auth and root, the server will by default require auth for all connections
+
+**Step 4**: Use the key to sign tokens
+
+```bash
+moq-token --key "root.jwk" sign \
+  --root "rooms/meeting-123" \
+  --subscribe "" \
+  --publish "alice" \
+  --expires 1703980800 > "alice.jwt"
+```
+
+***
+
+This creates a token that allows a user to connect to the relay url `<cdn-url>/<root>` and `publish` to any track with the prefix `alice/**` 
+
+
+See more docs [here](https://github.com/moq-dev/moq/blob/main/doc/concepts/authentication.md)
+
 
 #### Retry
 
