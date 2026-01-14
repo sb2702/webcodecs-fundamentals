@@ -28,7 +28,7 @@ Each would have a different architecture, and for each there might be multiple w
 I'll then provide a quick overview of the alternatives (WebRTC, MSE) and include some real world case studies of streaming applications and their architectures, to help you decide if and where WebCodecs makes sense.
 
 Because WebCodecs works with binary encoded video data, it's a lot easier to integrate with server media processing libraries like ffmpeg and gstreamer. 
-I'll therefore assume you can do whatever prcessing you need based on your application's business logic with server media processing libraries, and I'll stick to how you'd stream video to/from the browser with WebCodecs.
+I'll therefore assume you can do whatever processing you need based on your application's business logic with server media processing libraries, and I'll stick to how you'd stream video to/from the browser with WebCodecs.
 
 ## Data transfer
 
@@ -36,7 +36,7 @@ Raw video is too large to stream over a network, so in any streaming scenario we
 
 Other browser APIs like `WebRTC`and `MSE` have data transfer built-in and application developers don't normally manage how individual video packets are sent over the network.
 
-The strength and weakness of WebCodecs is that it is very low-level, so you absolutely can control how individual video packets are sent over the network, but then you have to figure out how to send invidual video packets over the network.
+The strength and weakness of WebCodecs is that it is very low-level, so you absolutely can control how individual video packets are sent over the network, but then you have to figure out how to send individual video packets over the network.
 
 
 #### The requirements
@@ -181,7 +181,7 @@ If you are only sending data one way, this could work, but if you need to enable
 
 ###### Web Transport
 
-WebTransport is like a successor to WebSockets, with support being rolled out [[2](https://caniuse.com/webtransport)],  but it enables better peformance and uses the [Streams API](../../concepts/streams). WebTransport lets you write this as a pipeline, where the video frame source (e.g. a user webcam) gets piped through the encooder (a `TransformStream` wrapper) and piped to a writer, which then writes data in a stream-like fashion over the network.
+WebTransport is like a successor to WebSockets, with support being rolled out [[2](https://caniuse.com/webtransport)],  but it enables better performance and uses the [Streams API](../../concepts/streams). WebTransport lets you write this as a pipeline, where the video frame source (e.g. a user webcam) gets piped through the encoder (a `TransformStream` wrapper) and piped to a writer, which then writes data in a stream-like fashion over the network.
 
  ```typescript
 const transport = await WebTransport.connect('https://localhost:3000/upload');
@@ -266,7 +266,7 @@ for (;;) {
 </Tabs>
 
 
-Here's a quick demo of MoQ using Clouldflare's public relay, where one iframe will publish text messages in a track, and the other a iframe will subscribe to the same track, and listen for messages from the relay
+Here's a quick demo of MoQ using Cloudflare's public relay, where one iframe will publish text messages in a track, and the other a iframe will subscribe to the same track, and listen for messages from the relay
 
 
 <iframe src="/demo/moq/index.html" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
@@ -541,7 +541,7 @@ See the full code [here](https://github.com/sb2702/webcodecs-examples/blob/main/
 Now that we can covered:
 
 1. How to send data over a Media over Quic (MoQ) relay
-2. How to grba a stram of encoded audio & video from a webcam
+2. How to grab a stream of encoded audio & video from a webcam
 
 The next obvious step is to send encoded video over the network. We're going to start with sending data between browsers as it's the simplest case. 
 
@@ -911,7 +911,7 @@ export class MoqPublisher {
 ```
 </details>
 
-Next we define the subscriber, which will listen for `catalog.json`, and then when it's available, it will parse the catalog, and setup a `VideoDecoder` for the video track, an `AudioDecoder` for the audio track, and then it will start listening for each track, retreiving each group of frames and sending them for decode.
+Next we define the subscriber, which will listen for `catalog.json`, and then when it's available, it will parse the catalog, and setup a `VideoDecoder` for the video track, an `AudioDecoder` for the audio track, and then it will start listening for each track, retrieving each group of frames and sending them for decode.
 
 <details>
 
@@ -1722,7 +1722,7 @@ Compared to traditional HLS/DASH streaming, this reduces latency by quite a bit,
 
 Without the Media over Quic layer, using WebCodecs to stream video from a server to many devices (say via WebSockets) is impractical. You'd be better off using established technologies like WebRTC for real-time, low-volume streaming, or HLS/DASH streaming for high-volume streaming with some latency.
 
-So, for livestreaming with WebCodecs from the server to many clients, Media over Quic is the necessary enabling network layer, and WebCodecs + Media over Quic as a stack has concerete advantages compared to WebRTC and HLS/DASH streaming (low latency and high volume).
+So, for livestreaming with WebCodecs from the server to many clients, Media over Quic is the necessary enabling network layer, and WebCodecs + Media over Quic as a stack has concrete advantages compared to WebRTC and HLS/DASH streaming (low latency and high volume).
 
 
 #### Do you need a server?
@@ -1735,7 +1735,7 @@ On the other hand, ff you're an application developer who wants to stream video 
 
 ![](/assets/patterns/livestreaming/server-to-browser-1.svg)
 
-In cases where your application owns the end broadaster -> viewer stack, Media over Quic + WebCodecs makes much more sense as there are concrete performance and costs benefits compared to older workflows, and in that scenario you might not even need a server to stream video.
+In cases where your application owns the end broadcaster -> viewer stack, Media over Quic + WebCodecs makes much more sense as there are concrete performance and costs benefits compared to older workflows, and in that scenario you might not even need a server to stream video.
 
 
 #### Still early for Media Over Quic
@@ -1784,7 +1784,7 @@ See the [setup docs](https://github.com/moq-dev/moq#) for more details
 
 ###### Generate a key
 
-You can use either a CLI or a Rust/JS library to generate a key. Here's how you'd install the CLI (Rust is a prequisite)
+You can use either a CLI or a Rust/JS library to generate a key. Here's how you'd install the CLI (Rust is a prerequisite)
 
 **Step 1** Install the CLI
 

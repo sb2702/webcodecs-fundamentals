@@ -8,7 +8,7 @@ In the [Video Decoder](../../basics/decoder) section, we learned how to decode v
 ![](/assets/basics/encoder/rube-goldberg-2.png)
 
 
-Conceptually yes, transcoding is just chaining a decde process to an encode process, but as we discussed earlier, a `VideoEncoder` and `VideoDecoder` aren't simple `async` calls, but rather more like Rube Goldberg machines that you have to push chunks and frames through.
+Conceptually yes, transcoding is just chaining a decode process to an encode process, but as we discussed earlier, a `VideoEncoder` and `VideoDecoder` aren't simple `async` calls, but rather more like Rube Goldberg machines that you have to push chunks and frames through.
 
 To properly implement transcoding in WebCodecs, we can't just think of it as a simple for loop:
 
@@ -23,11 +23,11 @@ for (let i=0; i< numChunks; i++){
 }
 ```
 
-Instead, we need to think of it as a pipeline, where you are chaining stages together, and each stage is simultanoeusly holding multiple chunks or frames.
+Instead, we need to think of it as a pipeline, where you are chaining stages together, and each stage is simultaneously holding multiple chunks or frames.
 
 ![](/assets/basics/encoder/rube-goldberg-3.png)
 
-As we'll see in this section, I'm not mentioning pipelines just as an anology, we'll build a Javascript transcoding pipeline via the [Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/).
+As we'll see in this section, I'm not mentioning pipelines just as an analogy, we'll build a Javascript transcoding pipeline via the [Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/).
 
 
 ## Stages in our Pipeline
@@ -151,9 +151,9 @@ class DemuxerTrackingStream extends TransformStream<EncodedVideoChunk, { chunk: 
 
 #### Decoder
 
-Next, we'll add a DecoderStream, where we setup the decoder in `start` (which gets called at initialization), submit chunks for decoding in `transform` and flush the deocder in `flush`.
+Next, we'll add a DecoderStream, where we setup the decoder in `start` (which gets called at initialization), submit chunks for decoding in `transform` and flush the decoder in `flush`.
 
-Note that there is a `controller` being passed both to `start` and to `transform`, and this lets define how we send chunks to the next stage in the decoder initilization in `start()` while also sending chunks for decoding in `transform()`.
+Note that there is a `controller` being passed both to `start` and to `transform`, and this lets define how we send chunks to the next stage in the decoder initialization in `start()` while also sending chunks for decoding in `transform()`.
 
 The `TransformStream` class also has a `flush` method which will automatically be called when the stream has no more inputs to process, and we just pass that flush call to `decoder.flush()`. Is that not elegant?
 
@@ -182,7 +182,7 @@ class VideoDecoderStream extends TransformStream<{ chunk: EncodedVideoChunk; ind
             await new Promise((r) => setTimeout(r, 10));
           }
 
-          // check for downstream backpresure
+          // check for downstream backpressure
           while (controller.desiredSize !== null && controller.desiredSize < 0) {
             await new Promise((r) => setTimeout(r, 10));
           }
@@ -400,11 +400,6 @@ export async function transcodePipeline( file: File, ): Promise<Blob> {
 
   const videoDecoderConfig = await demuxer.getDecoderConfig('video');
   const audioConfig = await demuxer.getDecoderConfig('audio');
-
-
-  const duration = videoTrack.duration;
-  const width = videoTrack.width;
-  const height = videoTrack.height;
 
 
 

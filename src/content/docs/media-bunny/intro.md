@@ -35,7 +35,7 @@ Inputs are a wrapper around some kind of video source, whether that's a blob, a 
 
 That makes it possible to maintain the same video processing logic regardless of where your video is coming from. For example, you could build a video player and maintain the same playback logic regardless of whether your video is cached locally or coming from a remotely hosted url. 
 
-The "where your video" is coming from is encapsulated by the `source` paramer for the `Input` constructor, as below:
+The "where your video" is coming from is encapsulated by the `source` parameter for the `Input` constructor, as below:
 
 ``` typescript
 import { Input, ALL_FORMATS, BlobSource } from 'mediabunny';
@@ -54,7 +54,7 @@ Likewise, Outputs are a wrapper around wherever you might write a file to, wheth
 
 ![](/assets/mediabunny/intro/outputs.svg)
 
-The API is likewise similar for outputt, but here, the 'wherever you might write a file to' is encapsulated by the `target`  parameter.
+The API is likewise similar for output, but here, the 'wherever you might write a file to' is encapsulated by the `target`  parameter.
 
 ```typescript
 import { Output, Mp4OutputFormat, BufferTarget } from 'mediabunny';
@@ -69,7 +69,7 @@ This way, you can maintain the same processing logic regardless of where your fi
 
 #### Tracks
 
-WebCodecs never explicity define or work with *Tracks*, like a file's Audio or Video tracks, even if other Web APIs do. MediaBunny explicitly deals with tracks, facilitating reading and writing data to/from files and streams.
+WebCodecs never explicitly define or work with *Tracks*, like a file's Audio or Video tracks, even if other Web APIs do. MediaBunny explicitly deals with tracks, facilitating reading and writing data to/from files and streams.
 
 ```typescript
 // We'll need this to read video data
@@ -79,7 +79,7 @@ const videoTrack  = await input.getPrimaryVideoTrack();
 And we'll also write to output tracks, e.g.
 
 ```typescript
-output.addVideoTrack(videoSource); // Well get to this next
+output.addVideoTrack(videoSource); // We'll get to this next
 ```
 
 
@@ -116,7 +116,7 @@ Then actually recording a canvas would look something like this:
 
 ```typescript
 await output.start();
-for (let =0; i < 10; i++){ //Grab 10 frames a 100ms intervals
+for (let i=0; i < 10; i++){ //Grab 10 frames a 100ms intervals
     videoSource.add(i*0.1, 0.1); //timestamp, duration
     await new Promise((r)=>setTimeout(r, 100));
 }
@@ -163,7 +163,7 @@ MediaBunny also uses slightly different terminology from WebCodecs. Whereas WebC
 | Encoded  Audio      | `EncodedAudioChunk`    |  `EncodedAudioPacket`    |
 
 
-These are mostly comparabe, and you can easily convert between the two using the following methods
+These are mostly comparable, and you can easily convert between the two using the following methods
 
 |            | WebCodecs -> MediaBunny  | Mediabunny-> WebCodecs |
 | --------   | -------- | ------- |
@@ -214,7 +214,7 @@ for await (const sample of sink.samples()) {
 
 ```
 
-I'm not trying to be pedantic with this guide, treating video processing as a pipeline is best practice. MediaBunny actually does use the [Streams API](../../concepts/streams) under the hood, but uses clever architecture to simplify the API so that you can treat it as an async per-frame operation and not worry about buffer stalls or memory managment.
+I'm not trying to be pedantic with this guide, treating video processing as a pipeline is best practice. MediaBunny actually does use the [Streams API](../../concepts/streams) under the hood, but uses clever architecture to simplify the API so that you can treat it as an async per-frame operation and not worry about buffer stalls or memory management.
 
 
 ### Other differences
@@ -240,7 +240,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
 
     const input = new Input({
         formats: [MP4],
-        source: new BlobSource(file);
+        source: new BlobSource(file),
     });
 
     const audioTrack  = input.getPrimaryAudioTrack();
@@ -265,7 +265,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
     const sink = new VideoSampleSink(videoTrack);
     const audioSink = new EncodedPacketSink(audioTrack);
 
-    // Loop over all frames, with re-ecoding
+    // Loop over all frames, with re-encoding
     for await (const sample of sink.samples()) {
         videoSource.add(sample);
     }
@@ -290,7 +290,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
 
 
 #### Tutorials (tutorials coming soon)
-* [Video Player](../transcoding) 
-* [Trancoding](../transcoding)
-* [Video Editing](../editing) 
+* [Video Player](../transcoding)
+* [Transcoding](../transcoding)
+* [Video Editing](../editing)
 * [Live Streaming](../live-streaming)

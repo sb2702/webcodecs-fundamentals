@@ -323,7 +323,7 @@ For the audio renderer, we're going to make two more changes compared to the [We
 
 Our WebAudio demos just loaded mp3 demos (the file in file.arrayBuffer() was an mp3 file), but here we now need to handle video file inputs. Our `Demuxer` library can extract audio data from a video file, but it returns data as `EncodedAudioChunk[]`.
 
-Rather than decoding the audio data into `AudioData[]`, extracting `Float32Array` channel data, constructing `AudioBuffers` and copying channel data over, it's a lot faster and compute efficient to just mux our `EncodedAudiochunk[]` into a virtual file
+Rather than decoding the audio data into `AudioData[]`, extracting `Float32Array` channel data, constructing `AudioBuffers` and copying channel data over, it's a lot faster and compute efficient to just mux our `EncodedAudioChunk[]` into a virtual file
 
 ```typescript
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer'
@@ -1466,7 +1466,7 @@ self.onmessage = async function(event: MessageEvent) {
 ```
 </details>
 
-Finally, we'll create a simple wrapper around the video worker, which can be called by the player on the main thread, and which will propogate events to the VideoWorker worker.
+Finally, we'll create a simple wrapper around the video worker, which can be called by the player on the main thread, and which will propagate events to the VideoWorker worker.
 
 <details>
 
@@ -1766,7 +1766,7 @@ export class Clock extends EventEmitter {
 
 #### Player
 
-Finally, we'll include the player interface as described previously, which will instantiate all the components, and expose the pause/play/seek methods as well as avent handlers via the `on` listener (which passes through to the Clock), so that it we can build a UI around it.
+Finally, we'll include the player interface as described previously, which will instantiate all the components, and expose the pause/play/seek methods as well as event handlers via the `on` listener (which passes through to the Clock), so that it we can build a UI around it.
 
 <details>
 
