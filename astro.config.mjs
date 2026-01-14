@@ -13,8 +13,15 @@ export default defineConfig({
 		  },
 		},
 	  },
+	vite: {
+		server: {
+			watch: {
+				ignored: ['**/codec_results/**']
+			}
+		}
+	},
 	server: {
-	
+
 	        allowedHosts: ['katana.ngrok.dev', 'localhost', '192.168.1.100'],
 		host: true,
 		headers: {
@@ -123,7 +130,7 @@ export default defineConfig({
 					label: 'Datasets',
 					items: [
 						{ label: 'About', slug: 'datasets/intro' },
-						{ label: 'Codec Strings', slug: 'datasets/codec-strings' },
+						{ label: 'Codec Registry', slug: 'datasets/codec-registry' },
 						{ label: 'Codec Support', slug: 'datasets/codec-support' },
 						{ label: 'Encode/Decode Performance', slug: 'datasets/performance' },
 						{ label: 'Key Frames vs Delta frames', slug: 'datasets/key-delta' },
