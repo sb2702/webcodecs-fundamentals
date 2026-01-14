@@ -8,7 +8,7 @@ Just as with video, the WebCodecs for audio is designed to transform compressed 
 ![](/assets/audio/encode-decode/simplified-2.svg)
 
 
-Specifically, the `AudioDecoder` tansforms `EncodedAudioChunk` objects into `AudioData`, and the `AudioEncoder` transforms `AudioData` into `EncodedAudioChunk` objects, and when decoding and encoding, there will be a 1:1 correspondence between `EncodedAudioChunk` objects and`AudioData` objects.
+Specifically, the `AudioDecoder` transforms `EncodedAudioChunk` objects into `AudioData`, and the `AudioEncoder` transforms `AudioData` into `EncodedAudioChunk` objects, and when decoding and encoding, there will be a 1:1 correspondence between `EncodedAudioChunk` objects and`AudioData` objects.
 
 ### Audio is easier
 

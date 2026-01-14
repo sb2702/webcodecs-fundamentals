@@ -7,7 +7,7 @@ The `EncodedAudioChunk`, as you might guess, is the encoded / compressed form of
 
 ![](/assets/audio/encoded-audio-chunk/encoded-chunk.svg)
 
-Encoded audio is typically 15 to 20 times more compact that ran audio. Compared to video, raw audio is more compact, encoded audio is much more compact and encoding/decoding is both computationally much easier and much faster.
+Encoded audio is typically 15 to 20 times more compact than raw audio. Compared to video, raw audio is more compact, encoded audio is much more compact and encoding/decoding is both computationally much easier and much faster.
 
 Unlike with video, each `EncodedAudioChunk` is essentially a key frame, sequence doesn't matter, and each `EncodedAudioChunk` can be decoded independently.
 
@@ -26,7 +26,7 @@ Just like with video, there are a number of audio codecs. Here are some of the m
 **PCM**: Short for Pulse-Code-Modulation, it's a lossless audio codec which is what is used in .wav files
 
 
-Only AAC and Opus are actually supported by WebCodecs. You'd need seperate librairies to handle MP3 and WAV (PCM) files.
+Only AAC and Opus are actually supported by WebCodecs. You'd need separate libraries to handle MP3 and WAV (PCM) files.
 
 #### Codec Strings:
 
@@ -41,7 +41,7 @@ Here are the codec strings for AAC [[1](https://www.w3.org/TR/webcodecs-aac-code
 * 'mp4a.40.05' - basically the same as above
 * 'mp4a.40.29' - Uses SBR and Parametric stereo [[3](https://en.wikipedia.org/wiki/Parametric_stereo)]
 
-When encoding, just use 'mp4a.40.2', it is supported in all major browsers on Window, OSX, Android, iOS and Chrome OS but not on desktop linux.
+When encoding, just use 'mp4a.40.2', it is supported in all major browsers on Windows, OSX, Android, iOS and Chrome OS but not on desktop linux.
 
 When decoding audio, you get what the source gives you. If the codec string is 'mp4a.40.5', 'mp4a.40.05' or 'mp4a.40.29', the actual sample rate is double what is specified. For example, if you decode and manually resample audio generated from those codecs, you need to do the following:
 
@@ -215,7 +215,7 @@ async function muxChunks(function(chunks: EncodedAudioChunk[]): Promise <Blob>{
 Because `EncodedAudioChunk` objects can be decoded independently there aren't cross-chunk dependencies when decoding, it's a lot easier just avoid decoding and re-encoding audio.
 
 ##### Avoiding re-encoding
-Often times, if you're just transcoding, or extracting a clip of a single video source, you don't need to decode and re-encode audio. You can demux `EnocodedAudioChunk` data from the source file and mux those same chunks directly into your destination file without ever touching an `AudioEncoder`,  `AudioDecoder` or `AudioData`.
+Often times, if you're just transcoding, or extracting a clip of a single video source, you don't need to decode and re-encode audio. You can demux `EncodedAudioChunk` data from the source file and mux those same chunks directly into your destination file without ever touching an `AudioEncoder`,  `AudioDecoder` or `AudioData`.
 
 The fact that `EncodedAudioChunk` objects correspond to ~0.02 seconds of audio means you can splice the audio and manage the timeline by just filtering out audio chunks.
 
@@ -236,7 +236,7 @@ const dest_chunks = source_chunks.filter((chunk)=> chunk.timestamp > 600*1e6 && 
 
 ##### Adjusting timestamps
 
-The above example it's quite true, you'd still need to adjust the timestamps, but that's also still quite easy.
+The above example isn't quite true, you'd still need to adjust the timestamps, but that's also still quite easy.
 
 
 
@@ -257,7 +257,7 @@ const final_chunks = clip_chunks.map(function(chunk: EncodedAudioChunk){
 
     return new EncodedAudioChunk({
         type: "key",
-        data: audio_date,
+        data: audio_data,
         timestamp: adjusted_time,
         duration: chunk.duration,
     })

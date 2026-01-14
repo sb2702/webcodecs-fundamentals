@@ -64,7 +64,7 @@ function render(time: number){
 ```
 The key word here is 'try'. If you remember from the [decoding loop](../../basics/decoder#decoding-loop), we have a *render buffer*  of `VideoFrame` objects which have been decoded. 
 
-We **cannot** guarantee that there is a `VideoFrame` corresponding to the requested timestamp, or even that there is a `VidoeFrame` that is close to the requested timestamp.
+We **cannot** guarantee that there is a `VideoFrame` corresponding to the requested timestamp, or even that there is a `VideoFrame` that is close to the requested timestamp.
 
 The approach is to *try* to find the latest `VideoFrame` that is before the current requested time, and render that.  It is almost guaranteed that some render calls won't be able to find a suitable `VideoFrame` and that's okay, it's normal, it's expected.
 
@@ -72,7 +72,7 @@ In practice, you'll end up skipping some frames (if playback is faster than the 
 
 #### Clock
 
-While the audio renderer has it's own consistent timeline, we still need to regularly poll the current time from the audio renderer, and regularly make `render` calls to the video renderer.
+While the audio renderer has its own consistent timeline, we still need to regularly poll the current time from the audio renderer, and regularly make `render` calls to the video renderer.
 
 
 For this, we're going to create a **Clock** interface, for which we'll create a regular poll mechanism called `tick`
@@ -113,7 +113,7 @@ This will be the core of our render loop, to play both audio and video back in s
 
 ### Loading File Data
 
-For the audio renderer and video renderer to work, we actually need to feed them encoded audio and video data (each render handles it's own decoding).
+For the audio renderer and video renderer to work, we actually need to feed them encoded audio and video data (each render handles its own decoding).
 
 In the previous hello world examples, we just loaded the entire video's worth of `EncodedAudioChunk` and `EncodedVideoChunk` data, which is fine for very small demo videos. If we want to handle large videos though, we'll need to progressively load data from our source file.
 
@@ -126,13 +126,13 @@ In the previous hello world examples, we just loaded the entire video's worth of
 
 #### Worker setup
 
-We'll set up this demuxer in it's own worker thread to isolate it from other processes. We'll then give this worker to both the audio renderer and video renderer, so, they can fetch encoded chunks from the demuxer.
+We'll set up this demuxer in its own worker thread to isolate it from other processes. We'll then give this worker to both the audio renderer and video renderer, so, they can fetch encoded chunks from the demuxer.
 
 
 ![](/assets/patterns/player/player-architecture-2.svg)
 
 
-Each renderer will manage it's own data lifecycle independently, independently fetching chunks from the worker, decododing and buffering data as needed, so we can keep the architecture clean and isolate concerns.
+Each renderer will manage its own data lifecycle independently, independently fetching chunks from the worker, decoding and buffering data as needed, so we can keep the architecture clean and isolate concerns.
 
 With this, the render loop should be able to indefinitely fetch and render audio and video in a synchronized fashion indefinitely.
 
@@ -160,14 +160,14 @@ Putting all of these together, we now have our basic, barebones architecture for
 ![](/assets/patterns/player/player-architecture-3.svg)
 
 
-Play / pause / seek events will go to our clock, which will in turn propogate events to the `AudioRenderer`.
+Play / pause / seek events will go to our clock, which will in turn propagate events to the `AudioRenderer`.
 
-The player also exposes utilities for fetching the current playback time, and video metadata (such as duration), which should be everything we need to actually build a functional WebCodecs player and build a UI inteface for it.
+The player also exposes utilities for fetching the current playback time, and video metadata (such as duration), which should be everything we need to actually build a functional WebCodecs player and build a UI interface for it.
 
 
 ## WebCodecs Player Components
 
-Now that we have the high level architecture, we'll actually include the code compontents for each.
+Now that we have the high level architecture, we'll actually include the code components for each.
 
 #### File Loader
 

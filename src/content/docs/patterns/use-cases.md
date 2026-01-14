@@ -8,6 +8,6 @@ Work in Progress
 
 * [Video Player](../playback)
 * [Live Streaming + Conferencing](../patterns/)
-* [Transocodng](../patterns)
+* [Transcoding](../patterns)
 * [Video Editing](../patterns/)
 

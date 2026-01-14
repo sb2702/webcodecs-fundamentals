@@ -3,7 +3,7 @@ title: Intro to Audio
 description: How and when to use Audio
 ---
 
-Up until now we've been exclusively focusing on Video because, well, video is hard enough on it's own, without the additional challenge of also managing audio, let alone handling audio-video sync.
+Up until now we've been exclusively focusing on Video because, well, video is hard enough on its own, without the additional challenge of also managing audio, let alone handling audio-video sync.
 
 I also saved it for later because, and I can't emphasize this enough:
 
@@ -20,7 +20,7 @@ That may seem obvious, but here is a key limitation:
 WebCodecs only supports `AAC` audio for MP4 files, and `Opus` audio for WebM file, which are the most typical audio codecs used with those types of video files, but it won't handle MP3, or other [Audio Formats](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Audio_codecs).
 
 
-If you're only working with MP4 or WebM video files, this is fine.  If you want to export standalone audio, you'll need seperate libraries to handle MP3 encoding (covered [here](../mp3))
+If you're only working with MP4 or WebM video files, this is fine.  If you want to export standalone audio, you'll need separate libraries to handle MP3 encoding (covered [here](../mp3))
 
 If you're only working with audio, you might be better off with the WebAudio API.
 
@@ -79,7 +79,7 @@ Here, audio only **is not** a subset / simpler case vs **video+audio**,  instead
 
 ##### MultiMedia Editing
 
-If you're building sofware enabling users to input audio-only and video sources, providing real-time playback/preview of the composition, and enabling exporting to video and audio-only exports, then you'll need to combine a number of things together.
+If you're building software enabling users to input audio-only and video sources, providing real-time playback/preview of the composition, and enabling exporting to video and audio-only exports, then you'll need to combine a number of things together.
 
 * WebCodecs for real-time playback of video
 * WebAudio for real-time playback of audio

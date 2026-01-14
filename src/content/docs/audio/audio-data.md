@@ -23,7 +23,7 @@ As you might be aware, sound is made of pressure waves in air, and when sound re
 
 ![](/assets/audio/audio-data/raw-audio.svg)
 
-If you've heard of the term "sound wave" or "audio signal" or "audio waveform", that's what this is. The vibrating membrane in our ear is converted to an electrical signal which our brain interprets as music, or speech or dogs barking, or whatever the sounds is, which is how we "hear" things.
+If you've heard of the term "sound wave" or "audio signal" or "audio waveform", that's what this is. The vibrating membrane in our ear is converted to an electrical signal which our brain interprets as music, or speech or dogs barking, or whatever the sound is, which is how we "hear" things.
 
 ##### Digital Audio
 When a microphone records sound, it measures this vibration ~ 44,000 times per second, producing a digital audio signal that looks like this:
@@ -36,10 +36,10 @@ Each one of these `float32` numbers is called an *audio sample*, and the number 
 
 Speakers or headphones do the reverse, they move a membrane according to this digital audio signal, recreating pressure waves that our ears can listen to and interpret as the original sound.
 
-##### Sterio vs mono
+##### Stereo vs mono
 
 
-Humans typically have 2 ears [[citation needed](https://xkcd.com/285/)], and our brains can intepret slight differences in sound coming in each ear to "hear" where a sound is coming from. 
+Humans typically have 2 ears [[citation needed](https://xkcd.com/285/)], and our brains can interpret slight differences in sound coming in each ear to "hear" where a sound is coming from. 
 
 
 Most software and hardware that deal with digital audio are therefore built to support two audio signals, which we call "channels". 
@@ -48,7 +48,7 @@ Most software and hardware that deal with digital audio are therefore built to s
 Audio tracks with just one channel are called *mono*, and audio tracks with two channels are called *stereo*. In stereo audio, you might see the two channels referred to as *left*  and *right*  channels, and *stereo* audio is the default.
 
 
-Digital music or movies will often have slightly different signals in each channel for an immersive effect. Here's an example from [Big Buck Buny](https://peach.blender.org/), where there's a sound effect created by two objects hitting a tree on the left side of the screen:
+Digital music or movies will often have slightly different signals in each channel for an immersive effect. Here's an example from [Big Buck Bunny](https://peach.blender.org/), where there's a sound effect created by two objects hitting a tree on the left side of the screen:
 
 <video src="/assets/audio/audio-data/bbb-exerpt.mp4" controls> </video>
 
@@ -67,7 +67,7 @@ Practically speaking, plan to work with two audio channels by default, though so
 ##### Audio Size
 
 
-Raw audio is more compact than raw video, but it's styll pretty big. Per second of audio in a typical file, you'd have:
+Raw audio is more compact than raw video, but it's still pretty big. Per second of audio in a typical file, you'd have:
 
 ```
 44,100 samples/sec × 2 channels × 4 bytes = 352,800 bytes = ~344 KB
@@ -95,7 +95,7 @@ The `AudioData` class uses two WebCodecs specific terms:
 
 When you decode audio with WebCodecs, you will get an array of `AudioData` objects, each usually representing ~0.2 to 0.5 seconds of audio, with the following properties:
 
-`format`: This is usually `f32-planar`, meaning each channel is cleanly stored as Float32 samples it's own array. If it is `f32`, samples are `float32` but interleaved in one big array. You almost never see data in other formats, but there are other [formats](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format)
+`format`: This is usually `f32-planar`, meaning each channel is cleanly stored as Float32 samples its own array. If it is `f32`, samples are `float32` but interleaved in one big array. You almost never see data in other formats, but there are other [formats](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format)
 
 `sampleRate`: The sample rate
 
@@ -115,7 +115,7 @@ To read `AudioData` samples as `Float32Arrays`, you would create a `Float32Array
 
 
 ##### f32-planar
-If the `AudioData` has the `f32-planar` format, you just directly copy each channel into it's array using `planeIndex`:
+If the `AudioData` has the `f32-planar` format, you just directly copy each channel into its array using `planeIndex`:
 
 
 ``` typescript
@@ -326,7 +326,7 @@ async function resample(audio: AudioData[], target_sample_rate: number){
     const source_audio = new Float32Array(total_frames*num_target_channels);
     const num_target_frames = Math.floor(total_frames*ratio);
     const target_data = new Float32Array(num_target_frames*num_target_channels);
-    const num_taget_audio_chunks = Math.floor(target_data.length/(1024*num_target_channels));
+    const num_target_audio_chunks = Math.floor(target_data.length/(1024*num_target_channels));
 
     for(let channel=0; channel<num_target_channels; channel++){
         for(const frame of audio){
@@ -353,7 +353,7 @@ async function resample(audio: AudioData[], target_sample_rate: number){
 ### How to write audio data
 
 
-Two write audio data, you'd need to use `AudioData` constructor, format the input data as a `Float32Array`, and then specify the relevant metadata.
+To write audio data, you'd need to use `AudioData` constructor, format the input data as a `Float32Array`, and then specify the relevant metadata.
 
 ##### Mixing audio
 
@@ -473,7 +473,7 @@ function resample(audio: AudioData[], target_sample_rate: number): AudioData[] {
     const source_audio = new Float32Array(total_frames*num_target_channels);
     const num_target_frames = Math.floor(total_frames*ratio);
     const target_data = new Float32Array(num_target_frames*num_target_channels);
-    const num_taget_audio_chunks = Math.floor(target_data.length/(1024*num_target_channels));
+    const num_target_audio_chunks = Math.floor(target_data.length/(1024*num_target_channels));
 
     for(let channel=0; channel<num_target_channels; channel++){
         for(const frame of audio){
@@ -509,7 +509,7 @@ function resample(audio: AudioData[], target_sample_rate: number): AudioData[] {
             data: resampled_stereo,
             format: "f32-planar",
             sampleRate:target_sample_rate,
-            timestamp: start_timestamp + i*1024/target_sample_rate,*1e6
+            timestamp: start_timestamp + i*1024/target_sample_rate*1e6
         })
 
         target_data_chunks.push(resampled_frame);

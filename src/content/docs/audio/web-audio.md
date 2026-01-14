@@ -12,7 +12,7 @@ WebAudio contains all the components to create a custom audio rendering pipeline
 |-------|-----------------|-----------------|
 | **Raw Data** | `VideoFrame` | `AudioBuffer` |
 | **Processing Pipeline** | WebGL / WebGPU | Web Audio API nodes |
-| **Output Destination** |`<cavas>`| AudioContext.destination (speakers) |
+| **Output Destination** |`<canvas>`| AudioContext.destination (speakers) |
 
 
 
@@ -25,7 +25,7 @@ for (const frame of frames){
 }
 ```
 
-In WebAudio, you need to think of audio processing as a pipeline, with *sources*, *destinations* and *nodes* (intermemediate effects / filters).
+In WebAudio, you need to think of audio processing as a pipeline, with *sources*, *destinations* and *nodes* (intermediate effects / filters).
 
 ![](/assets/audio/web-audio/pipeline.svg)
 
@@ -37,7 +37,7 @@ Where `GainNode` just multiplies the audio signal by a constant (volume control)
 const ctx = new AudioContext(); //Kind of like audio version of 'canvas context'
 
 const rawFileBinary = <ArrayBuffer> await file.arrayBuffer();
-const audioBuffer = <AudioBuffer> await ctc.decodeAudioData(rawFileBinary);
+const audioBuffer = <AudioBuffer> await ctx.decodeAudioData(rawFileBinary);
 
 const sourceNode = <AudioNode> ctx.createBufferSource();
 const gainNode  = <AudioNode> ctx.createGain();
@@ -52,7 +52,7 @@ sourceNode.start(); //Starts playing audio in your speakers!
 Because WebAudio provides the only interface to output custom audio to the user's speakers, you'll **need** to use WebAudio for audio/video playback.
 
 
-In this article we'll explain the main componens of WebAudio, and then provide some working code examples to play audio in the browser and add basic controls like volume, playback speed and start/stop/seek.
+In this article we'll explain the main components of WebAudio, and then provide some working code examples to play audio in the browser and add basic controls like volume, playback speed and start/stop/seek.
 
 That should provide enough background to then build a full video player with webcodecs and webaudio, which we'll cover [here](../../patterns/playback/).
 
@@ -86,7 +86,7 @@ const rawFileBinary = <ArrayBuffer> await file.arrayBuffer();
 const audioBuffer = <AudioBuffer> await ctx.decodeAudioData(rawFileBinary);
 ```
 
-If that sounds similar to [AudioData](../audio-data) and `AudioDecoder`, it is. Both WebAudio and WebCodecs have a way to decode audio files into raw audio data. But you need `AudioBuffer` to work with WebAudio, and you need WebAudio to play audio back in brower. 
+If that sounds similar to [AudioData](../audio-data) and `AudioDecoder`, it is. Both WebAudio and WebCodecs have a way to decode audio files into raw audio data. But you need `AudioBuffer` to work with WebAudio, and you need WebAudio to play audio back in browser. 
 
 WebAudio also has a much simpler API. You can get raw audio samples from an `AudioBuffer` as so:
 
@@ -1388,7 +1388,7 @@ This problem can be solved with "Pitch correction", which accounts for this and 
 
 #### AudioWorklets and SoundTouch
 
-WebAudio does allow you to do custom audio processing by adding custom nodes via something called an `AudioWorklet`, which enables custom processing of audio in a seperate worker thread. 
+WebAudio does allow you to do custom audio processing by adding custom nodes via something called an `AudioWorklet`, which enables custom processing of audio in a separate worker thread. 
 
 You can read up how to build your own custom AudioWorklet [here](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_AudioWorklet). Fortunately, we don't need to make our own custom pitch correction script, you can use a pre-built one from the [SoundTouch JS library](https://www.npmjs.com/package/@soundtouchjs/audio-worklet)
 

@@ -24,7 +24,6 @@ import {
     Mp3OutputFormat,
     Conversion,
 } from 'mediabunny';
-import { registerMp3Encoder } from '@mediabunny/mp3-encoder';
 
 
 registerMp3Encoder();

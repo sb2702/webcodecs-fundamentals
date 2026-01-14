@@ -27,7 +27,7 @@ And for "hello world" demos, here or in other documentation websites, this is fi
 
 ### Context2D
 
-Canvas2D context is a generic graphics library, and the most common one for drawing to a canvas. It has a relatively beginner very friendly API.  It's pretty easy to use it to draw things like shapes and text:
+Canvas2D context is a generic graphics library, and the most common one for drawing to a canvas. It has a relatively beginner-friendly API.  It's pretty easy to use it to draw things like shapes and text:
 
 
 ```javascript
@@ -66,7 +66,7 @@ and as we saw, it's pretty easy to draw a frame to an image
 ctx.drawImage(frame, 0, 0);
 ```
 
-The problem with the 2d canvas is that, to enable it's simple graphics API, many operations in the canvas 2d API are implemented using CPU rendering. Because the web standard doesn't specify how 2d canvas should be implemented, and at least Chromium seems to dynamically decide how to implement each function depending on a number of factors [[1](https://www.middle-engine.com/blog/posts/2020/08/21/cpu-versus-gpu-with-the-canvas-web-api)], it's not clear or consistent how `drawImage` will behave, and as we'll see, it's performance varies greatly between browsers.
+The problem with the 2d canvas is that, to enable its simple graphics API, many operations in the canvas 2d API are implemented using CPU rendering. Because the web standard doesn't specify how 2d canvas should be implemented, and at least Chromium seems to dynamically decide how to implement each function depending on a number of factors [[1](https://www.middle-engine.com/blog/posts/2020/08/21/cpu-versus-gpu-with-the-canvas-web-api)], it's not clear or consistent how `drawImage` will behave, and as we'll see, its performance varies greatly between browsers.
 
 Benchmarking the speed of decoding + `drawImage` [Big Buck Bunny](https://download.blender.org/demo/movies/BBB/) at 1080p on my Macbook M4 Laptop on 3 browsers*
 
@@ -117,7 +117,7 @@ Creating the `ImageBitmap` in the first place requires 1 full frame copy operati
 | MacbookPro M4    | Safari    | 220fps |
 
 
-Where you can see that the firefox performance improves dramatically, almost certainly be reducing the CPU <> GPU bottleneck. Chrome is also noticeably faster.
+Where you can see that the firefox performance improves dramatically, almost certainly by reducing the CPU <> GPU bottleneck. Chrome is also noticeably faster.
 
 ### WebGPU importExternalTexture
 
