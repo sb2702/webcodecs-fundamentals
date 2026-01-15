@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEVC (H.265) Family - Codec Support | WebCodecs Fundamentals</title>
+    <meta name="description" content="Browser and platform support data for HEVC (H.265) codec family. Real-world compatibility testing from 3,373,943 sessions across 84 codec variants.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f9f9f9;
+        }
+
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .global-support {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .stats {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .support-matrix {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .browser-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .browser-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .platform-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: -3px;
+        }
+
+        .support-cell {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .no-data {
+            color: #999;
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        .count {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+
+        footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .codec-list {
+            columns: 3;
+            column-gap: 2rem;
+        }
+
+        .codec-list li {
+            margin-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+
+        .codec-list a {
+            color: #0066cc;
+            text-decoration: none;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .codec-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="/datasets/codec-support-table/" class="back-link">← Back to Codec Support Table</a>
+
+    <header>
+        <h1>HEVC (H.265) Codec Family</h1>
+        <div class="global-support" style="color: #dc3545">
+            42.2% Global Encoder Support
+        </div>
+        <div class="stats">
+            1,423,829 of 3,373,943 tests supported HEVC (H.265) across 84 codec variants
+        </div>
+    </header>
+
+    <div class="support-matrix">
+        <h2>Browser × Platform Support Matrix</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+            Aggregate support across all HEVC (H.265) variants. Browser detection based on user agent strings.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Browser</th>
+                    <th style="text-align: center;"><img src="/assets/icons/windows.svg" alt="Windows" class="platform-icon"> Windows</th>
+                    <th style="text-align: center;"><img src="/assets/icons/osx.svg" alt="macOS" class="platform-icon"> macOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/ios.svg" alt="iOS" class="platform-icon"> iOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/android.svg" alt="Android" class="platform-icon"> Android</th>
+                    <th style="text-align: center;"><img src="/assets/icons/linux.svg" alt="Linux" class="platform-icon"> Linux</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/chromium.svg" alt="Chrome" class="browser-icon">Chrome/Chromium</div></td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        40.57%
+                        <span class="count">621,920 / 1,532,952</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        48.01%
+                        <span class="count">120,145 / 250,265</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        45.27%
+                        <span class="count">293,054 / 647,303</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        19.59%
+                        <span class="count">13,289 / 67,840</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/safari.svg" alt="Safari" class="browser-icon">Safari</div></td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        89.54%
+                        <span class="count">84,606 / 94,489</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        84.84%
+                        <span class="count">289,221 / 340,888</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 29</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        6.12%
+                        <span class="count">17 / 278</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/edge.svg" alt="Edge" class="browser-icon">Edge</div></td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.02%
+                        <span class="count">47 / 273,727</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.55%
+                        <span class="count">15 / 2,715</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 4,119</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 332</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/firefox.svg" alt="Firefox" class="browser-icon">Firefox</div></td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.02%
+                        <span class="count">30 / 123,771</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 16,169</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 698</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.76%
+                        <span class="count">121 / 15,851</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="support-matrix">
+        <h2>Codec Variants (84)</h2>
+        <ul class="codec-list">
+            <li><a href="/codecs/hev1.1.6.H120.B0.html">hev1.1.6.H120.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H123.B0.html">hev1.1.6.H123.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H150.B0.html">hev1.1.6.H150.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H153.B0.html">hev1.1.6.H153.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H156.B0.html">hev1.1.6.H156.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H180.B0.html">hev1.1.6.H180.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H183.B0.html">hev1.1.6.H183.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.H186.B0.html">hev1.1.6.H186.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L120.B0.html">hev1.1.6.L120.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L123.B0.html">hev1.1.6.L123.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L150.B0.html">hev1.1.6.L150.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L153.B0.html">hev1.1.6.L153.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L156.B0.html">hev1.1.6.L156.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L180.B0.html">hev1.1.6.L180.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L183.B0.html">hev1.1.6.L183.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L186.B0.html">hev1.1.6.L186.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L30.B0.html">hev1.1.6.L30.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L60.B0.html">hev1.1.6.L60.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L63.B0.html">hev1.1.6.L63.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L90.B0.html">hev1.1.6.L90.B0</a></li>
+            <li><a href="/codecs/hev1.1.6.L93.B0.html">hev1.1.6.L93.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H120.B0.html">hev1.2.4.H120.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H123.B0.html">hev1.2.4.H123.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H150.B0.html">hev1.2.4.H150.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H153.B0.html">hev1.2.4.H153.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H156.B0.html">hev1.2.4.H156.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H180.B0.html">hev1.2.4.H180.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H183.B0.html">hev1.2.4.H183.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.H186.B0.html">hev1.2.4.H186.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L120.B0.html">hev1.2.4.L120.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L123.B0.html">hev1.2.4.L123.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L150.B0.html">hev1.2.4.L150.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L153.B0.html">hev1.2.4.L153.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L156.B0.html">hev1.2.4.L156.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L180.B0.html">hev1.2.4.L180.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L183.B0.html">hev1.2.4.L183.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L186.B0.html">hev1.2.4.L186.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L30.B0.html">hev1.2.4.L30.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L60.B0.html">hev1.2.4.L60.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L63.B0.html">hev1.2.4.L63.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L90.B0.html">hev1.2.4.L90.B0</a></li>
+            <li><a href="/codecs/hev1.2.4.L93.B0.html">hev1.2.4.L93.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H120.B0.html">hvc1.1.6.H120.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H123.B0.html">hvc1.1.6.H123.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H150.B0.html">hvc1.1.6.H150.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H153.B0.html">hvc1.1.6.H153.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H156.B0.html">hvc1.1.6.H156.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H180.B0.html">hvc1.1.6.H180.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H183.B0.html">hvc1.1.6.H183.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.H186.B0.html">hvc1.1.6.H186.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L120.B0.html">hvc1.1.6.L120.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L123.B0.html">hvc1.1.6.L123.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L150.B0.html">hvc1.1.6.L150.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L153.B0.html">hvc1.1.6.L153.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L156.B0.html">hvc1.1.6.L156.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L180.B0.html">hvc1.1.6.L180.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L183.B0.html">hvc1.1.6.L183.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L186.B0.html">hvc1.1.6.L186.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L30.B0.html">hvc1.1.6.L30.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L60.B0.html">hvc1.1.6.L60.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L63.B0.html">hvc1.1.6.L63.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L90.B0.html">hvc1.1.6.L90.B0</a></li>
+            <li><a href="/codecs/hvc1.1.6.L93.B0.html">hvc1.1.6.L93.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H120.B0.html">hvc1.2.4.H120.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H123.B0.html">hvc1.2.4.H123.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H150.B0.html">hvc1.2.4.H150.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H153.B0.html">hvc1.2.4.H153.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H156.B0.html">hvc1.2.4.H156.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H180.B0.html">hvc1.2.4.H180.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H183.B0.html">hvc1.2.4.H183.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.H186.B0.html">hvc1.2.4.H186.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L120.B0.html">hvc1.2.4.L120.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L123.B0.html">hvc1.2.4.L123.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L150.B0.html">hvc1.2.4.L150.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L153.B0.html">hvc1.2.4.L153.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L156.B0.html">hvc1.2.4.L156.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L180.B0.html">hvc1.2.4.L180.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L183.B0.html">hvc1.2.4.L183.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L186.B0.html">hvc1.2.4.L186.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L30.B0.html">hvc1.2.4.L30.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L60.B0.html">hvc1.2.4.L60.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L63.B0.html">hvc1.2.4.L63.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L90.B0.html">hvc1.2.4.L90.B0</a></li>
+            <li><a href="/codecs/hvc1.2.4.L93.B0.html">hvc1.2.4.L93.B0</a></li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>Data from the <a href="/datasets/codec-support/">upscaler.video Codec Support Dataset</a></p>
+        <p><a href="/">WebCodecs Fundamentals</a> | <a href="/datasets/codec-support-table/">Codec Support Table</a></p>
+    </footer>
+</body>
+</html>

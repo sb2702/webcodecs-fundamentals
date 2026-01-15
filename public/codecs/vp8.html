@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vp8 - Codec Support | WebCodecs Fundamentals</title>
-    <meta name="description" content="Browser and platform support data for vp8 codec. Real-world compatibility testing from 40,253 sessions.">
+    <title>VP8 Family - Codec Support | WebCodecs Fundamentals</title>
+    <meta name="description" content="Browser and platform support data for VP8 codec family. Real-world compatibility testing from 40,253 sessions across 1 codec variants.">
     <style>
         * {
             margin: 0;
@@ -34,14 +34,6 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
             color: #1a1a1a;
-        }
-
-        .codec-string {
-            font-family: 'Monaco', 'Courier New', monospace;
-            background: #f0f0f0;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 1.1rem;
         }
 
         .global-support {
@@ -86,10 +78,6 @@
         td {
             padding: 1rem;
             border-bottom: 1px solid #eee;
-        }
-
-        td:first-child {
-            font-weight: 600;
         }
 
         .browser-cell {
@@ -155,53 +143,46 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        .codec-list {
+            columns: 3;
+            column-gap: 2rem;
+        }
+
+        .codec-list li {
+            margin-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+
+        .codec-list a {
+            color: #0066cc;
+            text-decoration: none;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .codec-list a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <a href="/datasets/codec-support-table/" class="back-link">← Back to Codec Support Table</a>
 
     <header>
-        <h1>Codec: <span class="codec-string">vp8</span></h1>
+        <h1>VP8 Codec Family</h1>
         <div class="global-support" style="color: #28a745">
             99.98% Global Encoder Support
         </div>
         <div class="stats">
-            40,243 of 40,253 sessions supported this codec
+            40,243 of 40,253 tests supported VP8 across 1 codec variants
         </div>
     </header>
-
-    <div class="support-matrix" style="margin-bottom: 2rem;">
-        <h2>Codec Specifications</h2>
-        <table style="width: auto;">
-            <tbody>
-                <tr>
-                    <td style="font-weight: 600; width: 200px;">Codec Family</td>
-                    <td>VP8</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Profile</td>
-                    <td>N/A</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Level</td>
-                    <td>N/A</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Maximum Resolution</td>
-                    <td>N/A</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Maximum Bitrate</td>
-                    <td>N/A</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 
     <div class="support-matrix">
         <h2>Browser × Platform Support Matrix</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-            Browser detection based on user agent strings. See the <a href="/datasets/codec-support/">dataset page</a> for details.
+            Aggregate support across all VP8 variants. Browser detection based on user agent strings.
         </p>
         <table>
             <thead>
@@ -285,6 +266,13 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="support-matrix">
+        <h2>Codec Variants (1)</h2>
+        <ul class="codec-list">
+            <li><a href="/codecs/vp8.html">vp8</a></li>
+        </ul>
     </div>
 
     <footer>

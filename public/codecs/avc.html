@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVC (H.264) Family - Codec Support | WebCodecs Fundamentals</title>
+    <meta name="description" content="Browser and platform support data for AVC (H.264) codec family. Real-world compatibility testing from 13,740,413 sessions across 342 codec variants.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f9f9f9;
+        }
+
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .global-support {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .stats {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .support-matrix {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .browser-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .browser-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .platform-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: -3px;
+        }
+
+        .support-cell {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .no-data {
+            color: #999;
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        .count {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+
+        footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .codec-list {
+            columns: 3;
+            column-gap: 2rem;
+        }
+
+        .codec-list li {
+            margin-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+
+        .codec-list a {
+            color: #0066cc;
+            text-decoration: none;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .codec-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="/datasets/codec-support-table/" class="back-link">← Back to Codec Support Table</a>
+
+    <header>
+        <h1>AVC (H.264) Codec Family</h1>
+        <div class="global-support" style="color: #dc3545">
+            64.08% Global Encoder Support
+        </div>
+        <div class="stats">
+            8,805,313 of 13,740,413 tests supported AVC (H.264) across 342 codec variants
+        </div>
+    </header>
+
+    <div class="support-matrix">
+        <h2>Browser × Platform Support Matrix</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+            Aggregate support across all AVC (H.264) variants. Browser detection based on user agent strings.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Browser</th>
+                    <th style="text-align: center;"><img src="/assets/icons/windows.svg" alt="Windows" class="platform-icon"> Windows</th>
+                    <th style="text-align: center;"><img src="/assets/icons/osx.svg" alt="macOS" class="platform-icon"> macOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/ios.svg" alt="iOS" class="platform-icon"> iOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/android.svg" alt="Android" class="platform-icon"> Android</th>
+                    <th style="text-align: center;"><img src="/assets/icons/linux.svg" alt="Linux" class="platform-icon"> Linux</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/chromium.svg" alt="Chrome" class="browser-icon">Chrome/Chromium</div></td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        67.99%
+                        <span class="count">4,244,155 / 6,242,706</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        68.39%
+                        <span class="count">698,010 / 1,020,618</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        66.96%
+                        <span class="count">1,764,108 / 2,634,386</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        66.88%
+                        <span class="count">184,006 / 275,133</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/safari.svg" alt="Safari" class="browser-icon">Safari</div></td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        29.7%
+                        <span class="count">114,824 / 386,655</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        29.17%
+                        <span class="count">404,743 / 1,387,294</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        23.0%
+                        <span class="count">23 / 100</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        41.33%
+                        <span class="count">467 / 1,130</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/edge.svg" alt="Edge" class="browser-icon">Edge</div></td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        68.32%
+                        <span class="count">761,423 / 1,114,524</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        68.06%
+                        <span class="count">7,529 / 11,062</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        67.64%
+                        <span class="count">11,551 / 17,078</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #fff3cd;">
+                        63.59%
+                        <span class="count">910 / 1,431</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/firefox.svg" alt="Firefox" class="browser-icon">Firefox</div></td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        95.01%
+                        <span class="count">478,858 / 503,987</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        100.0%
+                        <span class="count">65,666 / 65,666</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 2,897</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        98.62%
+                        <span class="count">64,507 / 65,411</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="support-matrix">
+        <h2>Codec Variants (342)</h2>
+        <ul class="codec-list">
+            <li><a href="/codecs/avc1.42000a.html">avc1.42000a</a></li>
+            <li><a href="/codecs/avc1.42000b.html">avc1.42000b</a></li>
+            <li><a href="/codecs/avc1.42000c.html">avc1.42000c</a></li>
+            <li><a href="/codecs/avc1.42000d.html">avc1.42000d</a></li>
+            <li><a href="/codecs/avc1.420014.html">avc1.420014</a></li>
+            <li><a href="/codecs/avc1.420015.html">avc1.420015</a></li>
+            <li><a href="/codecs/avc1.420016.html">avc1.420016</a></li>
+            <li><a href="/codecs/avc1.42001e.html">avc1.42001e</a></li>
+            <li><a href="/codecs/avc1.42001f.html">avc1.42001f</a></li>
+            <li><a href="/codecs/avc1.420020.html">avc1.420020</a></li>
+            <li><a href="/codecs/avc1.420028.html">avc1.420028</a></li>
+            <li><a href="/codecs/avc1.420029.html">avc1.420029</a></li>
+            <li><a href="/codecs/avc1.42002a.html">avc1.42002a</a></li>
+            <li><a href="/codecs/avc1.420032.html">avc1.420032</a></li>
+            <li><a href="/codecs/avc1.420033.html">avc1.420033</a></li>
+            <li><a href="/codecs/avc1.420034.html">avc1.420034</a></li>
+            <li><a href="/codecs/avc1.42003c.html">avc1.42003c</a></li>
+            <li><a href="/codecs/avc1.42003d.html">avc1.42003d</a></li>
+            <li><a href="/codecs/avc1.42003e.html">avc1.42003e</a></li>
+            <li><a href="/codecs/avc1.42040a.html">avc1.42040a</a></li>
+            <li><a href="/codecs/avc1.42040b.html">avc1.42040b</a></li>
+            <li><a href="/codecs/avc1.42040c.html">avc1.42040c</a></li>
+            <li><a href="/codecs/avc1.42040d.html">avc1.42040d</a></li>
+            <li><a href="/codecs/avc1.420414.html">avc1.420414</a></li>
+            <li><a href="/codecs/avc1.420415.html">avc1.420415</a></li>
+            <li><a href="/codecs/avc1.420416.html">avc1.420416</a></li>
+            <li><a href="/codecs/avc1.42041e.html">avc1.42041e</a></li>
+            <li><a href="/codecs/avc1.42041f.html">avc1.42041f</a></li>
+            <li><a href="/codecs/avc1.420420.html">avc1.420420</a></li>
+            <li><a href="/codecs/avc1.420428.html">avc1.420428</a></li>
+            <li><a href="/codecs/avc1.420429.html">avc1.420429</a></li>
+            <li><a href="/codecs/avc1.42042a.html">avc1.42042a</a></li>
+            <li><a href="/codecs/avc1.420432.html">avc1.420432</a></li>
+            <li><a href="/codecs/avc1.420433.html">avc1.420433</a></li>
+            <li><a href="/codecs/avc1.420434.html">avc1.420434</a></li>
+            <li><a href="/codecs/avc1.42043c.html">avc1.42043c</a></li>
+            <li><a href="/codecs/avc1.42043d.html">avc1.42043d</a></li>
+            <li><a href="/codecs/avc1.42043e.html">avc1.42043e</a></li>
+            <li><a href="/codecs/avc1.42080a.html">avc1.42080a</a></li>
+            <li><a href="/codecs/avc1.42080b.html">avc1.42080b</a></li>
+            <li><a href="/codecs/avc1.42080c.html">avc1.42080c</a></li>
+            <li><a href="/codecs/avc1.42080d.html">avc1.42080d</a></li>
+            <li><a href="/codecs/avc1.420814.html">avc1.420814</a></li>
+            <li><a href="/codecs/avc1.420815.html">avc1.420815</a></li>
+            <li><a href="/codecs/avc1.420816.html">avc1.420816</a></li>
+            <li><a href="/codecs/avc1.42081e.html">avc1.42081e</a></li>
+            <li><a href="/codecs/avc1.42081f.html">avc1.42081f</a></li>
+            <li><a href="/codecs/avc1.420820.html">avc1.420820</a></li>
+            <li><a href="/codecs/avc1.420828.html">avc1.420828</a></li>
+            <li><a href="/codecs/avc1.420829.html">avc1.420829</a></li>
+            <li><a href="/codecs/avc1.42082a.html">avc1.42082a</a></li>
+            <li><a href="/codecs/avc1.420832.html">avc1.420832</a></li>
+            <li><a href="/codecs/avc1.420833.html">avc1.420833</a></li>
+            <li><a href="/codecs/avc1.420834.html">avc1.420834</a></li>
+            <li><a href="/codecs/avc1.42083c.html">avc1.42083c</a></li>
+            <li><a href="/codecs/avc1.42083d.html">avc1.42083d</a></li>
+            <li><a href="/codecs/avc1.42083e.html">avc1.42083e</a></li>
+            <li><a href="/codecs/avc1.420c0a.html">avc1.420c0a</a></li>
+            <li><a href="/codecs/avc1.420c0b.html">avc1.420c0b</a></li>
+            <li><a href="/codecs/avc1.420c0c.html">avc1.420c0c</a></li>
+            <li><a href="/codecs/avc1.420c0d.html">avc1.420c0d</a></li>
+            <li><a href="/codecs/avc1.420c14.html">avc1.420c14</a></li>
+            <li><a href="/codecs/avc1.420c15.html">avc1.420c15</a></li>
+            <li><a href="/codecs/avc1.420c16.html">avc1.420c16</a></li>
+            <li><a href="/codecs/avc1.420c1e.html">avc1.420c1e</a></li>
+            <li><a href="/codecs/avc1.420c1f.html">avc1.420c1f</a></li>
+            <li><a href="/codecs/avc1.420c20.html">avc1.420c20</a></li>
+            <li><a href="/codecs/avc1.420c28.html">avc1.420c28</a></li>
+            <li><a href="/codecs/avc1.420c29.html">avc1.420c29</a></li>
+            <li><a href="/codecs/avc1.420c2a.html">avc1.420c2a</a></li>
+            <li><a href="/codecs/avc1.420c32.html">avc1.420c32</a></li>
+            <li><a href="/codecs/avc1.420c33.html">avc1.420c33</a></li>
+            <li><a href="/codecs/avc1.420c34.html">avc1.420c34</a></li>
+            <li><a href="/codecs/avc1.420c3c.html">avc1.420c3c</a></li>
+            <li><a href="/codecs/avc1.420c3d.html">avc1.420c3d</a></li>
+            <li><a href="/codecs/avc1.420c3e.html">avc1.420c3e</a></li>
+            <li><a href="/codecs/avc1.42100a.html">avc1.42100a</a></li>
+            <li><a href="/codecs/avc1.42100b.html">avc1.42100b</a></li>
+            <li><a href="/codecs/avc1.42100c.html">avc1.42100c</a></li>
+            <li><a href="/codecs/avc1.42100d.html">avc1.42100d</a></li>
+            <li><a href="/codecs/avc1.421014.html">avc1.421014</a></li>
+            <li><a href="/codecs/avc1.421015.html">avc1.421015</a></li>
+            <li><a href="/codecs/avc1.421016.html">avc1.421016</a></li>
+            <li><a href="/codecs/avc1.42101e.html">avc1.42101e</a></li>
+            <li><a href="/codecs/avc1.42101f.html">avc1.42101f</a></li>
+            <li><a href="/codecs/avc1.421020.html">avc1.421020</a></li>
+            <li><a href="/codecs/avc1.421028.html">avc1.421028</a></li>
+            <li><a href="/codecs/avc1.421029.html">avc1.421029</a></li>
+            <li><a href="/codecs/avc1.42102a.html">avc1.42102a</a></li>
+            <li><a href="/codecs/avc1.421032.html">avc1.421032</a></li>
+            <li><a href="/codecs/avc1.421033.html">avc1.421033</a></li>
+            <li><a href="/codecs/avc1.421034.html">avc1.421034</a></li>
+            <li><a href="/codecs/avc1.42103c.html">avc1.42103c</a></li>
+            <li><a href="/codecs/avc1.42103d.html">avc1.42103d</a></li>
+            <li><a href="/codecs/avc1.42103e.html">avc1.42103e</a></li>
+            <li><a href="/codecs/avc1.42140a.html">avc1.42140a</a></li>
+            <li><a href="/codecs/avc1.42140b.html">avc1.42140b</a></li>
+            <li><a href="/codecs/avc1.42140c.html">avc1.42140c</a></li>
+            <li><a href="/codecs/avc1.42140d.html">avc1.42140d</a></li>
+            <li><a href="/codecs/avc1.421414.html">avc1.421414</a></li>
+            <li><a href="/codecs/avc1.421415.html">avc1.421415</a></li>
+            <li><a href="/codecs/avc1.421416.html">avc1.421416</a></li>
+            <li><a href="/codecs/avc1.42141e.html">avc1.42141e</a></li>
+            <li><a href="/codecs/avc1.42141f.html">avc1.42141f</a></li>
+            <li><a href="/codecs/avc1.421420.html">avc1.421420</a></li>
+            <li><a href="/codecs/avc1.421428.html">avc1.421428</a></li>
+            <li><a href="/codecs/avc1.421429.html">avc1.421429</a></li>
+            <li><a href="/codecs/avc1.42142a.html">avc1.42142a</a></li>
+            <li><a href="/codecs/avc1.421432.html">avc1.421432</a></li>
+            <li><a href="/codecs/avc1.421433.html">avc1.421433</a></li>
+            <li><a href="/codecs/avc1.421434.html">avc1.421434</a></li>
+            <li><a href="/codecs/avc1.42143c.html">avc1.42143c</a></li>
+            <li><a href="/codecs/avc1.42143d.html">avc1.42143d</a></li>
+            <li><a href="/codecs/avc1.42143e.html">avc1.42143e</a></li>
+            <li><a href="/codecs/avc1.4d000a.html">avc1.4d000a</a></li>
+            <li><a href="/codecs/avc1.4d000b.html">avc1.4d000b</a></li>
+            <li><a href="/codecs/avc1.4d000c.html">avc1.4d000c</a></li>
+            <li><a href="/codecs/avc1.4d000d.html">avc1.4d000d</a></li>
+            <li><a href="/codecs/avc1.4d0014.html">avc1.4d0014</a></li>
+            <li><a href="/codecs/avc1.4d0015.html">avc1.4d0015</a></li>
+            <li><a href="/codecs/avc1.4d0016.html">avc1.4d0016</a></li>
+            <li><a href="/codecs/avc1.4d001e.html">avc1.4d001e</a></li>
+            <li><a href="/codecs/avc1.4d001f.html">avc1.4d001f</a></li>
+            <li><a href="/codecs/avc1.4d0020.html">avc1.4d0020</a></li>
+            <li><a href="/codecs/avc1.4d0028.html">avc1.4d0028</a></li>
+            <li><a href="/codecs/avc1.4d0029.html">avc1.4d0029</a></li>
+            <li><a href="/codecs/avc1.4d002a.html">avc1.4d002a</a></li>
+            <li><a href="/codecs/avc1.4d0032.html">avc1.4d0032</a></li>
+            <li><a href="/codecs/avc1.4d0033.html">avc1.4d0033</a></li>
+            <li><a href="/codecs/avc1.4d0034.html">avc1.4d0034</a></li>
+            <li><a href="/codecs/avc1.4d003c.html">avc1.4d003c</a></li>
+            <li><a href="/codecs/avc1.4d003d.html">avc1.4d003d</a></li>
+            <li><a href="/codecs/avc1.4d003e.html">avc1.4d003e</a></li>
+            <li><a href="/codecs/avc1.4d040a.html">avc1.4d040a</a></li>
+            <li><a href="/codecs/avc1.4d040b.html">avc1.4d040b</a></li>
+            <li><a href="/codecs/avc1.4d040c.html">avc1.4d040c</a></li>
+            <li><a href="/codecs/avc1.4d040d.html">avc1.4d040d</a></li>
+            <li><a href="/codecs/avc1.4d0414.html">avc1.4d0414</a></li>
+            <li><a href="/codecs/avc1.4d0415.html">avc1.4d0415</a></li>
+            <li><a href="/codecs/avc1.4d0416.html">avc1.4d0416</a></li>
+            <li><a href="/codecs/avc1.4d041e.html">avc1.4d041e</a></li>
+            <li><a href="/codecs/avc1.4d041f.html">avc1.4d041f</a></li>
+            <li><a href="/codecs/avc1.4d0420.html">avc1.4d0420</a></li>
+            <li><a href="/codecs/avc1.4d0428.html">avc1.4d0428</a></li>
+            <li><a href="/codecs/avc1.4d0429.html">avc1.4d0429</a></li>
+            <li><a href="/codecs/avc1.4d042a.html">avc1.4d042a</a></li>
+            <li><a href="/codecs/avc1.4d0432.html">avc1.4d0432</a></li>
+            <li><a href="/codecs/avc1.4d0433.html">avc1.4d0433</a></li>
+            <li><a href="/codecs/avc1.4d0434.html">avc1.4d0434</a></li>
+            <li><a href="/codecs/avc1.4d043c.html">avc1.4d043c</a></li>
+            <li><a href="/codecs/avc1.4d043d.html">avc1.4d043d</a></li>
+            <li><a href="/codecs/avc1.4d043e.html">avc1.4d043e</a></li>
+            <li><a href="/codecs/avc1.4d080a.html">avc1.4d080a</a></li>
+            <li><a href="/codecs/avc1.4d080b.html">avc1.4d080b</a></li>
+            <li><a href="/codecs/avc1.4d080c.html">avc1.4d080c</a></li>
+            <li><a href="/codecs/avc1.4d080d.html">avc1.4d080d</a></li>
+            <li><a href="/codecs/avc1.4d0814.html">avc1.4d0814</a></li>
+            <li><a href="/codecs/avc1.4d0815.html">avc1.4d0815</a></li>
+            <li><a href="/codecs/avc1.4d0816.html">avc1.4d0816</a></li>
+            <li><a href="/codecs/avc1.4d081e.html">avc1.4d081e</a></li>
+            <li><a href="/codecs/avc1.4d081f.html">avc1.4d081f</a></li>
+            <li><a href="/codecs/avc1.4d0820.html">avc1.4d0820</a></li>
+            <li><a href="/codecs/avc1.4d0828.html">avc1.4d0828</a></li>
+            <li><a href="/codecs/avc1.4d0829.html">avc1.4d0829</a></li>
+            <li><a href="/codecs/avc1.4d082a.html">avc1.4d082a</a></li>
+            <li><a href="/codecs/avc1.4d0832.html">avc1.4d0832</a></li>
+            <li><a href="/codecs/avc1.4d0833.html">avc1.4d0833</a></li>
+            <li><a href="/codecs/avc1.4d0834.html">avc1.4d0834</a></li>
+            <li><a href="/codecs/avc1.4d083c.html">avc1.4d083c</a></li>
+            <li><a href="/codecs/avc1.4d083d.html">avc1.4d083d</a></li>
+            <li><a href="/codecs/avc1.4d083e.html">avc1.4d083e</a></li>
+            <li><a href="/codecs/avc1.4d0c0a.html">avc1.4d0c0a</a></li>
+            <li><a href="/codecs/avc1.4d0c0b.html">avc1.4d0c0b</a></li>
+            <li><a href="/codecs/avc1.4d0c0c.html">avc1.4d0c0c</a></li>
+            <li><a href="/codecs/avc1.4d0c0d.html">avc1.4d0c0d</a></li>
+            <li><a href="/codecs/avc1.4d0c14.html">avc1.4d0c14</a></li>
+            <li><a href="/codecs/avc1.4d0c15.html">avc1.4d0c15</a></li>
+            <li><a href="/codecs/avc1.4d0c16.html">avc1.4d0c16</a></li>
+            <li><a href="/codecs/avc1.4d0c1e.html">avc1.4d0c1e</a></li>
+            <li><a href="/codecs/avc1.4d0c1f.html">avc1.4d0c1f</a></li>
+            <li><a href="/codecs/avc1.4d0c20.html">avc1.4d0c20</a></li>
+            <li><a href="/codecs/avc1.4d0c28.html">avc1.4d0c28</a></li>
+            <li><a href="/codecs/avc1.4d0c29.html">avc1.4d0c29</a></li>
+            <li><a href="/codecs/avc1.4d0c2a.html">avc1.4d0c2a</a></li>
+            <li><a href="/codecs/avc1.4d0c32.html">avc1.4d0c32</a></li>
+            <li><a href="/codecs/avc1.4d0c33.html">avc1.4d0c33</a></li>
+            <li><a href="/codecs/avc1.4d0c34.html">avc1.4d0c34</a></li>
+            <li><a href="/codecs/avc1.4d0c3c.html">avc1.4d0c3c</a></li>
+            <li><a href="/codecs/avc1.4d0c3d.html">avc1.4d0c3d</a></li>
+            <li><a href="/codecs/avc1.4d0c3e.html">avc1.4d0c3e</a></li>
+            <li><a href="/codecs/avc1.4d100a.html">avc1.4d100a</a></li>
+            <li><a href="/codecs/avc1.4d100b.html">avc1.4d100b</a></li>
+            <li><a href="/codecs/avc1.4d100c.html">avc1.4d100c</a></li>
+            <li><a href="/codecs/avc1.4d100d.html">avc1.4d100d</a></li>
+            <li><a href="/codecs/avc1.4d1014.html">avc1.4d1014</a></li>
+            <li><a href="/codecs/avc1.4d1015.html">avc1.4d1015</a></li>
+            <li><a href="/codecs/avc1.4d1016.html">avc1.4d1016</a></li>
+            <li><a href="/codecs/avc1.4d101e.html">avc1.4d101e</a></li>
+            <li><a href="/codecs/avc1.4d101f.html">avc1.4d101f</a></li>
+            <li><a href="/codecs/avc1.4d1020.html">avc1.4d1020</a></li>
+            <li><a href="/codecs/avc1.4d1028.html">avc1.4d1028</a></li>
+            <li><a href="/codecs/avc1.4d1029.html">avc1.4d1029</a></li>
+            <li><a href="/codecs/avc1.4d102a.html">avc1.4d102a</a></li>
+            <li><a href="/codecs/avc1.4d1032.html">avc1.4d1032</a></li>
+            <li><a href="/codecs/avc1.4d1033.html">avc1.4d1033</a></li>
+            <li><a href="/codecs/avc1.4d1034.html">avc1.4d1034</a></li>
+            <li><a href="/codecs/avc1.4d103c.html">avc1.4d103c</a></li>
+            <li><a href="/codecs/avc1.4d103d.html">avc1.4d103d</a></li>
+            <li><a href="/codecs/avc1.4d103e.html">avc1.4d103e</a></li>
+            <li><a href="/codecs/avc1.4d140a.html">avc1.4d140a</a></li>
+            <li><a href="/codecs/avc1.4d140b.html">avc1.4d140b</a></li>
+            <li><a href="/codecs/avc1.4d140c.html">avc1.4d140c</a></li>
+            <li><a href="/codecs/avc1.4d140d.html">avc1.4d140d</a></li>
+            <li><a href="/codecs/avc1.4d1414.html">avc1.4d1414</a></li>
+            <li><a href="/codecs/avc1.4d1415.html">avc1.4d1415</a></li>
+            <li><a href="/codecs/avc1.4d1416.html">avc1.4d1416</a></li>
+            <li><a href="/codecs/avc1.4d141e.html">avc1.4d141e</a></li>
+            <li><a href="/codecs/avc1.4d141f.html">avc1.4d141f</a></li>
+            <li><a href="/codecs/avc1.4d1420.html">avc1.4d1420</a></li>
+            <li><a href="/codecs/avc1.4d1428.html">avc1.4d1428</a></li>
+            <li><a href="/codecs/avc1.4d1429.html">avc1.4d1429</a></li>
+            <li><a href="/codecs/avc1.4d142a.html">avc1.4d142a</a></li>
+            <li><a href="/codecs/avc1.4d1432.html">avc1.4d1432</a></li>
+            <li><a href="/codecs/avc1.4d1433.html">avc1.4d1433</a></li>
+            <li><a href="/codecs/avc1.4d1434.html">avc1.4d1434</a></li>
+            <li><a href="/codecs/avc1.4d143c.html">avc1.4d143c</a></li>
+            <li><a href="/codecs/avc1.4d143d.html">avc1.4d143d</a></li>
+            <li><a href="/codecs/avc1.4d143e.html">avc1.4d143e</a></li>
+            <li><a href="/codecs/avc1.64000a.html">avc1.64000a</a></li>
+            <li><a href="/codecs/avc1.64000b.html">avc1.64000b</a></li>
+            <li><a href="/codecs/avc1.64000c.html">avc1.64000c</a></li>
+            <li><a href="/codecs/avc1.64000d.html">avc1.64000d</a></li>
+            <li><a href="/codecs/avc1.640014.html">avc1.640014</a></li>
+            <li><a href="/codecs/avc1.640015.html">avc1.640015</a></li>
+            <li><a href="/codecs/avc1.640016.html">avc1.640016</a></li>
+            <li><a href="/codecs/avc1.64001e.html">avc1.64001e</a></li>
+            <li><a href="/codecs/avc1.64001f.html">avc1.64001f</a></li>
+            <li><a href="/codecs/avc1.640020.html">avc1.640020</a></li>
+            <li><a href="/codecs/avc1.640028.html">avc1.640028</a></li>
+            <li><a href="/codecs/avc1.640029.html">avc1.640029</a></li>
+            <li><a href="/codecs/avc1.64002a.html">avc1.64002a</a></li>
+            <li><a href="/codecs/avc1.640032.html">avc1.640032</a></li>
+            <li><a href="/codecs/avc1.640033.html">avc1.640033</a></li>
+            <li><a href="/codecs/avc1.640034.html">avc1.640034</a></li>
+            <li><a href="/codecs/avc1.64003c.html">avc1.64003c</a></li>
+            <li><a href="/codecs/avc1.64003d.html">avc1.64003d</a></li>
+            <li><a href="/codecs/avc1.64003e.html">avc1.64003e</a></li>
+            <li><a href="/codecs/avc1.64040a.html">avc1.64040a</a></li>
+            <li><a href="/codecs/avc1.64040b.html">avc1.64040b</a></li>
+            <li><a href="/codecs/avc1.64040c.html">avc1.64040c</a></li>
+            <li><a href="/codecs/avc1.64040d.html">avc1.64040d</a></li>
+            <li><a href="/codecs/avc1.640414.html">avc1.640414</a></li>
+            <li><a href="/codecs/avc1.640415.html">avc1.640415</a></li>
+            <li><a href="/codecs/avc1.640416.html">avc1.640416</a></li>
+            <li><a href="/codecs/avc1.64041e.html">avc1.64041e</a></li>
+            <li><a href="/codecs/avc1.64041f.html">avc1.64041f</a></li>
+            <li><a href="/codecs/avc1.640420.html">avc1.640420</a></li>
+            <li><a href="/codecs/avc1.640428.html">avc1.640428</a></li>
+            <li><a href="/codecs/avc1.640429.html">avc1.640429</a></li>
+            <li><a href="/codecs/avc1.64042a.html">avc1.64042a</a></li>
+            <li><a href="/codecs/avc1.640432.html">avc1.640432</a></li>
+            <li><a href="/codecs/avc1.640433.html">avc1.640433</a></li>
+            <li><a href="/codecs/avc1.640434.html">avc1.640434</a></li>
+            <li><a href="/codecs/avc1.64043c.html">avc1.64043c</a></li>
+            <li><a href="/codecs/avc1.64043d.html">avc1.64043d</a></li>
+            <li><a href="/codecs/avc1.64043e.html">avc1.64043e</a></li>
+            <li><a href="/codecs/avc1.64080a.html">avc1.64080a</a></li>
+            <li><a href="/codecs/avc1.64080b.html">avc1.64080b</a></li>
+            <li><a href="/codecs/avc1.64080c.html">avc1.64080c</a></li>
+            <li><a href="/codecs/avc1.64080d.html">avc1.64080d</a></li>
+            <li><a href="/codecs/avc1.640814.html">avc1.640814</a></li>
+            <li><a href="/codecs/avc1.640815.html">avc1.640815</a></li>
+            <li><a href="/codecs/avc1.640816.html">avc1.640816</a></li>
+            <li><a href="/codecs/avc1.64081e.html">avc1.64081e</a></li>
+            <li><a href="/codecs/avc1.64081f.html">avc1.64081f</a></li>
+            <li><a href="/codecs/avc1.640820.html">avc1.640820</a></li>
+            <li><a href="/codecs/avc1.640828.html">avc1.640828</a></li>
+            <li><a href="/codecs/avc1.640829.html">avc1.640829</a></li>
+            <li><a href="/codecs/avc1.64082a.html">avc1.64082a</a></li>
+            <li><a href="/codecs/avc1.640832.html">avc1.640832</a></li>
+            <li><a href="/codecs/avc1.640833.html">avc1.640833</a></li>
+            <li><a href="/codecs/avc1.640834.html">avc1.640834</a></li>
+            <li><a href="/codecs/avc1.64083c.html">avc1.64083c</a></li>
+            <li><a href="/codecs/avc1.64083d.html">avc1.64083d</a></li>
+            <li><a href="/codecs/avc1.64083e.html">avc1.64083e</a></li>
+            <li><a href="/codecs/avc1.640c0a.html">avc1.640c0a</a></li>
+            <li><a href="/codecs/avc1.640c0b.html">avc1.640c0b</a></li>
+            <li><a href="/codecs/avc1.640c0c.html">avc1.640c0c</a></li>
+            <li><a href="/codecs/avc1.640c0d.html">avc1.640c0d</a></li>
+            <li><a href="/codecs/avc1.640c14.html">avc1.640c14</a></li>
+            <li><a href="/codecs/avc1.640c15.html">avc1.640c15</a></li>
+            <li><a href="/codecs/avc1.640c16.html">avc1.640c16</a></li>
+            <li><a href="/codecs/avc1.640c1e.html">avc1.640c1e</a></li>
+            <li><a href="/codecs/avc1.640c1f.html">avc1.640c1f</a></li>
+            <li><a href="/codecs/avc1.640c20.html">avc1.640c20</a></li>
+            <li><a href="/codecs/avc1.640c28.html">avc1.640c28</a></li>
+            <li><a href="/codecs/avc1.640c29.html">avc1.640c29</a></li>
+            <li><a href="/codecs/avc1.640c2a.html">avc1.640c2a</a></li>
+            <li><a href="/codecs/avc1.640c32.html">avc1.640c32</a></li>
+            <li><a href="/codecs/avc1.640c33.html">avc1.640c33</a></li>
+            <li><a href="/codecs/avc1.640c34.html">avc1.640c34</a></li>
+            <li><a href="/codecs/avc1.640c3c.html">avc1.640c3c</a></li>
+            <li><a href="/codecs/avc1.640c3d.html">avc1.640c3d</a></li>
+            <li><a href="/codecs/avc1.640c3e.html">avc1.640c3e</a></li>
+            <li><a href="/codecs/avc1.64100a.html">avc1.64100a</a></li>
+            <li><a href="/codecs/avc1.64100b.html">avc1.64100b</a></li>
+            <li><a href="/codecs/avc1.64100c.html">avc1.64100c</a></li>
+            <li><a href="/codecs/avc1.64100d.html">avc1.64100d</a></li>
+            <li><a href="/codecs/avc1.641014.html">avc1.641014</a></li>
+            <li><a href="/codecs/avc1.641015.html">avc1.641015</a></li>
+            <li><a href="/codecs/avc1.641016.html">avc1.641016</a></li>
+            <li><a href="/codecs/avc1.64101e.html">avc1.64101e</a></li>
+            <li><a href="/codecs/avc1.64101f.html">avc1.64101f</a></li>
+            <li><a href="/codecs/avc1.641020.html">avc1.641020</a></li>
+            <li><a href="/codecs/avc1.641028.html">avc1.641028</a></li>
+            <li><a href="/codecs/avc1.641029.html">avc1.641029</a></li>
+            <li><a href="/codecs/avc1.64102a.html">avc1.64102a</a></li>
+            <li><a href="/codecs/avc1.641032.html">avc1.641032</a></li>
+            <li><a href="/codecs/avc1.641033.html">avc1.641033</a></li>
+            <li><a href="/codecs/avc1.641034.html">avc1.641034</a></li>
+            <li><a href="/codecs/avc1.64103c.html">avc1.64103c</a></li>
+            <li><a href="/codecs/avc1.64103d.html">avc1.64103d</a></li>
+            <li><a href="/codecs/avc1.64103e.html">avc1.64103e</a></li>
+            <li><a href="/codecs/avc1.64140a.html">avc1.64140a</a></li>
+            <li><a href="/codecs/avc1.64140b.html">avc1.64140b</a></li>
+            <li><a href="/codecs/avc1.64140c.html">avc1.64140c</a></li>
+            <li><a href="/codecs/avc1.64140d.html">avc1.64140d</a></li>
+            <li><a href="/codecs/avc1.641414.html">avc1.641414</a></li>
+            <li><a href="/codecs/avc1.641415.html">avc1.641415</a></li>
+            <li><a href="/codecs/avc1.641416.html">avc1.641416</a></li>
+            <li><a href="/codecs/avc1.64141e.html">avc1.64141e</a></li>
+            <li><a href="/codecs/avc1.64141f.html">avc1.64141f</a></li>
+            <li><a href="/codecs/avc1.641420.html">avc1.641420</a></li>
+            <li><a href="/codecs/avc1.641428.html">avc1.641428</a></li>
+            <li><a href="/codecs/avc1.641429.html">avc1.641429</a></li>
+            <li><a href="/codecs/avc1.64142a.html">avc1.64142a</a></li>
+            <li><a href="/codecs/avc1.641432.html">avc1.641432</a></li>
+            <li><a href="/codecs/avc1.641433.html">avc1.641433</a></li>
+            <li><a href="/codecs/avc1.641434.html">avc1.641434</a></li>
+            <li><a href="/codecs/avc1.64143c.html">avc1.64143c</a></li>
+            <li><a href="/codecs/avc1.64143d.html">avc1.64143d</a></li>
+            <li><a href="/codecs/avc1.64143e.html">avc1.64143e</a></li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>Data from the <a href="/datasets/codec-support/">upscaler.video Codec Support Dataset</a></p>
+        <p><a href="/">WebCodecs Fundamentals</a> | <a href="/datasets/codec-support-table/">Codec Support Table</a></p>
+    </footer>
+</body>
+</html>

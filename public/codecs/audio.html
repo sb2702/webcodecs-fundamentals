@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hev1.1.6.L183.B0 - Codec Support | WebCodecs Fundamentals</title>
-    <meta name="description" content="Browser and platform support data for hev1.1.6.L183.B0 codec. Real-world compatibility testing from 40,018 sessions.">
+    <title>Audio Family - Codec Support | WebCodecs Fundamentals</title>
+    <meta name="description" content="Browser and platform support data for Audio codec family. Real-world compatibility testing from 2,576,286 sessions across 18 codec variants.">
     <style>
         * {
             margin: 0;
@@ -34,14 +34,6 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
             color: #1a1a1a;
-        }
-
-        .codec-string {
-            font-family: 'Monaco', 'Courier New', monospace;
-            background: #f0f0f0;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 1.1rem;
         }
 
         .global-support {
@@ -86,10 +78,6 @@
         td {
             padding: 1rem;
             border-bottom: 1px solid #eee;
-        }
-
-        td:first-child {
-            font-weight: 600;
         }
 
         .browser-cell {
@@ -155,53 +143,46 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        .codec-list {
+            columns: 3;
+            column-gap: 2rem;
+        }
+
+        .codec-list li {
+            margin-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+
+        .codec-list a {
+            color: #0066cc;
+            text-decoration: none;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .codec-list a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <a href="/datasets/codec-support-table/" class="back-link">← Back to Codec Support Table</a>
 
     <header>
-        <h1>Codec: <span class="codec-string">hev1.1.6.L183.B0</span></h1>
+        <h1>Audio Codec Family</h1>
         <div class="global-support" style="color: #dc3545">
-            67.34% Global Encoder Support
+            32.76% Global Encoder Support
         </div>
         <div class="stats">
-            26,949 of 40,018 sessions supported this codec
+            843,975 of 2,576,286 tests supported Audio across 18 codec variants
         </div>
     </header>
-
-    <div class="support-matrix" style="margin-bottom: 2rem;">
-        <h2>Codec Specifications</h2>
-        <table style="width: auto;">
-            <tbody>
-                <tr>
-                    <td style="font-weight: 600; width: 200px;">Codec Family</td>
-                    <td>HEVC (H.265)</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Profile</td>
-                    <td>Main</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Level</td>
-                    <td>6.1 (Main Tier)</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Maximum Resolution</td>
-                    <td>8K (8192×4352)</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: 600;">Maximum Bitrate</td>
-                    <td>120 Mbps</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 
     <div class="support-matrix">
         <h2>Browser × Platform Support Matrix</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-            Browser detection based on user agent strings. See the <a href="/datasets/codec-support/">dataset page</a> for details.
+            Aggregate support across all Audio variants. Browser detection based on user agent strings.
         </p>
         <table>
             <thead>
@@ -217,77 +198,110 @@
             <tbody>
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/chromium.svg" alt="Chrome" class="browser-icon">Chrome/Chromium</div></td>
-                    <td class="support-cell" style="background-color: #fff3cd;">
-                        81.28%
-                        <span class="count">14,765 / 18,165</span>
-                    </td>
-                    <td class="support-cell" style="background-color: #d4edda;">
-                        95.68%
-                        <span class="count">2,836 / 2,964</span>
-                    </td>
-                    <td class="support-cell no-data">—</td>
-                    <td class="support-cell" style="background-color: #d4edda;">
-                        90.61%
-                        <span class="count">6,940 / 7,659</span>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        33.25%
+                        <span class="count">389,146 / 1,170,522</span>
                     </td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        37.78%
-                        <span class="count">303 / 802</span>
+                        33.26%
+                        <span class="count">63,663 / 191,394</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        32.42%
+                        <span class="count">160,274 / 494,352</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        17.08%
+                        <span class="count">8,811 / 51,588</span>
                     </td>
                 </tr>
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/safari.svg" alt="Safari" class="browser-icon">Safari</div></td>
                     <td class="support-cell no-data">—</td>
-                    <td class="support-cell" style="background-color: #fff3cd;">
-                        66.27%
-                        <span class="count">731 / 1,103</span>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        37.29%
+                        <span class="count">26,956 / 72,288</span>
                     </td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        33.76%
-                        <span class="count">1,356 / 4,017</span>
+                        42.31%
+                        <span class="count">109,968 / 259,938</span>
                     </td>
-                    <td class="support-cell no-data">—</td>
-                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        5.56%
+                        <span class="count">1 / 18</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        10.19%
+                        <span class="count">22 / 216</span>
+                    </td>
                 </tr>
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/edge.svg" alt="Edge" class="browser-icon">Edge</div></td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        0.03%
-                        <span class="count">1 / 3,288</span>
+                        33.28%
+                        <span class="count">69,579 / 209,052</span>
                     </td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        2.44%
-                        <span class="count">1 / 41</span>
+                        33.33%
+                        <span class="count">690 / 2,070</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        0.0%
-                        <span class="count">0 / 48</span>
+                        33.18%
+                        <span class="count">1,051 / 3,168</span>
                     </td>
-                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        5.56%
+                        <span class="count">15 / 270</span>
+                    </td>
                 </tr>
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/firefox.svg" alt="Firefox" class="browser-icon">Firefox</div></td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        0.07%
-                        <span class="count">1 / 1,473</span>
+                        11.12%
+                        <span class="count">10,499 / 94,446</span>
                     </td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        0.0%
-                        <span class="count">0 / 209</span>
+                        11.11%
+                        <span class="count">1,366 / 12,294</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell" style="background-color: #f8d7da;">
                         0.0%
-                        <span class="count">0 / 12</span>
+                        <span class="count">0 / 540</span>
                     </td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        0.0%
-                        <span class="count">0 / 201</span>
+                        11.03%
+                        <span class="count">1,346 / 12,204</span>
                     </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="support-matrix">
+        <h2>Codec Variants (18)</h2>
+        <ul class="codec-list">
+            <li><a href="/codecs/alaw.html">alaw</a></li>
+            <li><a href="/codecs/flac.html">flac</a></li>
+            <li><a href="/codecs/mp3.html">mp3</a></li>
+            <li><a href="/codecs/mp4a.40.02.html">mp4a.40.02</a></li>
+            <li><a href="/codecs/mp4a.40.05.html">mp4a.40.05</a></li>
+            <li><a href="/codecs/mp4a.40.2.html">mp4a.40.2</a></li>
+            <li><a href="/codecs/mp4a.40.29.html">mp4a.40.29</a></li>
+            <li><a href="/codecs/mp4a.40.5.html">mp4a.40.5</a></li>
+            <li><a href="/codecs/mp4a.69.html">mp4a.69</a></li>
+            <li><a href="/codecs/mp4a.6B.html">mp4a.6B</a></li>
+            <li><a href="/codecs/opus.html">opus</a></li>
+            <li><a href="/codecs/pcm-f32.html">pcm-f32</a></li>
+            <li><a href="/codecs/pcm-s16.html">pcm-s16</a></li>
+            <li><a href="/codecs/pcm-s24.html">pcm-s24</a></li>
+            <li><a href="/codecs/pcm-s32.html">pcm-s32</a></li>
+            <li><a href="/codecs/pcm-u8.html">pcm-u8</a></li>
+            <li><a href="/codecs/ulaw.html">ulaw</a></li>
+            <li><a href="/codecs/vorbis.html">vorbis</a></li>
+        </ul>
     </div>
 
     <footer>

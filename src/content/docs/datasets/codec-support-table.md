@@ -3,69 +3,9 @@ title: Codec Support Table
 description: Complete table of 1,087 codec strings tested across real-world browsers and platforms
 ---
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Codec Support Table",
-  "description": "Searchable table of 1,087 WebCodecs codec strings with real-world browser and platform support data from 143,181 test sessions.",
-  "url": "https://webcodecsfundamentals.org/datasets/codec-support-table/",
-  "about": {
-    "@type": "SoftwareApplication",
-    "name": "WebCodecs API",
-    "url": "https://w3c.github.io/webcodecs/"
-  },
-  "isPartOf": {
-    "@type": "Dataset",
-    "name": "The upscaler.video Codec Support Dataset",
-    "url": "https://webcodecsfundamentals.org/datasets/codec-support/",
-    "sameAs": "https://free.upscaler.video/research/webcodecs-dataset"
-  },
-  "mainEntity": {
-    "@type": "ItemList",
-    "name": "Tested Codec Strings",
-    "numberOfItems": 1087,
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "name": "AVC (H.264) codecs",
-        "description": "342 H.264/AVC codec variants"
-      },
-      {
-        "@type": "ListItem",
-        "name": "HEVC (H.265) codecs",
-        "description": "84 H.265/HEVC codec variants"
-      },
-      {
-        "@type": "ListItem",
-        "name": "VP9 codecs",
-        "description": "210 VP9 codec variants"
-      },
-      {
-        "@type": "ListItem",
-        "name": "AV1 codecs",
-        "description": "432 AV1 codec variants"
-      },
-      {
-        "@type": "ListItem",
-        "name": "VP8 codecs",
-        "description": "VP8 codec variants"
-      },
-      {
-        "@type": "ListItem",
-        "name": "Audio codecs",
-        "description": "18 audio codec formats"
-      }
-    ]
-  },
-  "keywords": ["WebCodecs registry", "codec compatibility", "H.264 support", "AV1 support", "VP9 support", "HEVC support", "browser codec support", "codec string reference"]
-}
-</script>
-
 This page contains a comprehensive table of **1,087 codec strings** tested with the WebCodecs API across real-world browsers and platforms.
 
-> **About this dataset:** This data measures **encode support** from 143,181 real user sessions testing 45,519,786 codecs. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. [Download Dataset (ZIP)](/upscaler-video-codec-dataset.zip)
-
+> **About this dataset:** This data comes from 143,181 real user sessions testing 45,519,786 codecs. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
 ## Codec Families
 
 **Video Codecs:**
@@ -93,6 +33,7 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 </tr>
 </thead>
 <tbody>
+<tr style="background-color: #f0f0f0; font-weight: bold;"><td>All variants</td><td style="text-align: right; background-color: #fff3cd;">64.08%</td><td style="text-align: right;">342 variants</td><td><a href="/codecs/avc.html">View Family Support</a></td></tr>
 <tr><td><code>avc1.420034</code></td><td style="text-align: right; background-color: #d4edda;">99.65%</td><td style="text-align: right;">40,208</td><td><a href="/codecs/avc1.420034.html">View Details</a></td></tr>
 <tr><td><code>avc1.420020</code></td><td style="text-align: right; background-color: #d4edda;">99.64%</td><td style="text-align: right;">39,966</td><td><a href="/codecs/avc1.420020.html">View Details</a></td></tr>
 <tr><td><code>avc1.420016</code></td><td style="text-align: right; background-color: #d4edda;">99.61%</td><td style="text-align: right;">40,253</td><td><a href="/codecs/avc1.420016.html">View Details</a></td></tr>
@@ -452,6 +393,7 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 </tr>
 </thead>
 <tbody>
+<tr style="background-color: #f0f0f0; font-weight: bold;"><td>All variants</td><td style="text-align: right; background-color: #f8d7da;">42.2%</td><td style="text-align: right;">84 variants</td><td><a href="/codecs/hevc.html">View Family Support</a></td></tr>
 <tr><td><code>hvc1.1.6.L120.B0</code></td><td style="text-align: right; background-color: #fff3cd;">75.28%</td><td style="text-align: right;">40,001</td><td><a href="/codecs/hvc1.1.6.L120.B0.html">View Details</a></td></tr>
 <tr><td><code>hev1.1.6.L90.B0</code></td><td style="text-align: right; background-color: #fff3cd;">75.08%</td><td style="text-align: right;">40,396</td><td><a href="/codecs/hev1.1.6.L90.B0.html">View Details</a></td></tr>
 <tr><td><code>hev1.1.6.L123.B0</code></td><td style="text-align: right; background-color: #fff3cd;">75.07%</td><td style="text-align: right;">40,084</td><td><a href="/codecs/hev1.1.6.L123.B0.html">View Details</a></td></tr>
@@ -486,14 +428,14 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 <tr><td><code>hev1.1.6.L156.B0</code></td><td style="text-align: right; background-color: #fff3cd;">74.03%</td><td style="text-align: right;">40,438</td><td><a href="/codecs/hev1.1.6.L156.B0.html">View Details</a></td></tr>
 <tr><td><code>hev1.1.6.H180.B0</code></td><td style="text-align: right; background-color: #fff3cd;">73.97%</td><td style="text-align: right;">40,244</td><td><a href="/codecs/hev1.1.6.H180.B0.html">View Details</a></td></tr>
 <tr><td><code>hvc1.1.6.H156.B0</code></td><td style="text-align: right; background-color: #fff3cd;">73.88%</td><td style="text-align: right;">40,189</td><td><a href="/codecs/hvc1.1.6.H156.B0.html">View Details</a></td></tr>
-<tr><td><code>hvc1.1.6.L183.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.63%</td><td style="text-align: right;">40,480</td><td><a href="/codecs/hvc1.1.6.L183.B0.html">View Details</a></td></tr>
-<tr><td><code>hvc1.1.6.L186.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.55%</td><td style="text-align: right;">40,161</td><td><a href="/codecs/hvc1.1.6.L186.B0.html">View Details</a></td></tr>
-<tr><td><code>hev1.1.6.H186.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.54%</td><td style="text-align: right;">40,279</td><td><a href="/codecs/hev1.1.6.H186.B0.html">View Details</a></td></tr>
-<tr><td><code>hev1.1.6.H183.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.45%</td><td style="text-align: right;">40,271</td><td><a href="/codecs/hev1.1.6.H183.B0.html">View Details</a></td></tr>
-<tr><td><code>hev1.1.6.L186.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.36%</td><td style="text-align: right;">40,337</td><td><a href="/codecs/hev1.1.6.L186.B0.html">View Details</a></td></tr>
-<tr><td><code>hev1.1.6.L183.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.34%</td><td style="text-align: right;">40,018</td><td><a href="/codecs/hev1.1.6.L183.B0.html">View Details</a></td></tr>
-<tr><td><code>hvc1.1.6.H186.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.13%</td><td style="text-align: right;">40,598</td><td><a href="/codecs/hvc1.1.6.H186.B0.html">View Details</a></td></tr>
-<tr><td><code>hvc1.1.6.H183.B0</code></td><td style="text-align: right; background-color: #f8d7da;">67.1%</td><td style="text-align: right;">40,022</td><td><a href="/codecs/hvc1.1.6.H183.B0.html">View Details</a></td></tr>
+<tr><td><code>hvc1.1.6.L183.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.63%</td><td style="text-align: right;">40,480</td><td><a href="/codecs/hvc1.1.6.L183.B0.html">View Details</a></td></tr>
+<tr><td><code>hvc1.1.6.L186.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.55%</td><td style="text-align: right;">40,161</td><td><a href="/codecs/hvc1.1.6.L186.B0.html">View Details</a></td></tr>
+<tr><td><code>hev1.1.6.H186.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.54%</td><td style="text-align: right;">40,279</td><td><a href="/codecs/hev1.1.6.H186.B0.html">View Details</a></td></tr>
+<tr><td><code>hev1.1.6.H183.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.45%</td><td style="text-align: right;">40,271</td><td><a href="/codecs/hev1.1.6.H183.B0.html">View Details</a></td></tr>
+<tr><td><code>hev1.1.6.L186.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.36%</td><td style="text-align: right;">40,337</td><td><a href="/codecs/hev1.1.6.L186.B0.html">View Details</a></td></tr>
+<tr><td><code>hev1.1.6.L183.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.34%</td><td style="text-align: right;">40,018</td><td><a href="/codecs/hev1.1.6.L183.B0.html">View Details</a></td></tr>
+<tr><td><code>hvc1.1.6.H186.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.13%</td><td style="text-align: right;">40,598</td><td><a href="/codecs/hvc1.1.6.H186.B0.html">View Details</a></td></tr>
+<tr><td><code>hvc1.1.6.H183.B0</code></td><td style="text-align: right; background-color: #fff3cd;">67.1%</td><td style="text-align: right;">40,022</td><td><a href="/codecs/hvc1.1.6.H183.B0.html">View Details</a></td></tr>
 <tr><td><code>hvc1.2.4.L120.B0</code></td><td style="text-align: right; background-color: #f8d7da;">12.82%</td><td style="text-align: right;">40,267</td><td><a href="/codecs/hvc1.2.4.L120.B0.html">View Details</a></td></tr>
 <tr><td><code>hev1.2.4.L60.B0</code></td><td style="text-align: right; background-color: #f8d7da;">12.8%</td><td style="text-align: right;">40,367</td><td><a href="/codecs/hev1.2.4.L60.B0.html">View Details</a></td></tr>
 <tr><td><code>hev1.2.4.L30.B0</code></td><td style="text-align: right; background-color: #f8d7da;">12.79%</td><td style="text-align: right;">40,033</td><td><a href="/codecs/hev1.2.4.L30.B0.html">View Details</a></td></tr>
@@ -553,6 +495,7 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 </tr>
 </thead>
 <tbody>
+<tr style="background-color: #f0f0f0; font-weight: bold;"><td>All variants</td><td style="text-align: right; background-color: #d4edda;">99.98%</td><td style="text-align: right;">1 variants</td><td><a href="/codecs/vp8.html">View Family Support</a></td></tr>
 <tr><td><code>vp8</code></td><td style="text-align: right; background-color: #d4edda;">99.98%</td><td style="text-align: right;">40,253</td><td><a href="/codecs/vp8.html">View Details</a></td></tr>
 </tbody>
 </table>
@@ -571,6 +514,7 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 </tr>
 </thead>
 <tbody>
+<tr style="background-color: #f0f0f0; font-weight: bold;"><td>All variants</td><td style="text-align: right; background-color: #f8d7da;">26.39%</td><td style="text-align: right;">210 variants</td><td><a href="/codecs/vp9.html">View Family Support</a></td></tr>
 <tr><td><code>vp09.00.62.08.00</code></td><td style="text-align: right; background-color: #d4edda;">99.99%</td><td style="text-align: right;">40,179</td><td><a href="/codecs/vp09.00.62.08.00.html">View Details</a></td></tr>
 <tr><td><code>vp09.00.10.08.00</code></td><td style="text-align: right; background-color: #d4edda;">99.98%</td><td style="text-align: right;">40,072</td><td><a href="/codecs/vp09.00.10.08.00.html">View Details</a></td></tr>
 <tr><td><code>vp09.00.21.08.00</code></td><td style="text-align: right; background-color: #d4edda;">99.98%</td><td style="text-align: right;">40,141</td><td><a href="/codecs/vp09.00.21.08.00.html">View Details</a></td></tr>
@@ -613,20 +557,20 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 <tr><td><code>vp09.02.52.10.00</code></td><td style="text-align: right; background-color: #fff3cd;">79.39%</td><td style="text-align: right;">39,814</td><td><a href="/codecs/vp09.02.52.10.00.html">View Details</a></td></tr>
 <tr><td><code>vp09.02.41.10.00</code></td><td style="text-align: right; background-color: #fff3cd;">79.38%</td><td style="text-align: right;">40,088</td><td><a href="/codecs/vp09.02.41.10.00.html">View Details</a></td></tr>
 <tr><td><code>vp09.02.30.10.00</code></td><td style="text-align: right; background-color: #fff3cd;">79.3%</td><td style="text-align: right;">40,184</td><td><a href="/codecs/vp09.02.30.10.00.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.11.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.64%</td><td style="text-align: right;">40,244</td><td><a href="/codecs/vp09.03.11.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.61.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.64%</td><td style="text-align: right;">40,188</td><td><a href="/codecs/vp09.03.61.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.52.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.59%</td><td style="text-align: right;">40,325</td><td><a href="/codecs/vp09.03.52.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.10.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.5%</td><td style="text-align: right;">40,424</td><td><a href="/codecs/vp09.03.10.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.62.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.47%</td><td style="text-align: right;">39,985</td><td><a href="/codecs/vp09.03.62.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.41.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.43%</td><td style="text-align: right;">39,997</td><td><a href="/codecs/vp09.03.41.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.30.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.42%</td><td style="text-align: right;">39,934</td><td><a href="/codecs/vp09.03.30.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.40.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.38%</td><td style="text-align: right;">40,469</td><td><a href="/codecs/vp09.03.40.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.51.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.36%</td><td style="text-align: right;">40,097</td><td><a href="/codecs/vp09.03.51.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.50.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.29%</td><td style="text-align: right;">40,414</td><td><a href="/codecs/vp09.03.50.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.60.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.09%</td><td style="text-align: right;">40,003</td><td><a href="/codecs/vp09.03.60.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.31.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.05%</td><td style="text-align: right;">40,523</td><td><a href="/codecs/vp09.03.31.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.21.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.02%</td><td style="text-align: right;">40,474</td><td><a href="/codecs/vp09.03.21.10.03.html">View Details</a></td></tr>
-<tr><td><code>vp09.03.20.10.03</code></td><td style="text-align: right; background-color: #f8d7da;">66.01%</td><td style="text-align: right;">40,301</td><td><a href="/codecs/vp09.03.20.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.11.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.64%</td><td style="text-align: right;">40,244</td><td><a href="/codecs/vp09.03.11.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.61.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.64%</td><td style="text-align: right;">40,188</td><td><a href="/codecs/vp09.03.61.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.52.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.59%</td><td style="text-align: right;">40,325</td><td><a href="/codecs/vp09.03.52.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.10.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.5%</td><td style="text-align: right;">40,424</td><td><a href="/codecs/vp09.03.10.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.62.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.47%</td><td style="text-align: right;">39,985</td><td><a href="/codecs/vp09.03.62.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.41.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.43%</td><td style="text-align: right;">39,997</td><td><a href="/codecs/vp09.03.41.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.30.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.42%</td><td style="text-align: right;">39,934</td><td><a href="/codecs/vp09.03.30.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.40.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.38%</td><td style="text-align: right;">40,469</td><td><a href="/codecs/vp09.03.40.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.51.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.36%</td><td style="text-align: right;">40,097</td><td><a href="/codecs/vp09.03.51.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.50.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.29%</td><td style="text-align: right;">40,414</td><td><a href="/codecs/vp09.03.50.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.60.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.09%</td><td style="text-align: right;">40,003</td><td><a href="/codecs/vp09.03.60.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.31.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.05%</td><td style="text-align: right;">40,523</td><td><a href="/codecs/vp09.03.31.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.21.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.02%</td><td style="text-align: right;">40,474</td><td><a href="/codecs/vp09.03.21.10.03.html">View Details</a></td></tr>
+<tr><td><code>vp09.03.20.10.03</code></td><td style="text-align: right; background-color: #fff3cd;">66.01%</td><td style="text-align: right;">40,301</td><td><a href="/codecs/vp09.03.20.10.03.html">View Details</a></td></tr>
 <tr><td><code>vp09.02.21.12.00</code></td><td style="text-align: right; background-color: #f8d7da;">18.06%</td><td style="text-align: right;">40,139</td><td><a href="/codecs/vp09.02.21.12.00.html">View Details</a></td></tr>
 <tr><td><code>vp09.02.10.12.00</code></td><td style="text-align: right; background-color: #f8d7da;">17.96%</td><td style="text-align: right;">40,121</td><td><a href="/codecs/vp09.02.10.12.00.html">View Details</a></td></tr>
 <tr><td><code>vp09.02.51.12.00</code></td><td style="text-align: right; background-color: #f8d7da;">17.93%</td><td style="text-align: right;">40,092</td><td><a href="/codecs/vp09.02.51.12.00.html">View Details</a></td></tr>
@@ -798,6 +742,7 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 </tr>
 </thead>
 <tbody>
+<tr style="background-color: #f0f0f0; font-weight: bold;"><td>All variants</td><td style="text-align: right; background-color: #f8d7da;">20.11%</td><td style="text-align: right;">432 variants</td><td><a href="/codecs/av1.html">View Family Support</a></td></tr>
 <tr><td><code>av01.0.17H.08</code></td><td style="text-align: right; background-color: #fff3cd;">87.53%</td><td style="text-align: right;">40,378</td><td><a href="/codecs/av01.0.17H.08.html">View Details</a></td></tr>
 <tr><td><code>av01.0.18M.08</code></td><td style="text-align: right; background-color: #fff3cd;">87.45%</td><td style="text-align: right;">40,191</td><td><a href="/codecs/av01.0.18M.08.html">View Details</a></td></tr>
 <tr><td><code>av01.0.21H.08</code></td><td style="text-align: right; background-color: #fff3cd;">87.42%</td><td style="text-align: right;">40,458</td><td><a href="/codecs/av01.0.21H.08.html">View Details</a></td></tr>
@@ -1247,6 +1192,7 @@ This page contains a comprehensive table of **1,087 codec strings** tested with 
 </tr>
 </thead>
 <tbody>
+<tr style="background-color: #f0f0f0; font-weight: bold;"><td>All variants</td><td style="text-align: right; background-color: #f8d7da;">32.76%</td><td style="text-align: right;">18 variants</td><td><a href="/codecs/audio.html">View Family Support</a></td></tr>
 <tr><td><code>opus</code></td><td style="text-align: right; background-color: #d4edda;">94.43%</td><td style="text-align: right;">143,127</td><td><a href="/codecs/opus.html">View Details</a></td></tr>
 <tr><td><code>mp4a.40.02</code></td><td style="text-align: right; background-color: #fff3cd;">87.78%</td><td style="text-align: right;">143,127</td><td><a href="/codecs/mp4a.40.02.html">View Details</a></td></tr>
 <tr><td><code>mp4a.40.05</code></td><td style="text-align: right; background-color: #fff3cd;">87.78%</td><td style="text-align: right;">143,127</td><td><a href="/codecs/mp4a.40.05.html">View Details</a></td></tr>

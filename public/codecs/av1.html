@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AV1 Family - Codec Support | WebCodecs Fundamentals</title>
+    <meta name="description" content="Browser and platform support data for AV1 codec family. Real-world compatibility testing from 17,354,714 sessions across 432 codec variants.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f9f9f9;
+        }
+
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .global-support {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .stats {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .support-matrix {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .browser-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .browser-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .platform-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: -3px;
+        }
+
+        .support-cell {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .no-data {
+            color: #999;
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        .count {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+
+        footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .codec-list {
+            columns: 3;
+            column-gap: 2rem;
+        }
+
+        .codec-list li {
+            margin-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+
+        .codec-list a {
+            color: #0066cc;
+            text-decoration: none;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .codec-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="/datasets/codec-support-table/" class="back-link">← Back to Codec Support Table</a>
+
+    <header>
+        <h1>AV1 Codec Family</h1>
+        <div class="global-support" style="color: #dc3545">
+            20.11% Global Encoder Support
+        </div>
+        <div class="stats">
+            3,490,024 of 17,354,714 tests supported AV1 across 432 codec variants
+        </div>
+    </header>
+
+    <div class="support-matrix">
+        <h2>Browser × Platform Support Matrix</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+            Aggregate support across all AV1 variants. Browser detection based on user agent strings.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Browser</th>
+                    <th style="text-align: center;"><img src="/assets/icons/windows.svg" alt="Windows" class="platform-icon"> Windows</th>
+                    <th style="text-align: center;"><img src="/assets/icons/osx.svg" alt="macOS" class="platform-icon"> macOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/ios.svg" alt="iOS" class="platform-icon"> iOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/android.svg" alt="Android" class="platform-icon"> Android</th>
+                    <th style="text-align: center;"><img src="/assets/icons/linux.svg" alt="Linux" class="platform-icon"> Linux</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/chromium.svg" alt="Chrome" class="browser-icon">Chrome/Chromium</div></td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        22.33%
+                        <span class="count">1,760,139 / 7,883,225</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        22.38%
+                        <span class="count">288,759 / 1,290,028</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        18.47%
+                        <span class="count">615,108 / 3,330,409</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        19.84%
+                        <span class="count">68,828 / 346,971</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/safari.svg" alt="Safari" class="browser-icon">Safari</div></td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        7.26%
+                        <span class="count">35,313 / 486,309</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        10.11%
+                        <span class="count">177,316 / 1,753,318</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 116</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        25.84%
+                        <span class="count">378 / 1,463</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/edge.svg" alt="Edge" class="browser-icon">Edge</div></td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        22.16%
+                        <span class="count">312,186 / 1,408,482</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        22.4%
+                        <span class="count">3,128 / 13,962</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        19.81%
+                        <span class="count">4,198 / 21,186</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        23.34%
+                        <span class="count">431 / 1,847</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/firefox.svg" alt="Firefox" class="browser-icon">Firefox</div></td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        27.75%
+                        <span class="count">176,470 / 635,954</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        27.86%
+                        <span class="count">23,076 / 82,829</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        0.0%
+                        <span class="count">0 / 3,587</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        27.44%
+                        <span class="count">22,532 / 82,115</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="support-matrix">
+        <h2>Codec Variants (432)</h2>
+        <ul class="codec-list">
+            <li><a href="/codecs/av01.0.00H.08.html">av01.0.00H.08</a></li>
+            <li><a href="/codecs/av01.0.00H.10.html">av01.0.00H.10</a></li>
+            <li><a href="/codecs/av01.0.00H.12.html">av01.0.00H.12</a></li>
+            <li><a href="/codecs/av01.0.00M.08.html">av01.0.00M.08</a></li>
+            <li><a href="/codecs/av01.0.00M.10.html">av01.0.00M.10</a></li>
+            <li><a href="/codecs/av01.0.00M.12.html">av01.0.00M.12</a></li>
+            <li><a href="/codecs/av01.0.01H.08.html">av01.0.01H.08</a></li>
+            <li><a href="/codecs/av01.0.01H.10.html">av01.0.01H.10</a></li>
+            <li><a href="/codecs/av01.0.01H.12.html">av01.0.01H.12</a></li>
+            <li><a href="/codecs/av01.0.01M.08.html">av01.0.01M.08</a></li>
+            <li><a href="/codecs/av01.0.01M.10.html">av01.0.01M.10</a></li>
+            <li><a href="/codecs/av01.0.01M.12.html">av01.0.01M.12</a></li>
+            <li><a href="/codecs/av01.0.02H.08.html">av01.0.02H.08</a></li>
+            <li><a href="/codecs/av01.0.02H.10.html">av01.0.02H.10</a></li>
+            <li><a href="/codecs/av01.0.02H.12.html">av01.0.02H.12</a></li>
+            <li><a href="/codecs/av01.0.02M.08.html">av01.0.02M.08</a></li>
+            <li><a href="/codecs/av01.0.02M.10.html">av01.0.02M.10</a></li>
+            <li><a href="/codecs/av01.0.02M.12.html">av01.0.02M.12</a></li>
+            <li><a href="/codecs/av01.0.03H.08.html">av01.0.03H.08</a></li>
+            <li><a href="/codecs/av01.0.03H.10.html">av01.0.03H.10</a></li>
+            <li><a href="/codecs/av01.0.03H.12.html">av01.0.03H.12</a></li>
+            <li><a href="/codecs/av01.0.03M.08.html">av01.0.03M.08</a></li>
+            <li><a href="/codecs/av01.0.03M.10.html">av01.0.03M.10</a></li>
+            <li><a href="/codecs/av01.0.03M.12.html">av01.0.03M.12</a></li>
+            <li><a href="/codecs/av01.0.04H.08.html">av01.0.04H.08</a></li>
+            <li><a href="/codecs/av01.0.04H.10.html">av01.0.04H.10</a></li>
+            <li><a href="/codecs/av01.0.04H.12.html">av01.0.04H.12</a></li>
+            <li><a href="/codecs/av01.0.04M.08.html">av01.0.04M.08</a></li>
+            <li><a href="/codecs/av01.0.04M.10.html">av01.0.04M.10</a></li>
+            <li><a href="/codecs/av01.0.04M.12.html">av01.0.04M.12</a></li>
+            <li><a href="/codecs/av01.0.05H.08.html">av01.0.05H.08</a></li>
+            <li><a href="/codecs/av01.0.05H.10.html">av01.0.05H.10</a></li>
+            <li><a href="/codecs/av01.0.05H.12.html">av01.0.05H.12</a></li>
+            <li><a href="/codecs/av01.0.05M.08.html">av01.0.05M.08</a></li>
+            <li><a href="/codecs/av01.0.05M.10.html">av01.0.05M.10</a></li>
+            <li><a href="/codecs/av01.0.05M.12.html">av01.0.05M.12</a></li>
+            <li><a href="/codecs/av01.0.06H.08.html">av01.0.06H.08</a></li>
+            <li><a href="/codecs/av01.0.06H.10.html">av01.0.06H.10</a></li>
+            <li><a href="/codecs/av01.0.06H.12.html">av01.0.06H.12</a></li>
+            <li><a href="/codecs/av01.0.06M.08.html">av01.0.06M.08</a></li>
+            <li><a href="/codecs/av01.0.06M.10.html">av01.0.06M.10</a></li>
+            <li><a href="/codecs/av01.0.06M.12.html">av01.0.06M.12</a></li>
+            <li><a href="/codecs/av01.0.07H.08.html">av01.0.07H.08</a></li>
+            <li><a href="/codecs/av01.0.07H.10.html">av01.0.07H.10</a></li>
+            <li><a href="/codecs/av01.0.07H.12.html">av01.0.07H.12</a></li>
+            <li><a href="/codecs/av01.0.07M.08.html">av01.0.07M.08</a></li>
+            <li><a href="/codecs/av01.0.07M.10.html">av01.0.07M.10</a></li>
+            <li><a href="/codecs/av01.0.07M.12.html">av01.0.07M.12</a></li>
+            <li><a href="/codecs/av01.0.08H.08.html">av01.0.08H.08</a></li>
+            <li><a href="/codecs/av01.0.08H.10.html">av01.0.08H.10</a></li>
+            <li><a href="/codecs/av01.0.08H.12.html">av01.0.08H.12</a></li>
+            <li><a href="/codecs/av01.0.08M.08.html">av01.0.08M.08</a></li>
+            <li><a href="/codecs/av01.0.08M.10.html">av01.0.08M.10</a></li>
+            <li><a href="/codecs/av01.0.08M.12.html">av01.0.08M.12</a></li>
+            <li><a href="/codecs/av01.0.09H.08.html">av01.0.09H.08</a></li>
+            <li><a href="/codecs/av01.0.09H.10.html">av01.0.09H.10</a></li>
+            <li><a href="/codecs/av01.0.09H.12.html">av01.0.09H.12</a></li>
+            <li><a href="/codecs/av01.0.09M.08.html">av01.0.09M.08</a></li>
+            <li><a href="/codecs/av01.0.09M.10.html">av01.0.09M.10</a></li>
+            <li><a href="/codecs/av01.0.09M.12.html">av01.0.09M.12</a></li>
+            <li><a href="/codecs/av01.0.10H.08.html">av01.0.10H.08</a></li>
+            <li><a href="/codecs/av01.0.10H.10.html">av01.0.10H.10</a></li>
+            <li><a href="/codecs/av01.0.10H.12.html">av01.0.10H.12</a></li>
+            <li><a href="/codecs/av01.0.10M.08.html">av01.0.10M.08</a></li>
+            <li><a href="/codecs/av01.0.10M.10.html">av01.0.10M.10</a></li>
+            <li><a href="/codecs/av01.0.10M.12.html">av01.0.10M.12</a></li>
+            <li><a href="/codecs/av01.0.11H.08.html">av01.0.11H.08</a></li>
+            <li><a href="/codecs/av01.0.11H.10.html">av01.0.11H.10</a></li>
+            <li><a href="/codecs/av01.0.11H.12.html">av01.0.11H.12</a></li>
+            <li><a href="/codecs/av01.0.11M.08.html">av01.0.11M.08</a></li>
+            <li><a href="/codecs/av01.0.11M.10.html">av01.0.11M.10</a></li>
+            <li><a href="/codecs/av01.0.11M.12.html">av01.0.11M.12</a></li>
+            <li><a href="/codecs/av01.0.12H.08.html">av01.0.12H.08</a></li>
+            <li><a href="/codecs/av01.0.12H.10.html">av01.0.12H.10</a></li>
+            <li><a href="/codecs/av01.0.12H.12.html">av01.0.12H.12</a></li>
+            <li><a href="/codecs/av01.0.12M.08.html">av01.0.12M.08</a></li>
+            <li><a href="/codecs/av01.0.12M.10.html">av01.0.12M.10</a></li>
+            <li><a href="/codecs/av01.0.12M.12.html">av01.0.12M.12</a></li>
+            <li><a href="/codecs/av01.0.13H.08.html">av01.0.13H.08</a></li>
+            <li><a href="/codecs/av01.0.13H.10.html">av01.0.13H.10</a></li>
+            <li><a href="/codecs/av01.0.13H.12.html">av01.0.13H.12</a></li>
+            <li><a href="/codecs/av01.0.13M.08.html">av01.0.13M.08</a></li>
+            <li><a href="/codecs/av01.0.13M.10.html">av01.0.13M.10</a></li>
+            <li><a href="/codecs/av01.0.13M.12.html">av01.0.13M.12</a></li>
+            <li><a href="/codecs/av01.0.14H.08.html">av01.0.14H.08</a></li>
+            <li><a href="/codecs/av01.0.14H.10.html">av01.0.14H.10</a></li>
+            <li><a href="/codecs/av01.0.14H.12.html">av01.0.14H.12</a></li>
+            <li><a href="/codecs/av01.0.14M.08.html">av01.0.14M.08</a></li>
+            <li><a href="/codecs/av01.0.14M.10.html">av01.0.14M.10</a></li>
+            <li><a href="/codecs/av01.0.14M.12.html">av01.0.14M.12</a></li>
+            <li><a href="/codecs/av01.0.15H.08.html">av01.0.15H.08</a></li>
+            <li><a href="/codecs/av01.0.15H.10.html">av01.0.15H.10</a></li>
+            <li><a href="/codecs/av01.0.15H.12.html">av01.0.15H.12</a></li>
+            <li><a href="/codecs/av01.0.15M.08.html">av01.0.15M.08</a></li>
+            <li><a href="/codecs/av01.0.15M.10.html">av01.0.15M.10</a></li>
+            <li><a href="/codecs/av01.0.15M.12.html">av01.0.15M.12</a></li>
+            <li><a href="/codecs/av01.0.16H.08.html">av01.0.16H.08</a></li>
+            <li><a href="/codecs/av01.0.16H.10.html">av01.0.16H.10</a></li>
+            <li><a href="/codecs/av01.0.16H.12.html">av01.0.16H.12</a></li>
+            <li><a href="/codecs/av01.0.16M.08.html">av01.0.16M.08</a></li>
+            <li><a href="/codecs/av01.0.16M.10.html">av01.0.16M.10</a></li>
+            <li><a href="/codecs/av01.0.16M.12.html">av01.0.16M.12</a></li>
+            <li><a href="/codecs/av01.0.17H.08.html">av01.0.17H.08</a></li>
+            <li><a href="/codecs/av01.0.17H.10.html">av01.0.17H.10</a></li>
+            <li><a href="/codecs/av01.0.17H.12.html">av01.0.17H.12</a></li>
+            <li><a href="/codecs/av01.0.17M.08.html">av01.0.17M.08</a></li>
+            <li><a href="/codecs/av01.0.17M.10.html">av01.0.17M.10</a></li>
+            <li><a href="/codecs/av01.0.17M.12.html">av01.0.17M.12</a></li>
+            <li><a href="/codecs/av01.0.18H.08.html">av01.0.18H.08</a></li>
+            <li><a href="/codecs/av01.0.18H.10.html">av01.0.18H.10</a></li>
+            <li><a href="/codecs/av01.0.18H.12.html">av01.0.18H.12</a></li>
+            <li><a href="/codecs/av01.0.18M.08.html">av01.0.18M.08</a></li>
+            <li><a href="/codecs/av01.0.18M.10.html">av01.0.18M.10</a></li>
+            <li><a href="/codecs/av01.0.18M.12.html">av01.0.18M.12</a></li>
+            <li><a href="/codecs/av01.0.19H.08.html">av01.0.19H.08</a></li>
+            <li><a href="/codecs/av01.0.19H.10.html">av01.0.19H.10</a></li>
+            <li><a href="/codecs/av01.0.19H.12.html">av01.0.19H.12</a></li>
+            <li><a href="/codecs/av01.0.19M.08.html">av01.0.19M.08</a></li>
+            <li><a href="/codecs/av01.0.19M.10.html">av01.0.19M.10</a></li>
+            <li><a href="/codecs/av01.0.19M.12.html">av01.0.19M.12</a></li>
+            <li><a href="/codecs/av01.0.20H.08.html">av01.0.20H.08</a></li>
+            <li><a href="/codecs/av01.0.20H.10.html">av01.0.20H.10</a></li>
+            <li><a href="/codecs/av01.0.20H.12.html">av01.0.20H.12</a></li>
+            <li><a href="/codecs/av01.0.20M.08.html">av01.0.20M.08</a></li>
+            <li><a href="/codecs/av01.0.20M.10.html">av01.0.20M.10</a></li>
+            <li><a href="/codecs/av01.0.20M.12.html">av01.0.20M.12</a></li>
+            <li><a href="/codecs/av01.0.21H.08.html">av01.0.21H.08</a></li>
+            <li><a href="/codecs/av01.0.21H.10.html">av01.0.21H.10</a></li>
+            <li><a href="/codecs/av01.0.21H.12.html">av01.0.21H.12</a></li>
+            <li><a href="/codecs/av01.0.21M.08.html">av01.0.21M.08</a></li>
+            <li><a href="/codecs/av01.0.21M.10.html">av01.0.21M.10</a></li>
+            <li><a href="/codecs/av01.0.21M.12.html">av01.0.21M.12</a></li>
+            <li><a href="/codecs/av01.0.22H.08.html">av01.0.22H.08</a></li>
+            <li><a href="/codecs/av01.0.22H.10.html">av01.0.22H.10</a></li>
+            <li><a href="/codecs/av01.0.22H.12.html">av01.0.22H.12</a></li>
+            <li><a href="/codecs/av01.0.22M.08.html">av01.0.22M.08</a></li>
+            <li><a href="/codecs/av01.0.22M.10.html">av01.0.22M.10</a></li>
+            <li><a href="/codecs/av01.0.22M.12.html">av01.0.22M.12</a></li>
+            <li><a href="/codecs/av01.0.23H.08.html">av01.0.23H.08</a></li>
+            <li><a href="/codecs/av01.0.23H.10.html">av01.0.23H.10</a></li>
+            <li><a href="/codecs/av01.0.23H.12.html">av01.0.23H.12</a></li>
+            <li><a href="/codecs/av01.0.23M.08.html">av01.0.23M.08</a></li>
+            <li><a href="/codecs/av01.0.23M.10.html">av01.0.23M.10</a></li>
+            <li><a href="/codecs/av01.0.23M.12.html">av01.0.23M.12</a></li>
+            <li><a href="/codecs/av01.1.00H.08.html">av01.1.00H.08</a></li>
+            <li><a href="/codecs/av01.1.00H.10.html">av01.1.00H.10</a></li>
+            <li><a href="/codecs/av01.1.00H.12.html">av01.1.00H.12</a></li>
+            <li><a href="/codecs/av01.1.00M.08.html">av01.1.00M.08</a></li>
+            <li><a href="/codecs/av01.1.00M.10.html">av01.1.00M.10</a></li>
+            <li><a href="/codecs/av01.1.00M.12.html">av01.1.00M.12</a></li>
+            <li><a href="/codecs/av01.1.01H.08.html">av01.1.01H.08</a></li>
+            <li><a href="/codecs/av01.1.01H.10.html">av01.1.01H.10</a></li>
+            <li><a href="/codecs/av01.1.01H.12.html">av01.1.01H.12</a></li>
+            <li><a href="/codecs/av01.1.01M.08.html">av01.1.01M.08</a></li>
+            <li><a href="/codecs/av01.1.01M.10.html">av01.1.01M.10</a></li>
+            <li><a href="/codecs/av01.1.01M.12.html">av01.1.01M.12</a></li>
+            <li><a href="/codecs/av01.1.02H.08.html">av01.1.02H.08</a></li>
+            <li><a href="/codecs/av01.1.02H.10.html">av01.1.02H.10</a></li>
+            <li><a href="/codecs/av01.1.02H.12.html">av01.1.02H.12</a></li>
+            <li><a href="/codecs/av01.1.02M.08.html">av01.1.02M.08</a></li>
+            <li><a href="/codecs/av01.1.02M.10.html">av01.1.02M.10</a></li>
+            <li><a href="/codecs/av01.1.02M.12.html">av01.1.02M.12</a></li>
+            <li><a href="/codecs/av01.1.03H.08.html">av01.1.03H.08</a></li>
+            <li><a href="/codecs/av01.1.03H.10.html">av01.1.03H.10</a></li>
+            <li><a href="/codecs/av01.1.03H.12.html">av01.1.03H.12</a></li>
+            <li><a href="/codecs/av01.1.03M.08.html">av01.1.03M.08</a></li>
+            <li><a href="/codecs/av01.1.03M.10.html">av01.1.03M.10</a></li>
+            <li><a href="/codecs/av01.1.03M.12.html">av01.1.03M.12</a></li>
+            <li><a href="/codecs/av01.1.04H.08.html">av01.1.04H.08</a></li>
+            <li><a href="/codecs/av01.1.04H.10.html">av01.1.04H.10</a></li>
+            <li><a href="/codecs/av01.1.04H.12.html">av01.1.04H.12</a></li>
+            <li><a href="/codecs/av01.1.04M.08.html">av01.1.04M.08</a></li>
+            <li><a href="/codecs/av01.1.04M.10.html">av01.1.04M.10</a></li>
+            <li><a href="/codecs/av01.1.04M.12.html">av01.1.04M.12</a></li>
+            <li><a href="/codecs/av01.1.05H.08.html">av01.1.05H.08</a></li>
+            <li><a href="/codecs/av01.1.05H.10.html">av01.1.05H.10</a></li>
+            <li><a href="/codecs/av01.1.05H.12.html">av01.1.05H.12</a></li>
+            <li><a href="/codecs/av01.1.05M.08.html">av01.1.05M.08</a></li>
+            <li><a href="/codecs/av01.1.05M.10.html">av01.1.05M.10</a></li>
+            <li><a href="/codecs/av01.1.05M.12.html">av01.1.05M.12</a></li>
+            <li><a href="/codecs/av01.1.06H.08.html">av01.1.06H.08</a></li>
+            <li><a href="/codecs/av01.1.06H.10.html">av01.1.06H.10</a></li>
+            <li><a href="/codecs/av01.1.06H.12.html">av01.1.06H.12</a></li>
+            <li><a href="/codecs/av01.1.06M.08.html">av01.1.06M.08</a></li>
+            <li><a href="/codecs/av01.1.06M.10.html">av01.1.06M.10</a></li>
+            <li><a href="/codecs/av01.1.06M.12.html">av01.1.06M.12</a></li>
+            <li><a href="/codecs/av01.1.07H.08.html">av01.1.07H.08</a></li>
+            <li><a href="/codecs/av01.1.07H.10.html">av01.1.07H.10</a></li>
+            <li><a href="/codecs/av01.1.07H.12.html">av01.1.07H.12</a></li>
+            <li><a href="/codecs/av01.1.07M.08.html">av01.1.07M.08</a></li>
+            <li><a href="/codecs/av01.1.07M.10.html">av01.1.07M.10</a></li>
+            <li><a href="/codecs/av01.1.07M.12.html">av01.1.07M.12</a></li>
+            <li><a href="/codecs/av01.1.08H.08.html">av01.1.08H.08</a></li>
+            <li><a href="/codecs/av01.1.08H.10.html">av01.1.08H.10</a></li>
+            <li><a href="/codecs/av01.1.08H.12.html">av01.1.08H.12</a></li>
+            <li><a href="/codecs/av01.1.08M.08.html">av01.1.08M.08</a></li>
+            <li><a href="/codecs/av01.1.08M.10.html">av01.1.08M.10</a></li>
+            <li><a href="/codecs/av01.1.08M.12.html">av01.1.08M.12</a></li>
+            <li><a href="/codecs/av01.1.09H.08.html">av01.1.09H.08</a></li>
+            <li><a href="/codecs/av01.1.09H.10.html">av01.1.09H.10</a></li>
+            <li><a href="/codecs/av01.1.09H.12.html">av01.1.09H.12</a></li>
+            <li><a href="/codecs/av01.1.09M.08.html">av01.1.09M.08</a></li>
+            <li><a href="/codecs/av01.1.09M.10.html">av01.1.09M.10</a></li>
+            <li><a href="/codecs/av01.1.09M.12.html">av01.1.09M.12</a></li>
+            <li><a href="/codecs/av01.1.10H.08.html">av01.1.10H.08</a></li>
+            <li><a href="/codecs/av01.1.10H.10.html">av01.1.10H.10</a></li>
+            <li><a href="/codecs/av01.1.10H.12.html">av01.1.10H.12</a></li>
+            <li><a href="/codecs/av01.1.10M.08.html">av01.1.10M.08</a></li>
+            <li><a href="/codecs/av01.1.10M.10.html">av01.1.10M.10</a></li>
+            <li><a href="/codecs/av01.1.10M.12.html">av01.1.10M.12</a></li>
+            <li><a href="/codecs/av01.1.11H.08.html">av01.1.11H.08</a></li>
+            <li><a href="/codecs/av01.1.11H.10.html">av01.1.11H.10</a></li>
+            <li><a href="/codecs/av01.1.11H.12.html">av01.1.11H.12</a></li>
+            <li><a href="/codecs/av01.1.11M.08.html">av01.1.11M.08</a></li>
+            <li><a href="/codecs/av01.1.11M.10.html">av01.1.11M.10</a></li>
+            <li><a href="/codecs/av01.1.11M.12.html">av01.1.11M.12</a></li>
+            <li><a href="/codecs/av01.1.12H.08.html">av01.1.12H.08</a></li>
+            <li><a href="/codecs/av01.1.12H.10.html">av01.1.12H.10</a></li>
+            <li><a href="/codecs/av01.1.12H.12.html">av01.1.12H.12</a></li>
+            <li><a href="/codecs/av01.1.12M.08.html">av01.1.12M.08</a></li>
+            <li><a href="/codecs/av01.1.12M.10.html">av01.1.12M.10</a></li>
+            <li><a href="/codecs/av01.1.12M.12.html">av01.1.12M.12</a></li>
+            <li><a href="/codecs/av01.1.13H.08.html">av01.1.13H.08</a></li>
+            <li><a href="/codecs/av01.1.13H.10.html">av01.1.13H.10</a></li>
+            <li><a href="/codecs/av01.1.13H.12.html">av01.1.13H.12</a></li>
+            <li><a href="/codecs/av01.1.13M.08.html">av01.1.13M.08</a></li>
+            <li><a href="/codecs/av01.1.13M.10.html">av01.1.13M.10</a></li>
+            <li><a href="/codecs/av01.1.13M.12.html">av01.1.13M.12</a></li>
+            <li><a href="/codecs/av01.1.14H.08.html">av01.1.14H.08</a></li>
+            <li><a href="/codecs/av01.1.14H.10.html">av01.1.14H.10</a></li>
+            <li><a href="/codecs/av01.1.14H.12.html">av01.1.14H.12</a></li>
+            <li><a href="/codecs/av01.1.14M.08.html">av01.1.14M.08</a></li>
+            <li><a href="/codecs/av01.1.14M.10.html">av01.1.14M.10</a></li>
+            <li><a href="/codecs/av01.1.14M.12.html">av01.1.14M.12</a></li>
+            <li><a href="/codecs/av01.1.15H.08.html">av01.1.15H.08</a></li>
+            <li><a href="/codecs/av01.1.15H.10.html">av01.1.15H.10</a></li>
+            <li><a href="/codecs/av01.1.15H.12.html">av01.1.15H.12</a></li>
+            <li><a href="/codecs/av01.1.15M.08.html">av01.1.15M.08</a></li>
+            <li><a href="/codecs/av01.1.15M.10.html">av01.1.15M.10</a></li>
+            <li><a href="/codecs/av01.1.15M.12.html">av01.1.15M.12</a></li>
+            <li><a href="/codecs/av01.1.16H.08.html">av01.1.16H.08</a></li>
+            <li><a href="/codecs/av01.1.16H.10.html">av01.1.16H.10</a></li>
+            <li><a href="/codecs/av01.1.16H.12.html">av01.1.16H.12</a></li>
+            <li><a href="/codecs/av01.1.16M.08.html">av01.1.16M.08</a></li>
+            <li><a href="/codecs/av01.1.16M.10.html">av01.1.16M.10</a></li>
+            <li><a href="/codecs/av01.1.16M.12.html">av01.1.16M.12</a></li>
+            <li><a href="/codecs/av01.1.17H.08.html">av01.1.17H.08</a></li>
+            <li><a href="/codecs/av01.1.17H.10.html">av01.1.17H.10</a></li>
+            <li><a href="/codecs/av01.1.17H.12.html">av01.1.17H.12</a></li>
+            <li><a href="/codecs/av01.1.17M.08.html">av01.1.17M.08</a></li>
+            <li><a href="/codecs/av01.1.17M.10.html">av01.1.17M.10</a></li>
+            <li><a href="/codecs/av01.1.17M.12.html">av01.1.17M.12</a></li>
+            <li><a href="/codecs/av01.1.18H.08.html">av01.1.18H.08</a></li>
+            <li><a href="/codecs/av01.1.18H.10.html">av01.1.18H.10</a></li>
+            <li><a href="/codecs/av01.1.18H.12.html">av01.1.18H.12</a></li>
+            <li><a href="/codecs/av01.1.18M.08.html">av01.1.18M.08</a></li>
+            <li><a href="/codecs/av01.1.18M.10.html">av01.1.18M.10</a></li>
+            <li><a href="/codecs/av01.1.18M.12.html">av01.1.18M.12</a></li>
+            <li><a href="/codecs/av01.1.19H.08.html">av01.1.19H.08</a></li>
+            <li><a href="/codecs/av01.1.19H.10.html">av01.1.19H.10</a></li>
+            <li><a href="/codecs/av01.1.19H.12.html">av01.1.19H.12</a></li>
+            <li><a href="/codecs/av01.1.19M.08.html">av01.1.19M.08</a></li>
+            <li><a href="/codecs/av01.1.19M.10.html">av01.1.19M.10</a></li>
+            <li><a href="/codecs/av01.1.19M.12.html">av01.1.19M.12</a></li>
+            <li><a href="/codecs/av01.1.20H.08.html">av01.1.20H.08</a></li>
+            <li><a href="/codecs/av01.1.20H.10.html">av01.1.20H.10</a></li>
+            <li><a href="/codecs/av01.1.20H.12.html">av01.1.20H.12</a></li>
+            <li><a href="/codecs/av01.1.20M.08.html">av01.1.20M.08</a></li>
+            <li><a href="/codecs/av01.1.20M.10.html">av01.1.20M.10</a></li>
+            <li><a href="/codecs/av01.1.20M.12.html">av01.1.20M.12</a></li>
+            <li><a href="/codecs/av01.1.21H.08.html">av01.1.21H.08</a></li>
+            <li><a href="/codecs/av01.1.21H.10.html">av01.1.21H.10</a></li>
+            <li><a href="/codecs/av01.1.21H.12.html">av01.1.21H.12</a></li>
+            <li><a href="/codecs/av01.1.21M.08.html">av01.1.21M.08</a></li>
+            <li><a href="/codecs/av01.1.21M.10.html">av01.1.21M.10</a></li>
+            <li><a href="/codecs/av01.1.21M.12.html">av01.1.21M.12</a></li>
+            <li><a href="/codecs/av01.1.22H.08.html">av01.1.22H.08</a></li>
+            <li><a href="/codecs/av01.1.22H.10.html">av01.1.22H.10</a></li>
+            <li><a href="/codecs/av01.1.22H.12.html">av01.1.22H.12</a></li>
+            <li><a href="/codecs/av01.1.22M.08.html">av01.1.22M.08</a></li>
+            <li><a href="/codecs/av01.1.22M.10.html">av01.1.22M.10</a></li>
+            <li><a href="/codecs/av01.1.22M.12.html">av01.1.22M.12</a></li>
+            <li><a href="/codecs/av01.1.23H.08.html">av01.1.23H.08</a></li>
+            <li><a href="/codecs/av01.1.23H.10.html">av01.1.23H.10</a></li>
+            <li><a href="/codecs/av01.1.23H.12.html">av01.1.23H.12</a></li>
+            <li><a href="/codecs/av01.1.23M.08.html">av01.1.23M.08</a></li>
+            <li><a href="/codecs/av01.1.23M.10.html">av01.1.23M.10</a></li>
+            <li><a href="/codecs/av01.1.23M.12.html">av01.1.23M.12</a></li>
+            <li><a href="/codecs/av01.2.00H.08.html">av01.2.00H.08</a></li>
+            <li><a href="/codecs/av01.2.00H.10.html">av01.2.00H.10</a></li>
+            <li><a href="/codecs/av01.2.00H.12.html">av01.2.00H.12</a></li>
+            <li><a href="/codecs/av01.2.00M.08.html">av01.2.00M.08</a></li>
+            <li><a href="/codecs/av01.2.00M.10.html">av01.2.00M.10</a></li>
+            <li><a href="/codecs/av01.2.00M.12.html">av01.2.00M.12</a></li>
+            <li><a href="/codecs/av01.2.01H.08.html">av01.2.01H.08</a></li>
+            <li><a href="/codecs/av01.2.01H.10.html">av01.2.01H.10</a></li>
+            <li><a href="/codecs/av01.2.01H.12.html">av01.2.01H.12</a></li>
+            <li><a href="/codecs/av01.2.01M.08.html">av01.2.01M.08</a></li>
+            <li><a href="/codecs/av01.2.01M.10.html">av01.2.01M.10</a></li>
+            <li><a href="/codecs/av01.2.01M.12.html">av01.2.01M.12</a></li>
+            <li><a href="/codecs/av01.2.02H.08.html">av01.2.02H.08</a></li>
+            <li><a href="/codecs/av01.2.02H.10.html">av01.2.02H.10</a></li>
+            <li><a href="/codecs/av01.2.02H.12.html">av01.2.02H.12</a></li>
+            <li><a href="/codecs/av01.2.02M.08.html">av01.2.02M.08</a></li>
+            <li><a href="/codecs/av01.2.02M.10.html">av01.2.02M.10</a></li>
+            <li><a href="/codecs/av01.2.02M.12.html">av01.2.02M.12</a></li>
+            <li><a href="/codecs/av01.2.03H.08.html">av01.2.03H.08</a></li>
+            <li><a href="/codecs/av01.2.03H.10.html">av01.2.03H.10</a></li>
+            <li><a href="/codecs/av01.2.03H.12.html">av01.2.03H.12</a></li>
+            <li><a href="/codecs/av01.2.03M.08.html">av01.2.03M.08</a></li>
+            <li><a href="/codecs/av01.2.03M.10.html">av01.2.03M.10</a></li>
+            <li><a href="/codecs/av01.2.03M.12.html">av01.2.03M.12</a></li>
+            <li><a href="/codecs/av01.2.04H.08.html">av01.2.04H.08</a></li>
+            <li><a href="/codecs/av01.2.04H.10.html">av01.2.04H.10</a></li>
+            <li><a href="/codecs/av01.2.04H.12.html">av01.2.04H.12</a></li>
+            <li><a href="/codecs/av01.2.04M.08.html">av01.2.04M.08</a></li>
+            <li><a href="/codecs/av01.2.04M.10.html">av01.2.04M.10</a></li>
+            <li><a href="/codecs/av01.2.04M.12.html">av01.2.04M.12</a></li>
+            <li><a href="/codecs/av01.2.05H.08.html">av01.2.05H.08</a></li>
+            <li><a href="/codecs/av01.2.05H.10.html">av01.2.05H.10</a></li>
+            <li><a href="/codecs/av01.2.05H.12.html">av01.2.05H.12</a></li>
+            <li><a href="/codecs/av01.2.05M.08.html">av01.2.05M.08</a></li>
+            <li><a href="/codecs/av01.2.05M.10.html">av01.2.05M.10</a></li>
+            <li><a href="/codecs/av01.2.05M.12.html">av01.2.05M.12</a></li>
+            <li><a href="/codecs/av01.2.06H.08.html">av01.2.06H.08</a></li>
+            <li><a href="/codecs/av01.2.06H.10.html">av01.2.06H.10</a></li>
+            <li><a href="/codecs/av01.2.06H.12.html">av01.2.06H.12</a></li>
+            <li><a href="/codecs/av01.2.06M.08.html">av01.2.06M.08</a></li>
+            <li><a href="/codecs/av01.2.06M.10.html">av01.2.06M.10</a></li>
+            <li><a href="/codecs/av01.2.06M.12.html">av01.2.06M.12</a></li>
+            <li><a href="/codecs/av01.2.07H.08.html">av01.2.07H.08</a></li>
+            <li><a href="/codecs/av01.2.07H.10.html">av01.2.07H.10</a></li>
+            <li><a href="/codecs/av01.2.07H.12.html">av01.2.07H.12</a></li>
+            <li><a href="/codecs/av01.2.07M.08.html">av01.2.07M.08</a></li>
+            <li><a href="/codecs/av01.2.07M.10.html">av01.2.07M.10</a></li>
+            <li><a href="/codecs/av01.2.07M.12.html">av01.2.07M.12</a></li>
+            <li><a href="/codecs/av01.2.08H.08.html">av01.2.08H.08</a></li>
+            <li><a href="/codecs/av01.2.08H.10.html">av01.2.08H.10</a></li>
+            <li><a href="/codecs/av01.2.08H.12.html">av01.2.08H.12</a></li>
+            <li><a href="/codecs/av01.2.08M.08.html">av01.2.08M.08</a></li>
+            <li><a href="/codecs/av01.2.08M.10.html">av01.2.08M.10</a></li>
+            <li><a href="/codecs/av01.2.08M.12.html">av01.2.08M.12</a></li>
+            <li><a href="/codecs/av01.2.09H.08.html">av01.2.09H.08</a></li>
+            <li><a href="/codecs/av01.2.09H.10.html">av01.2.09H.10</a></li>
+            <li><a href="/codecs/av01.2.09H.12.html">av01.2.09H.12</a></li>
+            <li><a href="/codecs/av01.2.09M.08.html">av01.2.09M.08</a></li>
+            <li><a href="/codecs/av01.2.09M.10.html">av01.2.09M.10</a></li>
+            <li><a href="/codecs/av01.2.09M.12.html">av01.2.09M.12</a></li>
+            <li><a href="/codecs/av01.2.10H.08.html">av01.2.10H.08</a></li>
+            <li><a href="/codecs/av01.2.10H.10.html">av01.2.10H.10</a></li>
+            <li><a href="/codecs/av01.2.10H.12.html">av01.2.10H.12</a></li>
+            <li><a href="/codecs/av01.2.10M.08.html">av01.2.10M.08</a></li>
+            <li><a href="/codecs/av01.2.10M.10.html">av01.2.10M.10</a></li>
+            <li><a href="/codecs/av01.2.10M.12.html">av01.2.10M.12</a></li>
+            <li><a href="/codecs/av01.2.11H.08.html">av01.2.11H.08</a></li>
+            <li><a href="/codecs/av01.2.11H.10.html">av01.2.11H.10</a></li>
+            <li><a href="/codecs/av01.2.11H.12.html">av01.2.11H.12</a></li>
+            <li><a href="/codecs/av01.2.11M.08.html">av01.2.11M.08</a></li>
+            <li><a href="/codecs/av01.2.11M.10.html">av01.2.11M.10</a></li>
+            <li><a href="/codecs/av01.2.11M.12.html">av01.2.11M.12</a></li>
+            <li><a href="/codecs/av01.2.12H.08.html">av01.2.12H.08</a></li>
+            <li><a href="/codecs/av01.2.12H.10.html">av01.2.12H.10</a></li>
+            <li><a href="/codecs/av01.2.12H.12.html">av01.2.12H.12</a></li>
+            <li><a href="/codecs/av01.2.12M.08.html">av01.2.12M.08</a></li>
+            <li><a href="/codecs/av01.2.12M.10.html">av01.2.12M.10</a></li>
+            <li><a href="/codecs/av01.2.12M.12.html">av01.2.12M.12</a></li>
+            <li><a href="/codecs/av01.2.13H.08.html">av01.2.13H.08</a></li>
+            <li><a href="/codecs/av01.2.13H.10.html">av01.2.13H.10</a></li>
+            <li><a href="/codecs/av01.2.13H.12.html">av01.2.13H.12</a></li>
+            <li><a href="/codecs/av01.2.13M.08.html">av01.2.13M.08</a></li>
+            <li><a href="/codecs/av01.2.13M.10.html">av01.2.13M.10</a></li>
+            <li><a href="/codecs/av01.2.13M.12.html">av01.2.13M.12</a></li>
+            <li><a href="/codecs/av01.2.14H.08.html">av01.2.14H.08</a></li>
+            <li><a href="/codecs/av01.2.14H.10.html">av01.2.14H.10</a></li>
+            <li><a href="/codecs/av01.2.14H.12.html">av01.2.14H.12</a></li>
+            <li><a href="/codecs/av01.2.14M.08.html">av01.2.14M.08</a></li>
+            <li><a href="/codecs/av01.2.14M.10.html">av01.2.14M.10</a></li>
+            <li><a href="/codecs/av01.2.14M.12.html">av01.2.14M.12</a></li>
+            <li><a href="/codecs/av01.2.15H.08.html">av01.2.15H.08</a></li>
+            <li><a href="/codecs/av01.2.15H.10.html">av01.2.15H.10</a></li>
+            <li><a href="/codecs/av01.2.15H.12.html">av01.2.15H.12</a></li>
+            <li><a href="/codecs/av01.2.15M.08.html">av01.2.15M.08</a></li>
+            <li><a href="/codecs/av01.2.15M.10.html">av01.2.15M.10</a></li>
+            <li><a href="/codecs/av01.2.15M.12.html">av01.2.15M.12</a></li>
+            <li><a href="/codecs/av01.2.16H.08.html">av01.2.16H.08</a></li>
+            <li><a href="/codecs/av01.2.16H.10.html">av01.2.16H.10</a></li>
+            <li><a href="/codecs/av01.2.16H.12.html">av01.2.16H.12</a></li>
+            <li><a href="/codecs/av01.2.16M.08.html">av01.2.16M.08</a></li>
+            <li><a href="/codecs/av01.2.16M.10.html">av01.2.16M.10</a></li>
+            <li><a href="/codecs/av01.2.16M.12.html">av01.2.16M.12</a></li>
+            <li><a href="/codecs/av01.2.17H.08.html">av01.2.17H.08</a></li>
+            <li><a href="/codecs/av01.2.17H.10.html">av01.2.17H.10</a></li>
+            <li><a href="/codecs/av01.2.17H.12.html">av01.2.17H.12</a></li>
+            <li><a href="/codecs/av01.2.17M.08.html">av01.2.17M.08</a></li>
+            <li><a href="/codecs/av01.2.17M.10.html">av01.2.17M.10</a></li>
+            <li><a href="/codecs/av01.2.17M.12.html">av01.2.17M.12</a></li>
+            <li><a href="/codecs/av01.2.18H.08.html">av01.2.18H.08</a></li>
+            <li><a href="/codecs/av01.2.18H.10.html">av01.2.18H.10</a></li>
+            <li><a href="/codecs/av01.2.18H.12.html">av01.2.18H.12</a></li>
+            <li><a href="/codecs/av01.2.18M.08.html">av01.2.18M.08</a></li>
+            <li><a href="/codecs/av01.2.18M.10.html">av01.2.18M.10</a></li>
+            <li><a href="/codecs/av01.2.18M.12.html">av01.2.18M.12</a></li>
+            <li><a href="/codecs/av01.2.19H.08.html">av01.2.19H.08</a></li>
+            <li><a href="/codecs/av01.2.19H.10.html">av01.2.19H.10</a></li>
+            <li><a href="/codecs/av01.2.19H.12.html">av01.2.19H.12</a></li>
+            <li><a href="/codecs/av01.2.19M.08.html">av01.2.19M.08</a></li>
+            <li><a href="/codecs/av01.2.19M.10.html">av01.2.19M.10</a></li>
+            <li><a href="/codecs/av01.2.19M.12.html">av01.2.19M.12</a></li>
+            <li><a href="/codecs/av01.2.20H.08.html">av01.2.20H.08</a></li>
+            <li><a href="/codecs/av01.2.20H.10.html">av01.2.20H.10</a></li>
+            <li><a href="/codecs/av01.2.20H.12.html">av01.2.20H.12</a></li>
+            <li><a href="/codecs/av01.2.20M.08.html">av01.2.20M.08</a></li>
+            <li><a href="/codecs/av01.2.20M.10.html">av01.2.20M.10</a></li>
+            <li><a href="/codecs/av01.2.20M.12.html">av01.2.20M.12</a></li>
+            <li><a href="/codecs/av01.2.21H.08.html">av01.2.21H.08</a></li>
+            <li><a href="/codecs/av01.2.21H.10.html">av01.2.21H.10</a></li>
+            <li><a href="/codecs/av01.2.21H.12.html">av01.2.21H.12</a></li>
+            <li><a href="/codecs/av01.2.21M.08.html">av01.2.21M.08</a></li>
+            <li><a href="/codecs/av01.2.21M.10.html">av01.2.21M.10</a></li>
+            <li><a href="/codecs/av01.2.21M.12.html">av01.2.21M.12</a></li>
+            <li><a href="/codecs/av01.2.22H.08.html">av01.2.22H.08</a></li>
+            <li><a href="/codecs/av01.2.22H.10.html">av01.2.22H.10</a></li>
+            <li><a href="/codecs/av01.2.22H.12.html">av01.2.22H.12</a></li>
+            <li><a href="/codecs/av01.2.22M.08.html">av01.2.22M.08</a></li>
+            <li><a href="/codecs/av01.2.22M.10.html">av01.2.22M.10</a></li>
+            <li><a href="/codecs/av01.2.22M.12.html">av01.2.22M.12</a></li>
+            <li><a href="/codecs/av01.2.23H.08.html">av01.2.23H.08</a></li>
+            <li><a href="/codecs/av01.2.23H.10.html">av01.2.23H.10</a></li>
+            <li><a href="/codecs/av01.2.23H.12.html">av01.2.23H.12</a></li>
+            <li><a href="/codecs/av01.2.23M.08.html">av01.2.23M.08</a></li>
+            <li><a href="/codecs/av01.2.23M.10.html">av01.2.23M.10</a></li>
+            <li><a href="/codecs/av01.2.23M.12.html">av01.2.23M.12</a></li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>Data from the <a href="/datasets/codec-support/">upscaler.video Codec Support Dataset</a></p>
+        <p><a href="/">WebCodecs Fundamentals</a> | <a href="/datasets/codec-support-table/">Codec Support Table</a></p>
+    </footer>
+</body>
+</html>
