@@ -108,9 +108,11 @@ When building a decoding pipeline, the first thing to keep in mind is that decod
 const frame  = await decoder.decode(chunk); 
 ```
 
-Because decoding isn't just some compute-heavy function. The `VideoDecoder` is a wrapper around actual hardware which works with frames in batches, and also requires multiple internal async calls between the CPU and the GPU. 
+Because decoding isn't just some compute-heavy function. 
 
-It might be easier to visualize the decoder as like a [Rube-Goldberg machine](https://en.wikipedia.org/wiki/Rube_Goldberg_machine), where you continuously feed in chunks to decode, and video frames come out the other end.
+Sometimes videos have B frames which require frames to be decoded in a different order from which they are displayed.  Also, the `VideoDecoder` is a wrapper around actual hardware which works with frames in batches,  and also requires multiple internal async calls between the CPU and the GPU. 
+
+By necessity, the decoder needs to maintain an internal buffer to work properly. It might be easier to visualize the decoder as like a [Rube-Goldberg machine](https://en.wikipedia.org/wiki/Rube_Goldberg_machine), where you continuously feed in chunks to decode, and video frames come out the other end.
 
 ![](/assets/basics/decoder/rube-goldberg.png)
 
@@ -135,7 +137,13 @@ decoder.decode(chunks[1]);
 
 You may need to send 3 to 5 chunks for decoding before the first rendered frame comes out, and the number of chunks you need to send depends on the device, browser, codec and video.
 
-As you send more chunks for decoding, it 'pushes' the chunks inside the decoder along, and the number of frames rendered sometimes lagging behind the number of chunk sent for decoding.
+Remember that some videos include "B" frames where videos are not displayed in the order that they are presented.
+
+![](/assets/basics/chunks/decode-order-2.svg)
+
+Some graphics cards are also optimized to work in batches of frames. The decoder therefore needs to maintain an internal buffer of frames to do its job properly.
+
+You can imagine it like shoving more chunks into the decoder, it 'pushes' the chunks inside the decoder along, and the number of frames rendered sometimes lagging behind the number of chunk sent for decoding because of the complex internal buffer needed to keep the machine running.
 
 #### Chunks can get stuck
 
@@ -146,9 +154,14 @@ A consequence of this is that frames can sometimes get stuck. If you send all yo
 The solution is to call `decoder.flush()` which will force everything along, with the limitation that when you do this, the next chunk that you send for processing needs to be a *key frame* (`chunk.type === 'key'`) or the decoder will throw an error.
 
 
+#### First frame is always a key frame
+
+Also, just as a quick reminder, every time to configure a `VideoDecoder` and/or call `flush()` on a decoder, it "resets" the machine, and you need to feed in a `key` frame as the first frame, otherwise the `VideoDecoder` will throw an error.
+
+
 #### Pipelines
 
-As a consequence, instead of treading decoding as an async task (e.g. `for frame of framesInVideo`), it's better to think of decoding as a pipeline, where you will be continously decoding chunks and generating frames, and you need to need to track the data flows:
+As a consequence, instead of treading decoding as an async task (e.g. `for frame of framesInVideo`), it's better to think of decoding as a pipeline, where you will be continuously decoding chunks and generating frames, and you need to track the data flows:
 * Where chunks are sent for decoding
 * Where frames are generated
 * Where frames are consumed

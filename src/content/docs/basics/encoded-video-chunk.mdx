@@ -228,9 +228,7 @@ To send a full video, you could send the first frame (called a *key frame*), and
 
 ![](/assets/basics/chunks/frame-diff-4.png)
 
-This is exactly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames.
-
-The `EncodedVideoChunk` represents this property via the `type` attribute, with *key frames* having a `key` type, and delta frames having a `delta type`
+This is exactly what real-world codecs do, with delta frames typically being 2x to 10x smaller than key frames. The `EncodedVideoChunk` represents this property via the `type` attribute, with *key frames* having a `key` type, and delta frames having a `delta type`
 
 ```typescript
 import { getVideoChunks } from 'webcodecs-utils'
@@ -244,14 +242,30 @@ console.log(chunks[2].type); //"delta"
 
 Typically, videos will add in a fresh key frame every 30 to 60 frames, though this is something you can control in the `VideoEncoder`.
 
+
+#### Presentation order versus decode order
+
+It's actually more complicated than that in the real world, because actual codecs like h264 actually use more than 2 types of frames. In h264, there are "I" frames (key frames), "P" frames which are like the "delta" frames we just talked about, but also "B" frames, which refer to frames both before and after it
+
+So our "simpler" scenario with just frames encoding "frame differences" (P-frames in h264) would look like this, where frames are displayed in the order in which they are decoded:
+![](/assets/basics/chunks/decode-order-1.svg)
+
+But if the video has "B" frames, then the frame needs to reference information from *future* frames. Video Decoders can't magically read the future [citation needed] so we instead need to decode chunks in a different order from which we display them.
+
+![](/assets/basics/chunks/decode-order-2.svg)
+
+
+WebCodecs abstracts this "I" vs "P" vs "B" frame distinction into just "key" and "delta" frames, but the decoders do still handle this under the hood. Fortunately most demuxing libraries will provide chunks in "decode order", and our `VideoDecoder` will also provide `VideoFrame` objects in order, but a consequence is that the decoder needs to maintain an internal buffer of several chunks to be able to make sure inputs and outputs are both in order.
+
+
 #### Sequence matters
-
-An important consequence is that you can't just decode a *delta frame* by itself. To reconstruct a *delta frame*, you need to decode every single frame, in order, from the previous *key frame* up until the *delta frame* you want to decode, and we'll cover this later in [playback design](../../patterns/playback)
-
 
 So while there is a 1:1 correspondence between each `EncodedVideoChunk` and each `VideoFrame` in a file in WebCodecs, where decoding 100 `EncodedVideoChunk` objects will result in 100 `VideoFrame` objects, and encoding 100 `VideoFrame` objects will result in 100 `EncodedVideoChunk` objects, you can't deal with an `EncodedVideoChunk` in isolation in the way you can with a `VideoFrame`.
 
-You need to work with `EncodedVideoChunk` objects as a sequence, and when decoding, you need to decode them in the exact correct order.
+You need to work with `EncodedVideoChunk` objects as a sequence, and when decoding, you need to decode them in the exact correct order, and keep in mind that the decoder will need to maintain an internal buffer to handle inter-frame dependencies.
+
+
+
 
 
 
