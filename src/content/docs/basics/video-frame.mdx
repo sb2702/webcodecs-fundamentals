@@ -90,7 +90,11 @@ new VideoFrame(buffer, {format:'RGBA', codedHeight: 360, codedWidth: 640, /* etc
 
 Finally, `VideoFrame` objects have a `timestamp` (the time in the video's timeline at which the frame appears) and a `duration` which is the duration of the frame.
 
-Again, remember that VideoFrame and other WebCodecs interfaces represent time in microseconds.
+
+![](/assets/basics/video-frames/bbb-frames-2.svg)
+
+
+Again, remember that VideoFrame and other WebCodecs interfaces represent time in microseconds (e.g. a `timestamp` of `48000000` means it happens 48 seconds into the video).
 
 
 ### Getting VideoFrames
