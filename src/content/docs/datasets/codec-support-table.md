@@ -1,15 +1,15 @@
 ---
-title: WebCodecs Codec Registry
-description: Complete registry of 1,087 codec strings tested across real-world browsers and platforms
+title: Codec Support Table
+description: Complete table of 1,087 codec strings tested across real-world browsers and platforms
 ---
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "name": "WebCodecs Codec Registry",
-  "description": "Searchable registry of 1,087 WebCodecs codec strings with real-world browser and platform support data from 143,181 test sessions.",
-  "url": "https://webcodecsfundamentals.org/datasets/codec-registry/",
+  "name": "Codec Support Table",
+  "description": "Searchable table of 1,087 WebCodecs codec strings with real-world browser and platform support data from 143,181 test sessions.",
+  "url": "https://webcodecsfundamentals.org/datasets/codec-support-table/",
   "about": {
     "@type": "SoftwareApplication",
     "name": "WebCodecs API",
@@ -62,9 +62,9 @@ description: Complete registry of 1,087 codec strings tested across real-world b
 }
 </script>
 
-This page contains a comprehensive registry of **1,087 codec strings** tested with the WebCodecs API across real-world browsers and platforms.
+This page contains a comprehensive table of **1,087 codec strings** tested with the WebCodecs API across real-world browsers and platforms.
 
-> **About this dataset:** This data comes from 143,181 real user sessions testing 45,519,786 codecs. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information.
+> **About this dataset:** This data measures **encode support** from 143,181 real user sessions testing 45,519,786 codecs. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. [Download Dataset (ZIP)](/upscaler-video-codec-dataset.zip)
 
 ## Codec Families
 
@@ -87,7 +87,7 @@ This page contains a comprehensive registry of **1,087 codec strings** tested wi
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Support</th>
+<th style="text-align: right;">Global Encode Support</th>
 <th style="text-align: right;">Tests</th>
 <th>Details</th>
 </tr>
@@ -446,7 +446,7 @@ This page contains a comprehensive registry of **1,087 codec strings** tested wi
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Support</th>
+<th style="text-align: right;">Global Encode Support</th>
 <th style="text-align: right;">Tests</th>
 <th>Details</th>
 </tr>
@@ -547,7 +547,7 @@ This page contains a comprehensive registry of **1,087 codec strings** tested wi
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Support</th>
+<th style="text-align: right;">Global Encode Support</th>
 <th style="text-align: right;">Tests</th>
 <th>Details</th>
 </tr>
@@ -565,7 +565,7 @@ This page contains a comprehensive registry of **1,087 codec strings** tested wi
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Support</th>
+<th style="text-align: right;">Global Encode Support</th>
 <th style="text-align: right;">Tests</th>
 <th>Details</th>
 </tr>
@@ -792,7 +792,7 @@ This page contains a comprehensive registry of **1,087 codec strings** tested wi
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Support</th>
+<th style="text-align: right;">Global Encode Support</th>
 <th style="text-align: right;">Tests</th>
 <th>Details</th>
 </tr>
@@ -1241,7 +1241,7 @@ This page contains a comprehensive registry of **1,087 codec strings** tested wi
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Support</th>
+<th style="text-align: right;">Global Encode Support</th>
 <th style="text-align: right;">Tests</th>
 <th>Details</th>
 </tr>

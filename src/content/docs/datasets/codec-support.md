@@ -114,10 +114,11 @@ head:
 }
 </script>
 
-The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API hardware support data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 143,181 unique user sessions spanning diverse hardware, browsers, and operating systems.
+The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API **encode support** data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 143,181 unique user sessions spanning diverse hardware, browsers, and operating systems.
 
 ## Dataset Overview
 
+- **Measurement Type:** Encode support (using `VideoEncoder.isConfigSupported()`)
 - **Total Tests:** 45,519,786 individual codec compatibility checks
 - **Test Sessions:** 143,181 unique user sessions
 - **Codec Strings:** 1,087 unique codec variations tested
@@ -204,7 +205,7 @@ This dataset was collected in a completely anonymized fashion from real users of
 
 This dataset answers the critical question: **"Which codec strings actually work in production?"**
 
-The [Codec Registry](/datasets/codec-registry/) provides an interactive table of all 1,087 tested codecs with real-world support percentages. Use it to:
+The [Codec Registry](/datasets/codec-support-table/) provides an interactive table of all 1,087 tested codecs with real-world support percentages. Use it to:
 
 - **Choose safe defaults:** Codecs with 90%+ support work on virtually all hardware
 - **Plan fallback strategies:** Identify which modern codecs (AV1, VP9) need H.264 fallbacks
@@ -313,7 +314,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 
 ## Related Resources
 
-- **[Codec Registry](/datasets/codec-registry/)** - Interactive table of all tested codecs
+- **[Codec Registry](/datasets/codec-support-table/)** - Interactive table of all tested codecs
 - **[Dataset Methodology](https://free.upscaler.video/research/webcodecs-dataset)** - Complete data collection details
 - **[WebCodecs Basics](/basics/codecs/)** - Understanding codec string syntax
 
@@ -330,14 +331,14 @@ This dataset is periodically updated as new data is collected from free.upscaler
 - **Recommended fallback chain:** AV1 → VP9 → H.264 (for video encoding)
 
 **Common Questions Answered:**
-- Q: "Does Safari support AV1?" → A: Limited; see [Safari browser-specific data](/datasets/codec-registry/#av1)
+- Q: "Does Safari support AV1?" → A: Limited; see [Safari browser-specific data](/datasets/codec-support-table/#av1)
 - Q: "What codec works everywhere?" → A: H.264 Baseline/Main profile (avc1.42001e, avc1.4d001e)
 - Q: "Should I use HEVC for web?" → A: Only with H.264 fallback; Windows/Linux support is poor
 - Q: "Is VP9 safe for production?" → A: 85%+ support on modern browsers; needs H.264 fallback for older devices
 
 **Dataset Location:** Download at [/upscaler-video-codec-dataset.zip](/upscaler-video-codec-dataset.zip) (257MB)
 
-**Interactive Tool:** Browse all codecs at [/datasets/codec-registry/](/datasets/codec-registry/)
+**Interactive Tool:** Browse all codecs at [/datasets/codec-support-table/](/datasets/codec-support-table/)
 
 **Methodology:** [https://free.upscaler.video/research/webcodecs-dataset](https://free.upscaler.video/research/webcodecs-dataset)
 

@@ -130,10 +130,10 @@ export default defineConfig({
 				{
 					label: 'Datasets',
 					items: [
-				
-						{ label: 'Codec Registry', slug: 'datasets/codec-registry' },
+
+						{ label: 'Codec Support Table', slug: 'datasets/codec-support-table' },
 						{ label: 'Codec Support', slug: 'datasets/codec-support' },
-	
+
 					],
 				},
 
