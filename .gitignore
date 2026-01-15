@@ -31,3 +31,6 @@ public/upscaler-video-codec-dataset-raw.csv
 public/upscaler-video-codec-dataset.zip
 
 Gruntfile.cjs
+
+#Dev stuff
+.idea
