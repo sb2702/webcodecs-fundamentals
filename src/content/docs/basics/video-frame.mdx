@@ -23,6 +23,76 @@ An `EncodedVideoChunk` can't directly be used to render or display an image, but
 These two classes (`VideoFrame` and `EncodedVideoChunk`) are the backbone of WebCodecs, the whole point of WebCodecs is to facilitate the transformation between `EncodedVideoChunk` and `VideoFrame` objects, and and you would use `VideoFrame` objects when you need access to the raw video data (e.g. rendering a video to a canvas).
 
 
+### Core Properties of a VideoFrame
+
+A `VideoFrame` object is just pixeldata + metadata, here are some of the main properties:
+
+#### Format
+
+When you normally think of pixel or image data, the default is to think about "RGB" where each image is decomposed into "red", "green" and "blue" pixels. Actual computer displays actually use red, green and blue lights for each pixel, so whenever images or video frames are displayed on a device, at some point it is converted to "RGB" format.
+
+`VideoFrame` objects use the `RGBA` space to capture this, with the `A` channel meaning `alpha`, which is a 4th channel denoting transparency, which shows up in some videos like graphics overlays but is not common.
+
+![](/assets/basics/video-frames/rgb.svg)
+
+Beyond the actual encoding, `VideoFrame` objects aren't always stored in this simple `RGB` format, there are a few formats that video frames might take including `I420`  and `NV12`. What these do is to split the image into a different colorspace called [YUV](https://en.wikipedia.org/wiki/Y%E2%80%B2UV)
+
+![](/assets/basics/video-frames/yuv.svg)
+
+Where the `Y` channel captures 'brightness', and the other two channels `U` and `V` capture non-bright color information.
+![](/assets/basics/video-frames/yuv-2.svg)
+
+Because human eyes are much more sensitive to changes in brightness than changes in color, it is common practice to apply *Chroma Subsampling* to only store a smaller resolution version of the `U` and `V` channels while preserving the `Y` channel, shaving off data for minimal loss in visual quality.
+
+
+###### List of formats
+
+* `I420` - Normal YUV subsampling, with a `Y` channel and sub-sampled `U` and `V` channels.
+* `NV12` - Similar to YUV, but instead of storing data in 3 planes, it interleaves the UV data together into one plane
+* `RGBA` - Standard RGB but with an alpha channel
+* `BGRA` - Same as RGB, but in reverse order (Blue, Green, Red)
+
+When displaying these frames to canvas, extracting `ImageData` or doing any manipulation with WebGPU or WebGL, the data will automatically be converted to RGBA to facilitate processing, so as an application developer you often don't need to do anything special to handle different frame types, but do be aware that under the hood the data corresponding to each frame actually is different for different types
+
+#### Coded Height and Display Height
+
+You'll notice that `VideoFrame` objects have a `codedHeight` and `displayHeight` property, as well as `codedWidth` and `displayWidth`. You might be curious as to why there would be two width properties and height properties, but this has to do with how video compression algorithms work.
+
+Most video codecs use a concept called [macroblocks](https://en.wikipedia.org/wiki/Macroblock) which are square chunks of the image (say 16x16 pixels) on which a specific compression techniques are applied.
+
+![](/assets/basics/video-frames/coded-height.svg)
+
+A 1080p video might use all 16x16 macroblocks, but you'll notice that 1080 pixels does not divide cleanly in macroblocks of size 16 (`1080/16=67.5`). One solution is to just round up, and encode 1088 pixels, but tell the video player to only display 1080 pixels, with some data thrown away.
+
+This is essentially the difference between `codedHeight` and `displayHeight`. For the majority of videos in practice these are identical but not always, and it's safer to use `displayWidth` and `displayHeight` for sizing images and canvases to be rendered to.
+
+#### Creating new VideoFrames
+
+When decoding video from a `VideoDecoder`, the `format` and `codedHeight`/`displayWidth` come from the source video, and these are read-only.
+
+When creating a new `VideoFrame` (e.g. for encoding a video with `VideoEncoder`), you may or may not need to specify these.codedHeight
+
+
+For creating new `VideoFrame` objects from image sources (`ImageData`, `ImageBitmap`, `<video>`), you don't need to specify `format` or `codedHeight` or `codedWidth`.
+
+```typescript
+new VideoFrame(imageBitmap, {timestamp: 0, duration: 33000 /* microseconds*/});
+```
+
+You can however construct a `VideoFrame` from raw binary data (`ArrayBuffer`, `UInt8Array`), but then you need to specify the `format` and `codedHeight` and `codedWidth`
+
+```typescript
+new VideoFrame(buffer, {format:'RGBA', codedHeight: 360, codedWidth: 640, /* etc...*/});
+```
+
+#### Timestamp and Duration
+
+
+Finally, `VideoFrame` objects have a `timestamp` (the time in the video's timeline at which the frame appears) and a `duration` which is the duration.
+
+Again, remember that VideoFrame and other WebCodecs interfaces represent time in microseconds.
+
+
 ### Getting VideoFrames
 
 
@@ -144,6 +214,7 @@ function renderFrame(timestamp) {
     }
 
     // Create VideoFrame from raw pixel data
+    // Remember we need to supply format and codedWidth/height
     const videoFrame = new VideoFrame(
     data,
     {
