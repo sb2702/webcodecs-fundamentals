@@ -1454,10 +1454,10 @@ Many existing platforms use a similar approach with WebRTC where the sever joins
 
 One advantage of Webcodecs is that we can avoid a decode/encode process and directly mux video to hard disk which is much more efficient. Because WebCodecs provides raw encoded video/audio data, it can work with server-side media processing libraries like [PyAV](https://github.com/PyAV-Org/PyAV) and [NodeAV](https://github.com/seydx/node-av), which are server-runtime bindings for ffmpeg, allowing you to mux encoded video data on the server (to record a user's stream). 
 
-Because [MediaBunny](../../projects/mediabunny) works on the server, we'll use that as our example, but you can use whatever media processing library is available for your target language:
+Because [Mediabunny](../../projects/mediabunny) works on the server, we'll use that as our example, but you can use whatever media processing library is available for your target language:
 
 
-Using MediaBunny to mux files in a javascript/typescript run time, here's how you'd set up the muxer to write the encoded stream to disk:
+Using Mediabunny to mux files in a javascript/typescript run time, here's how you'd set up the muxer to write the encoded stream to disk:
 
 ```typescript
 import { Output, EncodedPacket, EncodedVideoPacketSource,EncodedAudioPacketSource, FilePathTarget,  Mp4OutputFormat, WebMOutputFormat } from 'mediabunny';
@@ -1671,7 +1671,7 @@ The file will be saved to disk. Muxing is efficient enough that you could record
 
 [Media over Quic](../../projects/moq) is a new project, and so as of December 2025, there are Moq clients for Rust and for the browser, but there aren't many established client libraries for other server runtimes.
 
-Unfortunately, there is not yet a server javascript MoQ client, so for the demo of streaming encoded video to the browser, we'll use WebSockets which isn't ideal but not impractical (still more efficient than what many companies do in production). You'll notice I didn't use MoQ in the above code, nor did I use the Hang format here in the serialization, I changed it a bit to make it easier to work with WebSockets and MediaBunny.
+Unfortunately, there is not yet a server javascript MoQ client, so for the demo of streaming encoded video to the browser, we'll use WebSockets which isn't ideal but not impractical (still more efficient than what many companies do in production). You'll notice I didn't use MoQ in the above code, nor did I use the Hang format here in the serialization, I changed it a bit to make it easier to work with WebSockets and Mediabunny.
 
 
 

@@ -44,7 +44,7 @@ You're better off just ignoring WebCodecs, and just using WebAudio for playback,
 If you are just transcoding a video (or applying a video filter), you may not even need to decode and re-encode the audio. You can literally pass source `EncodedAudioChunk` objects from a demuxer straight into the muxer for the video file you want to write.
 
 ```typescript
-// This is using an a demo muxer & demuxer, for prod use a library like MediaBunny
+// This is using an a demo muxer & demuxer, for prod use a library like Mediabunny
 import {getAudioChunks, ExampleMuxer} from 'webcodecs-utils'
 
 async function transcodeFile(file: File){
@@ -92,7 +92,7 @@ We'll provide more detail on editing [here](../../patterns/editing)
 
 Because the solutions for audio are different based on use case, I wanted to provide this section up front as not all the following sections may be necessary. Consider the audio section of this guide a "Choose your own adventure".
 
-* You can skip this entire section if you use [MediaBunny](../../media-bunny/intro), though the docs may still be helpful to understand fundamentals
+* You can skip this entire section if you use [Mediabunny](../../media-bunny/intro), though the docs may still be helpful to understand fundamentals
 * If you don't need to re-encode audio at all (e.g. video transcoding), feel free to skip the section entirely
 * If you only care about playback and aren't encoding audio, feel free to skip straight to [playback](../playback)
 * If you only will be working with audio, feel free to skip straight to [this section](../mp3)

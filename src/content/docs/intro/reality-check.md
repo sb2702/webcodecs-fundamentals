@@ -141,5 +141,5 @@ Some times, a video might have a corrupted frame, and the decoder will just fail
 
 I omitted a ton of issues from just off the top of my head because there are so many, and I don't want to overwhelm you. Hopefully I convinced you that WebCodecs is complex, and honestly, that's why I'm creating this whole website, to go over all this stuff not covered in hello-world tutorials.
 
-That said, there's another way to make your life significantly easier with WebCodecs, and that is to use [MediaBunny](https://mediabunny.dev/), which handles many of these implementation details for you,  and which I'll talk about in the next section.
+That said, there's another way to make your life significantly easier with WebCodecs, and that is to use [Mediabunny](https://mediabunny.dev/), which handles many of these implementation details for you,  and which I'll talk about in the next section.
 

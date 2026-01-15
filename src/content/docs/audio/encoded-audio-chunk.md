@@ -71,9 +71,9 @@ function resampleAudio(audio: AudioData[], source_config: AudioDecoderConfig, ta
 
 To read `EncodedAudioChunk` objects from video file, the API is very similar to that for video chunks. Here it is for the same demuxing options as video:
 
-##### MediaBunny
+##### Mediabunny
 
-Here is the code for [MediaBunny](https://mediabunny.dev/)
+Here is the code for [Mediabunny](https://mediabunny.dev/)
 
 ```typescript
 
@@ -138,7 +138,7 @@ const chunks = await demuxer.extractSegment('video', 0, 30); //First 30 seconds
 
 Muxing `EncodedAudioChunks` to a file is also fairly similar to muxing `EncodedVideoChunks`
 
-##### MediaBunny
+##### Mediabunny
 
 ```typescript
 
@@ -179,7 +179,7 @@ async function muxChunks(function(chunks: EncodedAudioChunk[]): Promise <Blob>{
 
 ##### WebMMuxer/MP4Muxer
 
-While not recommended, you can also use [WebMMuxer](https://github.com/Vanilagy/webm-muxer) and [MP4Muxer](https://github.com/Vanilagy/mp4-muxer) which are deprecated in favor of MediaBunny, but which more directly work with `EncodedAudioChunk`objects.
+While not recommended, you can also use [WebMMuxer](https://github.com/Vanilagy/webm-muxer) and [MP4Muxer](https://github.com/Vanilagy/mp4-muxer) which are deprecated in favor of Mediabunny, but which more directly work with `EncodedAudioChunk`objects.
 
 
 ```typescript

@@ -109,9 +109,9 @@ If you just want to encode a video and get on with your life, here's a quick & e
 ###  How to choose a codec string
 
 
-#### MediaBunny
+#### Mediabunny
 
-The easiest way is to use [MediaBunny](https://mediabunny.dev), where you don't have to choose a codec string. MediaBunny handles this for you internally.
+The easiest way is to use [Mediabunny](https://mediabunny.dev), where you don't have to choose a codec string. Mediabunny handles this for you internally.
 
 
 ```javascript
@@ -125,7 +125,7 @@ const output = new Output({
 });
 
 const videoSource = new VideoSampleSource({   
-    codec: 'avc', // You just specify avc/h264, MediaBunny handles codec string
+    codec: 'avc', // You just specify avc/h264, Mediabunny handles codec string
     bitrate: QUALITY_HIGH,
 });
 
@@ -140,7 +140,7 @@ for (const frame of frames){
 
 #### "Good enough" option
 
-If you don't want to use MediaBunny, and just want some code that works and minimizes the chance of issues,  you can also just specify a bunch of options (best quality /least supported to worst quality/best supported), and pick the first one that is supported.
+If you don't want to use Mediabunny, and just want some code that works and minimizes the chance of issues,  you can also just specify a bunch of options (best quality /least supported to worst quality/best supported), and pick the first one that is supported.
 
 ##### H264
 
@@ -204,7 +204,7 @@ for(const test_codec of codecs){
 
 ####  Look up
 
-If you want something more formal/precise, and don't want to use MediaBunny, you can use just the lookup table from MediaBunny (taken from [MediaBunny source](https://github.com/Vanilagy/mediabunny/blob/main/src/codec.ts)), which is exposed via [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils)
+If you want something more formal/precise, and don't want to use Mediabunny, you can use just the lookup table from Mediabunny (taken from [Mediabunny source](https://github.com/Vanilagy/mediabunny/blob/main/src/codec.ts)), which is exposed via [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils)
 
 
 ```javascript

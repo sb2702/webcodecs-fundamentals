@@ -34,7 +34,7 @@ As we'll see in this section, I'm not mentioning pipelines just as an analogy, w
 
 In reality, our pipeline is more than just a decoder and an encoder, there are actually 5 stages.
 
-**File Reader**: First, we need to read `EncodedVideoChunk` objects from the file. While in previous examples we've loaded the entire video's worth of chunks at once, in production we want to read `EncodedVideoChunk` objects progressively, ideally as a "Read Stream", where we're streaming chunks from the file's hard disk. The demuxing library [web-demuxer](https://github.com/bilibili/web-demuxer/) explicitly returns a Javascript `ReadableStream` while [MediaBunny](https://mediabunny.dev/) does streaming internally, but both read from the source file on hard disk and return a stream of `EncodedVideoChunk` objects.
+**File Reader**: First, we need to read `EncodedVideoChunk` objects from the file. While in previous examples we've loaded the entire video's worth of chunks at once, in production we want to read `EncodedVideoChunk` objects progressively, ideally as a "Read Stream", where we're streaming chunks from the file's hard disk. The demuxing library [web-demuxer](https://github.com/bilibili/web-demuxer/) explicitly returns a Javascript `ReadableStream` while [Mediabunny](https://mediabunny.dev/) does streaming internally, but both read from the source file on hard disk and return a stream of `EncodedVideoChunk` objects.
 
 
 ![](/assets/patterns/transcoding/pipeline-1.svg)

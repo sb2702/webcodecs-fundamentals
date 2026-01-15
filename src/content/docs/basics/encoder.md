@@ -53,7 +53,7 @@ setInterval(function(){
 
 Like the `VideoDecoder` though, there is a big gap between hello world demos and production pipelines, so in this article we'll focus specifically on the `VideoEncoder` and how to actually manage an encoder in a production pipeline.
 
-[MediaBunny](../media-bunny/intro) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use MediaBunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
+[Mediabunny](../media-bunny/intro) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use Mediabunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
 
 
@@ -264,7 +264,7 @@ You now also have to manage memory bottlenecks at multiple points (`decoder.deco
 
 When you build a pipeline with both a `VideoDecoder` and `VideoEncoder` in WebCodecs, you really do have to pay attention to data flows, progress and memory bottlenecks.
 
-Some of this gets easier with libraries like [MediaBunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
+Some of this gets easier with libraries like [Mediabunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
 
 
 #### WebGPU Rendering

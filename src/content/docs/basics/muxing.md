@@ -91,7 +91,7 @@ Though as the 🟡 suggests, support depends on the individual video player or e
 
 To read `EncodedVideoChunk` objects from video file, the easiest way would be to use a demuxing library like [Media Bunny](https://mediabunny.dev/), though I'll present a few different options.
 
-##### MediaBunny
+##### Mediabunny
 
 ```typescript
 
@@ -110,9 +110,9 @@ for await (const packet of sink.packets()) {
 }
 ```
 
-You'd first import the relevant functions from MediaBunny, and then create an `Input` reference to a file, extract the `VideoTrack`.
+You'd first import the relevant functions from Mediabunny, and then create an `Input` reference to a file, extract the `VideoTrack`.
 
-From there, to read individual source chunks, you could create an `EncodedPacketSink`, and get packets from the sink, but as we'll see in the [MediaBunny Section](../media-bunny/use-cases.md), you don't actually need to touch `EncodedVideoChunk` directly, the library can handle decoding you can directly go to reading `VideoFrame` objects without dealing with a `VideoDecoder`, making MediaBunny by far the most user-friendly option.
+From there, to read individual source chunks, you could create an `EncodedPacketSink`, and get packets from the sink, but as we'll see in the [Mediabunny Section](../media-bunny/use-cases.md), you don't actually need to touch `EncodedVideoChunk` directly, the library can handle decoding you can directly go to reading `VideoFrame` objects without dealing with a `VideoDecoder`, making Mediabunny by far the most user-friendly option.
 
 ##### web-demuxer
 
@@ -377,10 +377,10 @@ export class DemoWebMParser {
 
 ### Muxing
 
-To write `EncodedVideoChunk` objects to a file, you need a muxer. Here the primary option is [MediaBunny](https://mediabunny.dev/)
+To write `EncodedVideoChunk` objects to a file, you need a muxer. Here the primary option is [Mediabunny](https://mediabunny.dev/)
 
 
-##### MediaBunny
+##### Mediabunny
 
 ```typescript
 
@@ -416,12 +416,12 @@ async function muxChunks(function(chunks: EncodedVideoChunk[]): Promise <Blob>{
 
 ```
 
-Though as with demuxing with MediaBunny, in most cases, you don't even need to deal with `EncodedVideoChunk` or `VideoEncoder` objects, MediaBunny is actually *less verbose* for writing video frames to a file as we'll see in the [MediaBunny Section](../media-bunny/use-cases.md).
+Though as with demuxing with Mediabunny, in most cases, you don't even need to deal with `EncodedVideoChunk` or `VideoEncoder` objects, Mediabunny is actually *less verbose* for writing video frames to a file as we'll see in the [Mediabunny Section](../media-bunny/use-cases.md).
 
 
 ##### WebMMuxer/MP4Muxer
 
-If you do want to work directly with `EncodedVideoChunk` objects, you might consider [WebMMuxer](https://github.com/Vanilagy/webm-muxer) and [MP4Muxer](https://github.com/Vanilagy/mp4-muxer) which are actually from the same author and are deprecated in favor of MediaBunny, but which more directly work with `EncodedVideoChunk`objects directly.
+If you do want to work directly with `EncodedVideoChunk` objects, you might consider [WebMMuxer](https://github.com/Vanilagy/webm-muxer) and [MP4Muxer](https://github.com/Vanilagy/mp4-muxer) which are actually from the same author and are deprecated in favor of Mediabunny, but which more directly work with `EncodedVideoChunk`objects directly.
 
 
 ```typescript

@@ -3,9 +3,9 @@ title: An Intro to Mediabunny
 description: Managing encoder queues and flushing
 ---
 
-WebCodecs gives low-level access to hardware accelerated video encoding and decoding in the browser. [MediaBunny](https://mediabunny.dev/) builds on top of WebCodecs, adding key utilities like muxing/demuxing, simplifying the API, and implementing best practices. The result is a general purpose media processing library for the browser.
+WebCodecs gives low-level access to hardware accelerated video encoding and decoding in the browser. [Mediabunny](https://mediabunny.dev/) builds on top of WebCodecs, adding key utilities like muxing/demuxing, simplifying the API, and implementing best practices. The result is a general purpose media processing library for the browser.
 
-MediaBunny facilitates common media processing tasks like 
+Mediabunny facilitates common media processing tasks like 
 - Extracting metadata from a video
 - Transcoding a video
 - Procedurally generating a video
@@ -14,11 +14,11 @@ MediaBunny facilitates common media processing tasks like
 
 ## Core Concepts
 
-MediaBunny simplifies a lot of the details compared to video encoding and decoding, and to facilitate this, it has an API that is a bit different from the core WebCodecs API.
+Mediabunny simplifies a lot of the details compared to video encoding and decoding, and to facilitate this, it has an API that is a bit different from the core WebCodecs API.
 
 #### No more Encoder and Decoder
 
-With MediaBunny you don't need to work directly with the `VideoEncoder` or `VideoDecoder`. MediaBunny still uses them under the hood, but the API and core concepts are designed in a way that you don't touch them anymore.
+With Mediabunny you don't need to work directly with the `VideoEncoder` or `VideoDecoder`. Mediabunny still uses them under the hood, but the API and core concepts are designed in a way that you don't touch them anymore.
 
 
 #### Inputs and Outputs
@@ -69,7 +69,7 @@ This way, you can maintain the same processing logic regardless of where your fi
 
 #### Tracks
 
-WebCodecs never explicitly define or work with *Tracks*, like a file's Audio or Video tracks, even if other Web APIs do. MediaBunny explicitly deals with tracks, facilitating reading and writing data to/from files and streams.
+WebCodecs never explicitly define or work with *Tracks*, like a file's Audio or Video tracks, even if other Web APIs do. Mediabunny explicitly deals with tracks, facilitating reading and writing data to/from files and streams.
 
 ```typescript
 // We'll need this to read video data
@@ -86,7 +86,7 @@ output.addVideoTrack(videoSource); // We'll get to this next
 
 #### Media Sources and Sinks
 
-MediaBunny introduces a new concept called *Sources* and *Sinks*.  A *Media Source* a place where you get video from, and a *Media Sink*  is where you send video to.
+Mediabunny introduces a new concept called *Sources* and *Sinks*.  A *Media Source* a place where you get video from, and a *Media Sink*  is where you send video to.
 
 
 ###### MediaSource
@@ -131,7 +131,7 @@ A Media Sink is where you'd send video or audio to. You would usually pipe an *I
 ![](/assets/mediabunny/intro/media-sinks.svg)
 
 
-One really nice advantage of MediaBunny is efficiently handling the WebCodecs to WebAudio interface, handling the direct conversion to `AudioBuffer` objects and facilitating playback of audio in the browser.
+One really nice advantage of Mediabunny is efficiently handling the WebCodecs to WebAudio interface, handling the direct conversion to `AudioBuffer` objects and facilitating playback of audio in the browser.
 
 Here's how you'd play back audio in the browser from a video file, by connecting an input to `AudioBufferSink`
 
@@ -152,10 +152,10 @@ for await (const { buffer, timestamp } of sink.buffers()) {
 
 #### Packets and Samples
 
-MediaBunny also uses slightly different terminology from WebCodecs. Whereas WebCodecs has `VideoFrame` and `AudioData` for raw video and audio, MediaBunny uses `VideoSample` and `AudioSample`. Here's a quick table comparing the terminology
+Mediabunny also uses slightly different terminology from WebCodecs. Whereas WebCodecs has `VideoFrame` and `AudioData` for raw video and audio, Mediabunny uses `VideoSample` and `AudioSample`. Here's a quick table comparing the terminology
 
 
-|            | WebCodecs  | MediaBunny |
+|            | WebCodecs  | Mediabunny |
 | --------   | -------- | ------- |
 | Raw Video  | `VideoFrame`  | `VideoSample`   |
 | Raw Audio   | `AudioData` | `AudioSample`  |
@@ -165,7 +165,7 @@ MediaBunny also uses slightly different terminology from WebCodecs. Whereas WebC
 
 These are mostly comparable, and you can easily convert between the two using the following methods
 
-|            | WebCodecs -> MediaBunny  | Mediabunny-> WebCodecs |
+|            | WebCodecs -> Mediabunny  | Mediabunny-> WebCodecs |
 | --------   | -------- | ------- |
 | Raw video  | `new VideoSample(videoFrame)`  | `sample.toVideoFrame()`   |
 | Raw audio   | `new AudioSample(audioData)` | `sample.toAudioData()`  |
@@ -173,7 +173,7 @@ These are mostly comparable, and you can easily convert between the two using th
 |  Encoded Audio   | `EncodedPacket.fromEncodedChunk()`    |  `packet.toEncodedAudioChunk()`    |
 
 
-This is helpful as WebCodecs primitives like `VideoFrame` are not defined in server runtimes like Node, but MediaBunny works just fine. It also allows you to work with a common type for raw audio (`AudioSample`) instead of juggling two redundant APIs like `AudioBuffer` (for WebAudio) and `AudioData` for WebCodecs.
+This is helpful as WebCodecs primitives like `VideoFrame` are not defined in server runtimes like Node, but Mediabunny works just fine. It also allows you to work with a common type for raw audio (`AudioSample`) instead of juggling two redundant APIs like `AudioBuffer` (for WebAudio) and `AudioData` for WebCodecs.
 
 
 #### For Loops
@@ -192,7 +192,7 @@ for (let i=0; i< numChunks; i++){
 ```
 Instead, you need to treat them as a pipeline, with internal buffers and queues at each stage of the process [[2]](../../concepts/streams).
 
-MediaBunny abstracts the pipeline complexity away, enabling you to actually perform per-frame operations:
+Mediabunny abstracts the pipeline complexity away, enabling you to actually perform per-frame operations:
 
 
 
@@ -214,22 +214,22 @@ for await (const sample of sink.samples()) {
 
 ```
 
-I'm not trying to be pedantic with this guide, treating video processing as a pipeline is best practice. MediaBunny actually does use the [Streams API](../../concepts/streams) under the hood, but uses clever architecture to simplify the API so that you can treat it as an async per-frame operation and not worry about buffer stalls or memory management.
+I'm not trying to be pedantic with this guide, treating video processing as a pipeline is best practice. Mediabunny actually does use the [Streams API](../../concepts/streams) under the hood, but uses clever architecture to simplify the API so that you can treat it as an async per-frame operation and not worry about buffer stalls or memory management.
 
 
 ### Other differences
 
 A few other differences to note compared to WebCodecs:
 
-* MediaBunny uses seconds, not microseconds for all timestamps and durations
+* Mediabunny uses seconds, not microseconds for all timestamps and durations
 
-* MediaBunny works with MP3 files
+* Mediabunny works with MP3 files
 
 * You don't need to specify fully qualified codec strings, just the codec family (e.g. `avc` instead of `avc1.42001f`)
 
 ### A concrete example
 
-With the core concepts covered, perhaps the easiest way to understand MediaBunny is to see a working end to end example. To that end, we'll use MediaBunny to transcode a video file, just re-encoding the video track and passing through the audio without re-encoding.
+With the core concepts covered, perhaps the easiest way to understand Mediabunny is to see a working end to end example. To that end, we'll use Mediabunny to transcode a video file, just re-encoding the video track and passing through the audio without re-encoding.
 
 ```typescript
 
@@ -286,7 +286,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
 
 ####  Media Bunny 
 * [Website](https://mediabunny.dev/)
-* [MediaBunny Discord](https://discord.com/invite/hmpkyYuS4U)
+* [Mediabunny Discord](https://discord.com/invite/hmpkyYuS4U)
 
 
 #### Tutorials (tutorials coming soon)

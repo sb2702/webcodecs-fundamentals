@@ -1,5 +1,5 @@
 ---
-title: How to transcode a file with MediaBunny
+title: How to transcode a file with Mediabunny
 description: Coming oon
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: How to build a video editor with MediaBunny
+title: How to build a video editor with Mediabunny
 description: Coming soon
 ---
 

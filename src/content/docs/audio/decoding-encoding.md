@@ -65,7 +65,7 @@ function decodeAudio(chunks: EncodedAudioChunk[], config: AudioDecoderConfig): P
 
 The only extra step would be getting the `AudioDecoderConfig`, which you can get via a demuxing library
 
-##### MediaBunny
+##### Mediabunny
 
 ```typescript
 import {Input, MP4, BlobSource} from 'mediabunny'

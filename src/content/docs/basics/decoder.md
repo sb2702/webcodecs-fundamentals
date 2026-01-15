@@ -34,7 +34,7 @@ The hello world looks pretty simple, and these docs already have multiple code e
 
 In this article we'll focus specifically on the `VideoDecoder` and how to actually manage decoders in a production decoding pipeline.
 
-[MediaBunny](../media-bunny/intro) abstracts the `VideoDecoder` away, simplifying a lot of the pipeline and process management,  so if you want to use MediaBunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
+[Mediabunny](../media-bunny/intro) abstracts the `VideoDecoder` away, simplifying a lot of the pipeline and process management,  so if you want to use Mediabunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
 ### Configuration
 
@@ -44,7 +44,7 @@ There's no "settings" you choose in this config, it's just metadata from the vid
 
 Most demuxing libraries will give you the info needed to configure the decoder. Here's a few demuxing libraries and how you'd get the decoder config:
 
-##### MediaBunny 
+##### Mediabunny 
 
 ```typescript
 import {Input, BlobSource, MP4} from 'mediabunny'
@@ -713,5 +713,5 @@ If that seems like a lot of code for simple video playback, well, yes. We are wo
 
 Hopefully this code also communicates the idea of how to think about WebCodecs, as data flow pipelines, with chunks being consumed, frames being generated, buffered then consumed, all while managing memory limits.
 
-Some of this gets easier with libraries like [MediaBunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
+Some of this gets easier with libraries like [Mediabunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
 

@@ -99,13 +99,13 @@ In either case, it's only during this second file reading step that data actuall
 ### Reading large files
 
 
-If you are decoding video, you will need to demux the file. For MP4 files specifically, to even begin demuxing, the demuxer library (e.g. [MediaBunny](https://mediabunny.dev/), [MP4Box.js](https://github.com/gpac/mp4box.js)) needs to find the [moov atom](https://developer.apple.com/documentation/quicktime-file-format/movie_atom), which is often at the end of the file.
+If you are decoding video, you will need to demux the file. For MP4 files specifically, to even begin demuxing, the demuxer library (e.g. [Mediabunny](https://mediabunny.dev/), [MP4Box.js](https://github.com/gpac/mp4box.js)) needs to find the [moov atom](https://developer.apple.com/documentation/quicktime-file-format/movie_atom), which is often at the end of the file.
 
 You will therefore often need to read through the entire file once to even begin to demux it, and reading through a full 5GB video on a low-end netbook to find the moov atom can take over 1 minute, which is important to keep in mind when designing UI.
 
 **Media Bunny**
 
-Fortunately, if you use [MediaBunny](https://github.com/Vanilagy/mediabunny), that library will handle File streaming by default, so won't have to implement it yourself. If you look at the following example:
+Fortunately, if you use [Mediabunny](https://github.com/Vanilagy/mediabunny), that library will handle File streaming by default, so won't have to implement it yourself. If you look at the following example:
 
 ```typescript
 
@@ -129,12 +129,12 @@ async function decodeFile(file: File){
 }
 ```
 
-MediaBunny internally will read a Readable stream from the `BlobSource` and read the file in chunks efficiently, without you needing to worry about the details. 
+Mediabunny internally will read a Readable stream from the `BlobSource` and read the file in chunks efficiently, without you needing to worry about the details. 
 
 
 **Manual Implementation**
 
-If you did want to manage the details yourself, I will provide the code I use in my production apps which are a wrapper around [MP4Box](https://github.com/gpac/mp4box.js), which might serve as a guide for your own manual implementation (though I'd recommend MediaBunny for most cases).
+If you did want to manage the details yourself, I will provide the code I use in my production apps which are a wrapper around [MP4Box](https://github.com/gpac/mp4box.js), which might serve as a guide for your own manual implementation (though I'd recommend Mediabunny for most cases).
 
 
 <details>
@@ -503,7 +503,7 @@ The key thing with the manual implementation is to read the video meta data firs
 If instead you are writing to large files, you will also run into the 2GB `ArrayBuffer` limit, and the solution is also to use Streams, but writing works a little differently compared to reading a file as a stream.
 
 
-The primary way to mux media files is via MediaBunny (or [its predecessor](https://github.com/Vanilagy/mp4-muxer)), so if you want to write an MP4 file with WebCodecs, your script might look something like this:
+The primary way to mux media files is via Mediabunny (or [its predecessor](https://github.com/Vanilagy/mp4-muxer)), so if you want to write an MP4 file with WebCodecs, your script might look something like this:
 
 ```typescript
 import { BlobSource, BufferTarget, Input, MP4, Mp4OutputFormat, Output, QUALITY_HIGH, VideoSampleSink, VideoSampleSource } from 'mediabunny';
@@ -666,7 +666,7 @@ class InMemoryStorage {
 
 </details>
 
-Your transcoding script would then use MediaBunny's `StreamTarget` class instead of the `BufferTarget`, an you can write out much larger files.
+Your transcoding script would then use Mediabunny's `StreamTarget` class instead of the `BufferTarget`, an you can write out much larger files.
 
 ```typescript
 import { BlobSource, StreamTarget, StreamTargetChunk, Input, MP4, Mp4OutputFormat, Output, QUALITY_HIGH, VideoSampleSink, VideoSampleSource } from 'mediabunny';

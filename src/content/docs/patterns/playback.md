@@ -171,9 +171,9 @@ Now that we have the high level architecture, we'll actually include the code co
 
 #### File Loader
 
-First, we'll create our `Demuxer`. There are multiple libraries for demuxing like [MediaBunny](https://mediabunny.dev/) and [web-demuxer](https://www.npmjs.com/package/web-demuxer) but I'll use my own [demuxer](https://github.com/sb2702/webcodecs-utils/blob/main/src/demux/mp4-demuxer.ts) since that's what I use in production.
+First, we'll create our `Demuxer`. There are multiple libraries for demuxing like [Mediabunny](https://mediabunny.dev/) and [web-demuxer](https://www.npmjs.com/package/web-demuxer) but I'll use my own [demuxer](https://github.com/sb2702/webcodecs-utils/blob/main/src/demux/mp4-demuxer.ts) since that's what I use in production.
 
-<small>You can see how to build a MediaBunny based player [here](../../media-bunny/playback) </small>
+<small>You can see how to build a Mediabunny based player [here](../../media-bunny/playback) </small>
 
 The demuxing library already has all the methods, so we're just creating a worker wrapper around the main methods.
 

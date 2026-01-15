@@ -1,5 +1,5 @@
 ---
-title: Livestreaming with MediaBunny and MoQ
+title: Livestreaming with Mediabunny and MoQ
 description: Low-latency encoder pipelines
 ---
 
