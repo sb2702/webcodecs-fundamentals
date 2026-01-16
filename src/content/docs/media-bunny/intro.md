@@ -254,7 +254,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
     const videoSource = new VideoSampleSource({
         codec: 'avc',
         bitrate: QUALITY_HIGH,
-        keyFrameInterval: 60,
+        keyFrameInterval: 5,
     });
 
     const audioSource = new EncodedAudioPacketSource(audioTrack.codec);
