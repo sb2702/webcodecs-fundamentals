@@ -109,18 +109,18 @@ The [W3C WebCodecs Codec Registry](https://www.w3.org/TR/webcodecs-codec-registr
 If you just want to encode a video and get on with your life, here's a quick & easy list of codec strings to maximize compatibility.
 
 ##### h264
-*  'avc1.42001f' - base profile, most compatible, supports up to 720p
-*  'avc1.42003e' - base profile, level 6.2 (supports up to 8k)
-*  'avc1.4d0034' - main profile, level 5.2 (supports up to 4K)   
-*  'avc1.64003e' - high profile - level 6.2 (supports up to 8k)
+*  `avc1.42001f` - base profile, most compatible, supports up to 720p ([99.6% support](/codecs/avc1.42001f.html))
+*  `avc1.4d0034` - main profile, level 5.2 (supports up to 4K) ([98.9% support](/codecs/avc1.4d0034.html))
+*  `avc1.42003e` - base profile, level 6.2 (supports up to 8k) ([86.8% support](/codecs/avc1.42003e.html))
+*  `avc1.64003e` - high profile - level 6.2 (supports up to 8k) ([85.9% support](/codecs/avc1.64003e.html))
 
 
 
 ##### vp9
-* 'vp9.00.10.08.00' - basic, most compatible, level 1
-* 'vp9.00.61.08.00' - level 6 
-* 'vp9.00.50.08.00' - level 5  
-* 'vp9.00.40.08.00' - level 4  
+* `vp09.00.10.08.00` - basic, most compatible, level 1 ([99.98% support](/codecs/vp09.00.10.08.00.html))
+* `vp09.00.40.08.00` - level 4 ([99.96% support](/codecs/vp09.00.40.08.00.html))
+* `vp09.00.50.08.00` - level 5 ([99.97% support](/codecs/vp09.00.50.08.00.html))
+* `vp09.00.61.08.00` - level 6 ([99.97% support](/codecs/vp09.00.61.08.00.html))  
 
 Again, refer to the [Codec Support Table](/datasets/codec-support-table/) for full compatability data.
 
