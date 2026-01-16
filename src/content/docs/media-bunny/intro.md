@@ -284,7 +284,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
 
 ## Further resources
 
-####  Media Bunny 
+####  Mediabunny 
 * [Website](https://mediabunny.dev/)
 * [Mediabunny Discord](https://discord.com/invite/hmpkyYuS4U)
 
