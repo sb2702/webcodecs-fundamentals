@@ -126,7 +126,7 @@ export default defineConfig({
 					items: [
 
 						{ label: 'Codec Support Table', slug: 'datasets/codec-support-table' },
-						{ label: 'Codec Support', slug: 'datasets/codec-support' },
+						{ label: 'Codec Support Dataset', slug: 'datasets/codec-support' },
 
 					],
 				},
