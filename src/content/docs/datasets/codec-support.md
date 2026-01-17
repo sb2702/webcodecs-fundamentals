@@ -43,7 +43,7 @@ head:
   "name": "The upscaler.video Codec Support Dataset",
   "description": "The first comprehensive, empirical collection of real-world WebCodecs API hardware support data from 143,181 unique user sessions spanning diverse hardware, browsers, and operating systems.",
   "url": "https://webcodecsfundamentals.org/datasets/codec-support/",
-  "sameAs": "https://free.upscaler.video/research/webcodecs-dataset",
+  "sameAs": "https://free.upscaler.video/research/methodology/",
   "keywords": ["WebCodecs", "codec support", "browser compatibility", "hardware acceleration", "video encoding", "AV1", "VP9", "H.264", "HEVC", "hardware decoder", "WebCodecs API", "video decoder", "browser support matrix"],
   "license": "https://creativecommons.org/licenses/by/4.0/",
   "creator": {
@@ -105,7 +105,7 @@ head:
   "citation": {
     "@type": "CreativeWork",
     "name": "Dataset Methodology",
-    "url": "https://free.upscaler.video/research/webcodecs-dataset"
+    "url": "https://free.upscaler.video/research/methodology/"
   },
   "includedInDataCatalog": {
     "@type": "DataCatalog",
@@ -169,7 +169,7 @@ timestamp,user_agent,browser,platform_raw,platform,codec,supported
 
 This dataset was collected in a completely anonymized fashion from real users of [free.upscaler.video](https://free.upscaler.video), an [open-source utility](https://github.com/sb2702/free-ai-video-upscaler) to upscale videos in the browser, serving ~100,000 monthly active users.
 
-> **For complete methodology details**, including sampling strategy, statistical controls, and browser detection logic, see **[Dataset Methodology](https://free.upscaler.video/research/webcodecs-dataset)** on free.upscaler.video.
+> **For complete methodology details**, including sampling strategy, statistical controls, and browser detection logic, see **[Dataset Methodology](https://free.upscaler.video/research/methodology/)** on free.upscaler.video.
 
 ### Key Attributes
 
@@ -273,7 +273,7 @@ daily_support = df.groupby(df['timestamp'].dt.date)['supported'].apply(
 3. **Time Sensitivity:** Browser support evolves; data reflects 2026-01 snapshot
 4. **Rare Combinations:** Some browser/OS pairs (e.g., Safari+Linux) have <50 samples
 
-See the [Dataset Methodology](https://free.upscaler.video/research/webcodecs-dataset) for detailed analysis of sampling biases and statistical controls.
+See the [Dataset Methodology](https://free.upscaler.video/research/methodology/) for detailed analysis of sampling biases and statistical controls.
 
 ## Citation
 
@@ -285,14 +285,14 @@ When referencing this dataset in academic work, documentation, or standards prop
   author       = {Bhattacharyya, Samrat},
   year         = {2026},
   version      = {2026-01-14},
-  url          = {https://free.upscaler.video/research/webcodecs-dataset},
+  url          = {https://free.upscaler.video/research/methodology/},
   note         = {45.5M codec tests from 143k sessions}
 }
 ```
 
 For informal citations:
 
-> **Data Source:** [The upscaler.video Codec Support Dataset](https://free.upscaler.video/research/webcodecs-dataset)
+> **Data Source:** [The upscaler.video Codec Support Dataset](https://free.upscaler.video/research/methodology/)
 > **License:** CC-BY 4.0
 
 ## License
@@ -317,7 +317,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 ## Related Resources
 
 - **[Codec Registry](/datasets/codec-support-table/)** - Interactive table of all tested codecs
-- **[Dataset Methodology](https://free.upscaler.video/research/webcodecs-dataset)** - Complete data collection details
+- **[Dataset Methodology](https://free.upscaler.video/research/methodology/)** - Complete data collection details
 - **[WebCodecs Basics](/basics/codecs/)** - Understanding codec string syntax
 
 ---
@@ -342,7 +342,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 
 **Interactive Tool:** Browse all codecs at [/datasets/codec-support-table/](/datasets/codec-support-table/)
 
-**Methodology:** [https://free.upscaler.video/research/webcodecs-dataset](https://free.upscaler.video/research/webcodecs-dataset)
+**Methodology:** [https://free.upscaler.video/research/methodology/](https://free.upscaler.video/research/methodology/)
 
 ---
 

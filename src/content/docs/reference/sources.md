@@ -101,7 +101,7 @@ All example code and demos are open source:
 Real-world WebCodecs applications referenced:
 
 - [free.upscaler.video](https://free.upscaler.video) - Open-source video upscaling tool
-  - [How it Works](https://free.upscaler.video/how-it-works)
+  - [Technical Architecture](https://free.upscaler.video/technical/architecture/)
   - [Source Code](https://github.com/sb2702/free-ai-video-upscaler)
 - [Katana.video](https://katana.video) - Professional video editor
   - [Technical Overview](https://katana.video/blog/what-does-katana-actually-do)
@@ -116,7 +116,7 @@ Real-world WebCodecs applications referenced:
 
 - [upscaler.video Codec Support Dataset](/datasets/codec-support/) - Empirical WebCodecs codec support data
   - [Full Codec Support Table](/datasets/codec-support-table/)
-  - [Dataset Methodology](https://free.upscaler.video/research/webcodecs-dataset)
+  - [Dataset Methodology](https://free.upscaler.video/research/methodology/)
 
 ---
 

@@ -3,7 +3,7 @@ title: About WebCodecs Fundamentals
 description: Why this site exists and who built it
 ---
 
-I run a few applications which use WebCodecs [[1](https://free.upscaler.video/how-it-works)][[2](https://katana.video/blog/what-does-katana-actually-do)], and when I don't know something or have a coding question, I do what many engineers do and I ask Google or Claude. When I asked Google "What audio codecs are supported in WebCodecs?" I got the following response:
+I run a few applications which use WebCodecs [[1](https://free.upscaler.video/technical/architecture/)][[2](https://katana.video/blog/what-does-katana-actually-do)], and when I don't know something or have a coding question, I do what many engineers do and I ask Google or Claude. When I asked Google "What audio codecs are supported in WebCodecs?" I got the following response:
 
 ![](/assets/references/about/codec-support-google.png)
 
@@ -67,7 +67,7 @@ My name is [Sam Bhattacharyya](https://sambhattacharyya.com/). I have a backgrou
 - I started my 2nd startup [Katana](https://katana.video/) to build AI models to automatically edit podcasts
 - My free [open source hobby project](https://free.upscaler.video) to upscale videos randomly took off and has ~100,000 monthly active users 🤷
 
-I've done a bit of everything, from enterprise sales to consumer app marketing to product management to fundraising to engineering to actual ML research (maybe that's par for the course for founders?). I'm better at the tech stuff though. I'm a particular fan of the intersection of browsers, video and efficient AI models - all 3 of my last major projects involved writing custom neural networks in WebGL/WebGPU for real-time video inference [[4](https://free.upscaler.video/how-it-works)][[5](https://katana.video/blog/what-does-katana-actually-do)][[6](https://medium.com/vectorly/building-a-more-efficient-background-segmentation-model-than-google-74ecd17392d5)]
+I've done a bit of everything, from enterprise sales to consumer app marketing to product management to fundraising to engineering to actual ML research (maybe that's par for the course for founders?). I'm better at the tech stuff though. I'm a particular fan of the intersection of browsers, video and efficient AI models - all 3 of my last major projects involved writing custom neural networks in WebGL/WebGPU for real-time video inference [[4](https://free.upscaler.video/technical/architecture/)][[5](https://katana.video/blog/what-does-katana-actually-do)][[6](https://medium.com/vectorly/building-a-more-efficient-background-segmentation-model-than-google-74ecd17392d5)]
 
 Among the motivations for this project was also to explore building developer-focused tools and resources, I've found it more interesting and less draining than other things I've done, and so I've got 1-2 more open source projects lined up.
 
