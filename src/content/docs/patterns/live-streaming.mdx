@@ -1667,13 +1667,18 @@ await output.finalize(); // File saved to disk
 
 The file will be saved to disk. Muxing is efficient enough that you could record dozens of streams in parallel on a single server. 
 
-###### WebSockets Demo
+###### Demo
 
-[Media over Quic](../../projects/moq) is a new project, and so as of December 2025, there are Moq clients for Rust and for the browser, but there aren't many established client libraries for other server runtimes.
+The `@moq/lite` client we used earlier in the browser also works on the server, although as of January 2026, WebTransport is not available in any server js environment like Node, Bun or Deno, so the server will fall back to connecting to the relay via WebSockets.
 
-Unfortunately, there is not yet a server javascript MoQ client, so for the demo of streaming encoded video to the browser, we'll use WebSockets which isn't ideal but not impractical (still more efficient than what many companies do in production). You'll notice I didn't use MoQ in the above code, nor did I use the Hang format here in the serialization, I changed it a bit to make it easier to work with WebSockets and Mediabunny.
+Additionally, to use `@moq/lite` in Node, you'll need to use a polyfill to enable WebSocket support
 
-
+```javascript
+import WebSocket from 'ws';
+import * as Moq from '@moq/lite';
+// Polyfill WebSocket for MoQ
+globalThis.WebSocket = WebSocket;
+```
 
 For the first time, this demo can't be embedded in the document as it's a server repo. You'll need a javascript runtime (e.g. node, bun, deno) to run the server:
 
@@ -1686,7 +1691,7 @@ node subscriber
 
 And just open up to `http://localhost:3000/upload.html`
 
-![](/assets/patterns/livestreaming/websockets-demo.png)
+![](/assets/patterns/livestreaming/moq-server-demo.png)
 
 You'll be able to stream encoded video data to the local server over webcodecs, and mux the stream to a local video file. You can of course see the full source code here: ([server](https://github.com/sb2702/webcodecs-examples/blob/main/src/moq-server/subscriber.js), [browser](https://github.com/sb2702/webcodecs-examples/blob/main/src/moq-server/public/upload.html))
 
@@ -1738,13 +1743,9 @@ On the other hand, ff you're an application developer who wants to stream video 
 In cases where your application owns the end broadcaster -> viewer stack, Media over Quic + WebCodecs makes much more sense as there are concrete performance and costs benefits compared to older workflows, and in that scenario you might not even need a server to stream video.
 
 
-#### Still early for Media Over Quic
+#### Demo
 
-As mentioned earlier however, [Media over Quic](../../projects/moq) is a new project, and tooling is limited. For server streaming, there is an established Media over Quic client for [Rust](https://github.com/moq-dev/moq) and a plugin for [GStreamer](https://github.com/moq-dev/gstreamer)
-
-Because Rust is too far outside the scope of this WebCodecs tutorials project(<small>also I don't know rust</small>) I'll refer you to the rust clients ([moq-lite](https://github.com/moq-dev/moq/tree/main/rs/moq-lite), [hang](https://github.com/moq-dev/moq/tree/main/rs/hang)). 
-
-I will update this with a server streaming tutorial when there's a server-side javascript or python client for Media over Quic, to broadcast multi-track streaming encoded audio and video via Media over Quic to a browser subscriber.
+Coming soon - server streaming via media over quic
 
 
 ## Productionization
