@@ -59,13 +59,6 @@ export default defineConfig({
 					],
 				},
 
-				{
-					label: 'Projects',
-					items: [
-						{ label: 'MediaBunny: ffmpeg for the web', slug: 'projects/media-bunny' },
-						{ label: 'Media Over Quic', slug: 'projects/moq' }
-					],
-				},
 
 
 
@@ -116,7 +109,7 @@ export default defineConfig({
 						{ label: 'Live Streaming', slug: 'patterns/live-streaming' },
 					],
 				},
-
+/*
 				{
 					label: 'Mediabunny',
 					items: [
@@ -127,7 +120,7 @@ export default defineConfig({
 						{ label: 'Live Streaming', slug: 'media-bunny/live-streaming' },
 					],
 				},
-
+*/
 				{
 					label: 'Datasets',
 					items: [
@@ -137,6 +130,16 @@ export default defineConfig({
 
 					],
 				},
+
+				{
+					label: 'Ecosystem',
+					items: [
+						{ label: 'MediaBunny: ffmpeg for the web', slug: 'projects/media-bunny' },
+						{ label: 'Media Over Quic', slug: 'projects/moq' },
+						{ label: 'Remotion', slug: 'projects/remotion' }
+					],
+				},
+
 
 				{
 					label: 'Reference',
