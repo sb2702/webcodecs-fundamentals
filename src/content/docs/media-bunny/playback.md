@@ -1,5 +1,5 @@
 ---
-title: How to build a video player with Media Bunny
+title: How to build a video player with Mediabunny
 description: Coming soon
 ---
 
