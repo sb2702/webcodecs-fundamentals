@@ -11,6 +11,7 @@ A few common examples of types of applications where WebCodecs would be relevant
 
 * Browser based video editing software (like [Diffusion Studio](https://www.diffusion.studio/) or [Clipchamp](https://www.clipchamp.com))
 * Streaming media to/from browser with more control than WebRTC (e.g. [Media Over Quic](https://moq.dev/))
+* Generating videos programatically in the browser (e.g. [Remotion](https://www.remotion.dev/))
 * Video utilities to [convert](https://www.remotion.dev/convert) or [enhance](https://free.upscaler.video) videos in the browser
 
 

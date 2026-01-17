@@ -112,6 +112,7 @@ export default defineConfig({
 						{ label: 'Video Player', slug: 'patterns/playback' },
 						{ label: 'Transcoding', slug: 'patterns/transcoding' },
 						{ label: 'Video Editing', slug: 'patterns/editing' },
+						{ label: 'Programmatic Video Generation', slug: 'patterns/generation' },
 						{ label: 'Live Streaming', slug: 'patterns/live-streaming' },
 					],
 				},
