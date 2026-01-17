@@ -1,4 +1,6 @@
 ---
 title: Remotion - Programmatic Video Generation
-description: How Mediabunny helps with this
+description: Remotion enables developers to programmatically generate videos via React
 ---
+
+Coming soon
