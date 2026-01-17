@@ -81,7 +81,9 @@ Special thanks to:
 
 ## Contact
 
-I'm [@sam_bha on Twitter/X](https://twitter.com/sam_bha), [sb2702](https://github.com/sb2702) on Github. Feel free to reach out with questions, corrections, or collaboration ideas.
+I'm [@sam_bha on Twitter/X](https://twitter.com/sam_bha), [sb2702](https://github.com/sb2702) on Github. You can also reach me at [sam@webcodecsfundamentals.org](mailto:sam@webcodecsfundamentals.org).
+
+**Found an issue or error?** Please [open an issue on GitHub](https://github.com/sb2702/webcodecs-fundamentals/issues) or submit a pull request with corrections.
 
 If you're building something interesting with WebCodecs, I'd love to hear about it.
 
