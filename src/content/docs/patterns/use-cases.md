@@ -5,9 +5,10 @@ description: Managing encoder queues and flushing
 
 Work in Progress
 
-* [Programmatic Video Generation](../generation)
+
 * [Video Player](../playback)
-* [Live Streaming + Conferencing](../patterns/)
 * [Transcoding](../patterns)
 * [Video Editing](../patterns/)
+* [Programmatic Video Generation](../generation)
+* [Live Streaming + Conferencing](../patterns/)
 
