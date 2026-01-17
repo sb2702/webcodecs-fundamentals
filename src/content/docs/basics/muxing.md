@@ -89,7 +89,7 @@ Though as the 🟡 suggests, support depends on the individual video player or e
 
 ### Demuxing
 
-To read `EncodedVideoChunk` objects from video file, the easiest way would be to use a demuxing library like [Media Bunny](https://mediabunny.dev/), though I'll present a few different options.
+To read `EncodedVideoChunk` objects from video file, the easiest way would be to use a demuxing library like [Mediabunny](https://mediabunny.dev/), though I'll present a few different options.
 
 ##### Mediabunny
 

@@ -117,7 +117,7 @@ export default defineConfig({
 				},
 
 				{
-					label: 'Media Bunny',
+					label: 'Mediabunny',
 					items: [
 						{ label: 'Intro', slug: 'media-bunny/intro' },
 						{ label: 'Video Player', slug: 'media-bunny/playback' },

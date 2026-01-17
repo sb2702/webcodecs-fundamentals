@@ -100,7 +100,7 @@ A media source is where you'd get video from, like a `<canvas>` or a webcam, and
 So to record a `<canvas>` to file, the setup to pipe the canvas to the file would look like this
 
 ```typescript
-import { CanvasSource, Output, Mp4OutputFormat,} from 'mediabunny';
+import { CanvasSource, Output, Mp4OutputFormat } from 'mediabunny';
 
 const videoSource = new CanvasSource(canvasElement, {codec: 'avc',bitrate: 1e6});
 
@@ -198,12 +198,14 @@ Mediabunny abstracts the pipeline complexity away, enabling you to actually perf
 
 ```typescript
 
-import { BlobSource, Input, MP4, VideoSampleSink} from 'mediabunny';
+import { BlobSource, Input, MP4, VideoSampleSink } from 'mediabunny';
 
 const input = new Input({
     formats: [MP4],
-    source: new BlobSource(file);
+    source: new BlobSource(file),
 });
+
+const videoTrack = await input.getPrimaryVideoTrack();
 
 const sink = new VideoSampleSink(videoTrack);
 
@@ -254,7 +256,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
     const videoSource = new VideoSampleSource({
         codec: 'avc',
         bitrate: QUALITY_HIGH,
-        keyFrameInterval: 60,
+        keyFrameInterval: 5,
     });
 
     const audioSource = new EncodedAudioPacketSource(audioTrack.codec);
@@ -284,7 +286,7 @@ async function transcodeFile(file: File): Promise <ArrayBuffer> {
 
 ## Further resources
 
-####  Media Bunny 
+####  Mediabunny 
 * [Website](https://mediabunny.dev/)
 * [Mediabunny Discord](https://discord.com/invite/hmpkyYuS4U)
 

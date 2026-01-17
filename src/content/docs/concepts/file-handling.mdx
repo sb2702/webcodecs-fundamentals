@@ -103,7 +103,7 @@ If you are decoding video, you will need to demux the file. For MP4 files specif
 
 You will therefore often need to read through the entire file once to even begin to demux it, and reading through a full 5GB video on a low-end netbook to find the moov atom can take over 1 minute, which is important to keep in mind when designing UI.
 
-**Media Bunny**
+**Mediabunny**
 
 Fortunately, if you use [Mediabunny](https://github.com/Vanilagy/mediabunny), that library will handle File streaming by default, so won't have to implement it yourself. If you look at the following example:
 
