@@ -34,6 +34,32 @@ export default defineConfig({
 			components: {
 				ThemeProvider: './src/components/ThemeProvider.astro',
 			  },
+			head: [
+				{
+					tag: 'script',
+					attrs: {
+						src: 'https://cdn.usefathom.com/script.js',
+						'data-site': 'XAWNAHQY',
+						defer: true,
+					},
+				},
+				{
+					tag: 'script',
+					attrs: {
+						src: 'https://www.googletagmanager.com/gtag/js?id=G-0F8V54T690',
+						async: true,
+					},
+				},
+				{
+					tag: 'script',
+					content: `
+						window.dataLayer = window.dataLayer || [];
+						function gtag(){dataLayer.push(arguments);}
+						gtag('js', new Date());
+						gtag('config', 'G-0F8V54T690');
+					`,
+				},
+			],
 			title: 'WebCodecs Fundamentals',
 			description: 'The missing manual for the WebCodecs API - from basics to production patterns.',
 			tableOfContents: false,
