@@ -49,7 +49,8 @@ def generate_raw_csv(results_dir, output_file):
             'platform_raw',
             'platform',
             'codec',
-            'supported'
+            'encoder_supported',
+            'decoder_supported'
         ]
 
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -77,7 +78,23 @@ def generate_raw_csv(results_dir, output_file):
                     # Write one row per codec test in this session
                     for result in results:
                         codec = result.get('string', '')
-                        supported = result.get('supported', False)
+
+                        # Check if this file has encoder/decoder split or old format
+                        has_encode_field = 'encode' in result
+                        has_decode_field = 'decode' in result
+
+                        # Handle encoder support
+                        if has_encode_field:
+                            encoder_supported = result.get('encode', False)
+                        else:
+                            # Old format - treat 'supported' as encoder support
+                            encoder_supported = result.get('supported', False)
+
+                        # Handle decoder support (only if field exists)
+                        if has_decode_field:
+                            decoder_supported = result.get('decode', False)
+                        else:
+                            decoder_supported = None  # Not tested
 
                         writer.writerow({
                             'timestamp': timestamp,
@@ -86,7 +103,8 @@ def generate_raw_csv(results_dir, output_file):
                             'platform_raw': platform_raw,
                             'platform': platform,
                             'codec': codec,
-                            'supported': 'true' if supported else 'false'
+                            'encoder_supported': 'true' if encoder_supported else 'false',
+                            'decoder_supported': 'true' if decoder_supported else ('false' if decoder_supported is False else '')
                         })
 
                         rows_written += 1

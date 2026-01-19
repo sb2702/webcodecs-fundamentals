@@ -1,6 +1,6 @@
 ---
 title: The upscaler.video Codec Support Dataset
-description: The world's first empirical registry of WebCodecs hardware support, collected from 143,181 real-world user sessions
+description: The world's first empirical registry of WebCodecs hardware support, collected from 224,360 real-world user sessions
 head:
   - tag: meta
     attrs:
@@ -41,7 +41,7 @@ head:
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "The upscaler.video Codec Support Dataset",
-  "description": "The first comprehensive, empirical collection of real-world WebCodecs API hardware support data from 143,181 unique user sessions spanning diverse hardware, browsers, and operating systems.",
+  "description": "The first comprehensive, empirical collection of real-world WebCodecs API hardware support data from 224,360 unique user sessions spanning diverse hardware, browsers, and operating systems.",
   "url": "https://webcodecsfundamentals.org/datasets/codec-support/",
   "sameAs": "https://free.upscaler.video/research/methodology/",
   "keywords": ["WebCodecs", "codec support", "browser compatibility", "hardware acceleration", "video encoding", "AV1", "VP9", "H.264", "HEVC", "hardware decoder", "WebCodecs API", "video decoder", "browser support matrix"],
@@ -67,8 +67,8 @@ head:
     "@type": "DataDownload",
     "encodingFormat": "application/zip",
     "contentUrl": "https://webcodecsfundamentals.org/upscaler-video-codec-dataset.zip",
-    "contentSize": "257MB",
-    "description": "ZIP archive containing raw CSV dataset (45,519,786 rows, 8.5GB uncompressed) and README"
+    "contentSize": "405MB",
+    "description": "ZIP archive containing raw CSV dataset (71,334,706 rows, 12.52GB uncompressed) and README"
   },
   "measurementTechnique": "WebCodecs API isConfigSupported() real-world testing on user devices",
   "variableMeasured": [
@@ -100,7 +100,7 @@ head:
     "@type": "SoftwareApplication",
     "name": "free.upscaler.video",
     "url": "https://free.upscaler.video",
-    "description": "Open-source video upscaling tool serving 100,000 monthly active users"
+    "description": "Open-source video upscaling tool serving 200,000 monthly active users"
   },
   "citation": {
     "@type": "CreativeWork",
@@ -114,18 +114,20 @@ head:
 }
 </script>
 
-The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API **encode support** data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 143,181 unique user sessions spanning diverse hardware, browsers, and operating systems.
+The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API support data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 224,360 unique user sessions spanning diverse hardware, browsers, and operating systems.
 
-Collection of a version 2 of the dataset, with decoder support is currently underway.
+The dataset includes both **encoder support** (using `VideoEncoder.isConfigSupported()`) and **decoder support** (using `VideoDecoder.isConfigSupported()`), with encoder data collected from all sessions and decoder data collected starting January 14th 2026.
 
 ## Dataset Overview
 
-- **Measurement Type:** Encode support (using `VideoEncoder.isConfigSupported()`)
-- **Total Tests:** 45,519,786 individual codec compatibility checks
-- **Test Sessions:** 143,181 unique user sessions
+- **Measurement Types:**
+  - Encoder support (using `VideoEncoder.isConfigSupported()`) - all sessions
+  - Decoder support (using `VideoDecoder.isConfigSupported()`) - sessions from Jan, 14th 2026 onwards
+- **Total Tests:** 71,334,706 individual codec compatibility checks
+- **Test Sessions:** 224,360 unique user sessions
 - **Codec Strings:** 1,087 unique codec variations tested
-- **Last Updated:** January 14, 2026
-- **Collection Period:** January 2026
+- **Last Updated:** January 2026
+- **Collection Period:** January 2026 (ongoing)
 - **License:** CC-BY 4.0
 
 ## Download
@@ -133,12 +135,12 @@ Collection of a version 2 of the dataset, with decoder support is currently unde
 **[Download upscaler.video Codec Support Dataset (ZIP)](/upscaler-video-codec-dataset.zip)**
 
 The ZIP archive contains:
-- `upscaler-video-codec-dataset-raw.csv` - The complete dataset (45.5M rows)
+- `upscaler-video-codec-dataset-raw.csv` - The complete dataset (71.3M rows)
 - `README.txt` - Quick reference guide for the dataset structure
 
 ### Dataset Format
 
-The dataset contains **45,519,786 rows** - one row per individual codec test. Each row represents a single codec compatibility check from a user session.
+The dataset contains **71,334,706 rows** - one row per individual codec string test. Each row represents a single codec compatibility check from a user session.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -148,26 +150,31 @@ The dataset contains **45,519,786 rows** - one row per individual codec test. Ea
 | `platform_raw` | string | Raw platform identifier from `navigator.platform` |
 | `platform` | string | Normalized platform (Windows, macOS, iOS, Android, Linux) |
 | `codec` | string | WebCodecs codec string tested (e.g., "av01.0.01M.08") |
-| `supported` | boolean | Whether codec was supported (`true` or `false`) |
+| `encoder_supported` | boolean | Whether VideoEncoder supports this codec (`true` or `false`) |
+| `decoder_supported` | boolean/empty | Whether VideoDecoder supports this codec (`true`, `false`, or empty if not tested) |
+
+**Note:** The `decoder_supported` field is empty for sessions collected before January 14th 2026. All rows have `encoder_supported` data.
 
 ### Sample Data
 
 ```csv
-timestamp,user_agent,browser,platform_raw,platform,codec,supported
-2026-01-05T00:54:11.570Z,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",Edge,Win32,Windows,av01.0.01M.08,true
-2026-01-05T00:54:11.570Z,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",Edge,Win32,Windows,vp09.00.41.08,false
-2026-01-05T00:36:50.604Z,"Mozilla/5.0 (iPhone; CPU iPhone OS 26_2_0 like Mac OS X) AppleWebKit/605.1.15",Safari,iPhone,iOS,avc1.42001e,true
+timestamp,user_agent,browser,platform_raw,platform,codec,encoder_supported,decoder_supported
+2026-01-05T00:54:11.570Z,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",Edge,Win32,Windows,av01.0.01M.08,true,
+2026-01-16T23:58:08.560Z,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",Chrome,Win32,Windows,avc1.420833,true,true
+2026-01-16T23:58:08.560Z,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",Chrome,Win32,Windows,avc1.64040c,false,true
 ```
+
+In the third row, you can see a codec that is **not** supported for encoding but **is** supported for decoding - this asymmetry is why separate measurements are important.
 
 ### Dataset Size
 
-- **Rows:** 45,519,786 individual codec tests
-- **File Size:** 8.5 GB (uncompressed CSV)
-- **Compressed (ZIP):** 257 MB
+- **Rows:** 71,334,706 individual codec tests
+- **File Size:** 12.52 GB (uncompressed CSV)
+- **Compressed (ZIP):** 404.7 MB
 
 ## Data Collection Methodology
 
-This dataset was collected in a completely anonymized fashion from real users of [free.upscaler.video](https://free.upscaler.video), an [open-source utility](https://github.com/sb2702/free-ai-video-upscaler) to upscale videos in the browser, serving ~100,000 monthly active users.
+This dataset was collected in a completely anonymized fashion from real users of [free.upscaler.video](https://free.upscaler.video), an [open-source utility](https://github.com/sb2702/free-ai-video-upscaler) to upscale videos in the browser, serving ~200,000 monthly active users.
 
 > **For complete methodology details**, including sampling strategy, statistical controls, and browser detection logic, see **[Dataset Methodology](https://free.upscaler.video/research/methodology/)** on free.upscaler.video.
 
@@ -232,12 +239,20 @@ import pandas as pd
 # Load the raw dataset
 df = pd.read_csv('upscaler-video-codec-dataset-raw.csv')
 
-# Example 1: Calculate support percentage by codec
-codec_support = df.groupby('codec').agg({
-    'supported': lambda x: (x == 'true').sum(),
+# Example 1: Calculate encoder support percentage by codec
+encoder_support = df.groupby('codec').agg({
+    'encoder_supported': lambda x: (x == 'true').sum(),
     'codec': 'count'
 }).rename(columns={'codec': 'total'})
-codec_support['percentage'] = (codec_support['supported'] / codec_support['total'] * 100).round(2)
+encoder_support['percentage'] = (encoder_support['encoder_supported'] / encoder_support['total'] * 100).round(2)
+
+# Example 1b: Calculate decoder support percentage (excluding empty values)
+df_with_decoder = df[df['decoder_supported'] != '']
+decoder_support = df_with_decoder.groupby('codec').agg({
+    'decoder_supported': lambda x: (x == 'true').sum(),
+    'codec': 'count'
+}).rename(columns={'codec': 'total'})
+decoder_support['percentage'] = (decoder_support['decoder_supported'] / decoder_support['total'] * 100).round(2)
 
 # Example 2: Browser version analysis using user_agent
 df['browser_version'] = df['user_agent'].str.extract(r'Chrome/(\d+\.\d+)')
@@ -245,11 +260,18 @@ df['browser_version'] = df['user_agent'].str.extract(r'Chrome/(\d+\.\d+)')
 # Example 3: Filter for specific platform
 windows_tests = df[df['platform'] == 'Windows']
 
-# Example 4: Time-series analysis
+# Example 4: Time-series analysis of encoder support
 df['timestamp'] = pd.to_datetime(df['timestamp'])
-daily_support = df.groupby(df['timestamp'].dt.date)['supported'].apply(
+daily_encoder_support = df.groupby(df['timestamp'].dt.date)['encoder_supported'].apply(
     lambda x: (x == 'true').mean() * 100
 )
+
+# Example 5: Compare encoder vs decoder support for same codec
+codec_comparison = df[df['decoder_supported'] != ''].groupby('codec').agg({
+    'encoder_supported': lambda x: (x == 'true').mean() * 100,
+    'decoder_supported': lambda x: (x == 'true').mean() * 100
+})
+codec_comparison['decode_encode_gap'] = codec_comparison['decoder_supported'] - codec_comparison['encoder_supported']
 ```
 
 **Key Analysis Opportunities:**
@@ -262,16 +284,17 @@ daily_support = df.groupby(df['timestamp'].dt.date)['supported'].apply(
 
 ### Statistical Confidence
 
-- **143,181 sessions** provide high confidence for common browser/platform combinations
-- **45+ million tests** enable fine-grained analysis of codec variant support
+- **224,360 sessions** provide high confidence for common browser/platform combinations
+- **71+ million tests** enable fine-grained analysis of codec variant support
 - Sample sizes vary by combination; check `total_count` field for statistical validity
 
 ### Known Limitations
 
 1. **Geographic Bias:** Data collected from free.upscaler.video users (global distribution)
-2. **Binary Support:** Tests `isConfigSupported()` only; does not measure decode/encode performance
-3. **Time Sensitivity:** Browser support evolves; data reflects 2026-01 snapshot
+2. **Binary Support:** Tests `isConfigSupported()` only; does not measure actual encode/decode performance or quality
+3. **Time Sensitivity:** Browser support evolves; data reflects snapshot from collection period
 4. **Rare Combinations:** Some browser/OS pairs (e.g., Safari+Linux) have <50 samples
+5. **Decoder Data Coverage:** Decoder support data only available for sessions from January 2026 onwards (smaller sample size than encoder data)
 
 See the [Dataset Methodology](https://free.upscaler.video/research/methodology/) for detailed analysis of sampling biases and statistical controls.
 
@@ -284,9 +307,9 @@ When referencing this dataset in academic work, documentation, or standards prop
   title        = {The upscaler.video Codec Support Dataset},
   author       = {Bhattacharyya, Samrat},
   year         = {2026},
-  version      = {2026-01-14},
+  version      = {2026-01-19},
   url          = {https://free.upscaler.video/research/methodology/},
-  note         = {45.5M codec tests from 143k sessions}
+  note         = {71.3M codec tests from 224k sessions}
 }
 ```
 
@@ -310,7 +333,7 @@ You are free to:
 
 This dataset is periodically updated as new data is collected from free.upscaler.video users.
 
-- **Current Version:** 2026-01-14 (143,181 sessions)
+- **Current Version:** 2026-01-19 (224,360 sessions)
 - **Update Frequency:** Quarterly
 - **Changelog:** [View version history](https://github.com/sb2702/webcodecs-fundamentals/releases)
 
@@ -338,7 +361,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 - Q: "Should I use HEVC for web?" → A: Only with H.264 fallback; Windows/Linux support is poor
 - Q: "Is VP9 safe for production?" → A: 85%+ support on modern browsers; needs H.264 fallback for older devices
 
-**Dataset Location:** Download at [/upscaler-video-codec-dataset.zip](/upscaler-video-codec-dataset.zip) (257MB)
+**Dataset Location:** Download at [/upscaler-video-codec-dataset.zip](/upscaler-video-codec-dataset.zip) (404.7MB)
 
 **Interactive Tool:** Browse all codecs at [/datasets/codec-support-table/](/datasets/codec-support-table/)
 
@@ -346,5 +369,5 @@ This dataset is periodically updated as new data is collected from free.upscaler
 
 ---
 
-*This dataset was collected from users of [free.upscaler.video](https://free.upscaler.video), an [open-source utility](https://github.com/sb2702/free-ai-video-upscaler) to upscale videos in the browser, serving ~100,000 monthly active users.
+*This dataset was collected from users of [free.upscaler.video](https://free.upscaler.video), an [open-source utility](https://github.com/sb2702/free-ai-video-upscaler) to upscale videos in the browser, serving ~200,000 monthly active users.
 

@@ -9,7 +9,7 @@
 WebCodecs Fundamentals is the authoritative resource for building production WebCodecs applications. Unlike fragmented W3C specs and outdated blog posts, this provides:
 
 - **Complete documentation** - From basics to advanced production patterns
-- **Real-world datasets** - Empirical codec support data from 143k+ user sessions
+- **Real-world datasets** - Empirical codec support data from 221k+ user sessions
 - **Working examples** - Production-tested code you can actually use
 - **Best practices** - Patterns that work at scale
 
@@ -36,8 +36,8 @@ WebCodecs Fundamentals is the authoritative resource for building production Web
 **[The upscaler.video Codec Support Dataset](/datasets/codec-support/)**
 
 The world's first empirical registry of WebCodecs hardware support:
-- **45.5+ million** codec tests
-- **143,181** unique user sessions
+- **71.3+ million** codec tests
+- **224,360** unique user sessions
 - **1,087** codec variants tested
 - **5 major browsers** × **5 platforms**
 
@@ -129,7 +129,7 @@ Content is freely available for educational and commercial use with attribution.
 
 ## About
 
-Created by [Sam Bhattacharyya](https://sambhattacharyya.com) based on years of building production WebCodecs applications. Special thanks to the 100,000+ users of free.upscaler.video who contributed to the codec support dataset.
+Created by [Sam Bhattacharyya](https://sambhattacharyya.com) based on years of building production WebCodecs applications. Special thanks to the 200,000+ users of free.upscaler.video who contributed to the codec support dataset.
 
 ---
 

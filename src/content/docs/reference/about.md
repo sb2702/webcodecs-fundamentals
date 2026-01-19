@@ -65,7 +65,7 @@ My name is [Sam Bhattacharyya](https://sambhattacharyya.com/). I have a backgrou
 - After grad school I started [Vectorly](https://vectorly.io) where I patented a [video codec](https://patents.google.com/patent/US10116963B1/en), (<small>learned it's hard to commercialize a new codec</small>), pivoted to an [AI filters SDK](https://medium.com/vectorly/building-a-more-efficient-background-segmentation-model-than-google-74ecd17392d5) that was acquired by Hopin in 2021
 - I was the head of AI for [Hopin](https://en.wikipedia.org/wiki/Hopin_(company)), building AI features for several products before it itself was acquired in 2024
 - I started my 2nd startup [Katana](https://katana.video/) to build AI models to automatically edit podcasts
-- My free [open source hobby project](https://free.upscaler.video) to upscale videos randomly took off and has ~100,000 monthly active users 🤷
+- My free [open source hobby project](https://free.upscaler.video) to upscale videos randomly took off and has ~200,000 monthly active users 🤷
 
 I've done a bit of everything, from enterprise sales to consumer app marketing to product management to fundraising to engineering to actual ML research (maybe that's par for the course for founders?). I'm better at the tech stuff though. I'm a particular fan of the intersection of browsers, video and efficient AI models - all 3 of my last major projects involved writing custom neural networks in WebGL/WebGPU for real-time video inference [[4](https://free.upscaler.video/technical/architecture/)][[5](https://katana.video/blog/what-does-katana-actually-do)][[6](https://medium.com/vectorly/building-a-more-efficient-background-segmentation-model-than-google-74ecd17392d5)]
 
@@ -77,7 +77,7 @@ Among the motivations for this project was also to explore building developer-fo
 Special thanks to:
 - [David (Vanilagy)](https://x.com/vanilagy) for building [Mediabunny](https://mediabunny.dev/) and providing detailed technical feedback on this documentation
 - [Jonny Burger](https://x.com/JNYBGR) for building [Remotion](https://www.remotion.dev/) and somehow finding this website, fixing mistakes and submitting a PR before I even told anyone about it
-- The 100,000+ users of free.upscaler.video who (unknowingly) contributed to the codec support dataset
+- The 200,000+ users of free.upscaler.video who (unknowingly) contributed to the codec support dataset
 - Claude for vibe coding the UI for the demos and the animations, and for being the world's most computationally inefficient spell-checker. I couldn't have built this whole site in 10 days without the help
 
 ## Contact
