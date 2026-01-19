@@ -22,7 +22,8 @@ def generate_codec_page(codec_data, output_file):
     """Generate HTML page for a single codec."""
 
     codec_string = codec_data['codec']
-    global_stats = codec_data['global']
+    encoder_stats = codec_data['encoder']['global']
+    decoder_stats = codec_data['decoder']['global']
 
     # Parse codec string for specs
     codec_specs = parse_codec_string(codec_string)
@@ -50,21 +51,37 @@ def generate_codec_page(codec_data, output_file):
         'Linux': '/assets/icons/linux.svg'
     }
 
-    # Build support matrix
-    matrix = {}
+    # Build support matrices for both encoder and decoder
+    encoder_matrix = {}
+    decoder_matrix = {}
+
     for browser in browsers:
-        matrix[browser] = {}
+        encoder_matrix[browser] = {}
+        decoder_matrix[browser] = {}
         for platform in platforms:
             combo_key = f"{browser}+{platform}"
-            if combo_key in codec_data['byCombo']:
-                stats = codec_data['byCombo'][combo_key]
-                matrix[browser][platform] = {
+
+            # Encoder matrix
+            if combo_key in codec_data['encoder']['byCombo']:
+                stats = codec_data['encoder']['byCombo'][combo_key]
+                encoder_matrix[browser][platform] = {
                     'percentage': stats['supportPercentage'],
                     'count': stats['supportedCount'],
                     'total': stats['totalCount']
                 }
             else:
-                matrix[browser][platform] = None
+                encoder_matrix[browser][platform] = None
+
+            # Decoder matrix
+            if combo_key in codec_data['decoder']['byCombo']:
+                stats = codec_data['decoder']['byCombo'][combo_key]
+                decoder_matrix[browser][platform] = {
+                    'percentage': stats['supportPercentage'],
+                    'count': stats['supportedCount'],
+                    'total': stats['totalCount']
+                }
+            else:
+                decoder_matrix[browser][platform] = None
 
     # Generate HTML
     html = f"""<!DOCTYPE html>
@@ -73,7 +90,7 @@ def generate_codec_page(codec_data, output_file):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{codec_string} - Codec Support | WebCodecs Fundamentals</title>
-    <meta name="description" content="Browser and platform support data for {codec_string} codec. Real-world compatibility testing from {global_stats['totalCount']:,} sessions.">
+    <meta name="description" content="Browser and platform support data for {codec_string} codec. Encoder support from {encoder_stats['totalCount']:,} sessions, decoder support from {decoder_stats['totalCount']:,} sessions.">
     <style>
         * {{
             margin: 0;
@@ -231,11 +248,17 @@ def generate_codec_page(codec_data, output_file):
 
     <header>
         <h1>Codec: <span class="codec-string">{codec_string}</span></h1>
-        <div class="global-support" style="color: {'#28a745' if global_stats['supportPercentage'] >= 90 else '#ffc107' if global_stats['supportPercentage'] >= 70 else '#dc3545'}">
-            {global_stats['supportPercentage']}% Global Encoder Support
+        <div class="global-support" style="color: {'#28a745' if encoder_stats['supportPercentage'] >= 90 else '#ffc107' if encoder_stats['supportPercentage'] >= 60 else '#dc3545'}">
+            {encoder_stats['supportPercentage']}% Encoder Support
         </div>
         <div class="stats">
-            {global_stats['supportedCount']:,} of {global_stats['totalCount']:,} sessions supported this codec
+            {encoder_stats['supportedCount']:,} of {encoder_stats['totalCount']:,} sessions supported encoding
+        </div>
+        <div class="global-support" style="color: {'#28a745' if decoder_stats['supportPercentage'] >= 90 else '#ffc107' if decoder_stats['supportPercentage'] >= 60 else '#dc3545'}; margin-top: 1rem;">
+            {decoder_stats['supportPercentage']}% Decoder Support
+        </div>
+        <div class="stats">
+            {decoder_stats['supportedCount']:,} of {decoder_stats['totalCount']:,} sessions supported decoding
         </div>
     </header>
 """
@@ -272,55 +295,85 @@ def generate_codec_page(codec_data, output_file):
     </div>
 """
 
-    html += """
+    # Helper function to generate matrix table HTML
+    def generate_matrix_table(matrix, title, description):
+        table_html = f"""
     <div class="support-matrix">
-        <h2>Browser × Platform Support Matrix</h2>
+        <h2>{title}</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-            Browser detection based on user agent strings. See the <a href="/datasets/codec-support/">dataset page</a> for details.
+            {description}
         </p>
         <table>
             <thead>
                 <tr>
                     <th>Browser</th>
 """
+        # Add platform headers with icons
+        for platform in platforms:
+            icon_path = platform_icons[platform]
+            table_html += f'                    <th style="text-align: center;"><img src="{icon_path}" alt="{platform}" class="platform-icon"> {platform}</th>\n'
 
-    # Add platform headers with icons
-    for platform in platforms:
-        icon_path = platform_icons[platform]
-        html += f'                    <th style="text-align: center;"><img src="{icon_path}" alt="{platform}" class="platform-icon"> {platform}</th>\n'
-
-    html += """                </tr>
+        table_html += """                </tr>
             </thead>
             <tbody>
 """
-
-    # Add rows for each browser
-    for browser in browsers:
-        icon_path = browser_icons[browser]
-        html += f'''                <tr>
+        # Add rows for each browser
+        for browser in browsers:
+            icon_path = browser_icons[browser]
+            table_html += f'''                <tr>
                     <td><div class="browser-cell"><img src="{icon_path}" alt="{browser}" class="browser-icon">{browser_labels[browser]}</div></td>
 '''
+            for platform in platforms:
+                # Skip Safari on non-Apple platforms (not valid combinations)
+                if browser == 'Safari' and platform in ['Linux', 'Windows', 'Android']:
+                    table_html += '                    <td class="support-cell no-data">—</td>\n'
+                    continue
 
-        for platform in platforms:
-            data = matrix[browser][platform]
+                data = matrix[browser][platform]
 
-            if data is None or data['total'] < 10:
-                # No data or insufficient sample size (< 10 tests)
-                html += '                    <td class="support-cell no-data">—</td>\n'
-            else:
-                bg_color = get_cell_color(data['percentage'])
-                html += f'''                    <td class="support-cell" style="background-color: {bg_color};">
+                if data is None or data['total'] < 10:
+                    # No data or insufficient sample size (< 10 tests)
+                    table_html += '                    <td class="support-cell no-data">—</td>\n'
+                else:
+                    bg_color = get_cell_color(data['percentage'])
+                    table_html += f'''                    <td class="support-cell" style="background-color: {bg_color};">
                         {data['percentage']}%
                         <span class="count">{data['count']:,} / {data['total']:,}</span>
                     </td>
 '''
+            table_html += "                </tr>\n"
 
-        html += "                </tr>\n"
-
-    html += """            </tbody>
+        table_html += """            </tbody>
         </table>
     </div>
+"""
+        return table_html
 
+    # Add encoder support matrix
+    html += generate_matrix_table(
+        encoder_matrix,
+        "VideoEncoder Support Matrix",
+        f"Browser × Platform encoder support from {encoder_stats['totalCount']:,} test sessions. Browser detection based on user agent strings."
+    )
+
+    # Add decoder support matrix
+    if decoder_stats['totalCount'] > 0:
+        html += generate_matrix_table(
+            decoder_matrix,
+            "VideoDecoder Support Matrix",
+            f"Browser × Platform decoder support from {decoder_stats['totalCount']:,} test sessions. Decoder data collection started Jan 2026."
+        )
+    else:
+        html += """
+    <div class="support-matrix">
+        <h2>VideoDecoder Support Matrix</h2>
+        <p style="color: #666; font-size: 0.9rem;">
+            Decoder support data not yet available for this codec. Data collection started Jan 2026.
+        </p>
+    </div>
+"""
+
+    html += """
     <footer>
         <p>Data from the <a href="/datasets/codec-support/">upscaler.video Codec Support Dataset</a></p>
         <p><a href="/">WebCodecs Fundamentals</a> | <a href="/datasets/codec-support-table/">Codec Support Table</a></p>
@@ -377,7 +430,8 @@ def generate_family_page(family_data, output_file):
 
     family_name = family_data['family']
     display_name = family_data['displayName']
-    global_stats = family_data['global']
+    encoder_stats = family_data['encoder']['global']
+    decoder_stats = family_data['decoder']['global']
     codecs = family_data['codecs']
 
     # Define platform and browser order
@@ -403,21 +457,37 @@ def generate_family_page(family_data, output_file):
         'Linux': '/assets/icons/linux.svg'
     }
 
-    # Build support matrix
-    matrix = {}
+    # Build support matrices for both encoder and decoder
+    encoder_matrix = {}
+    decoder_matrix = {}
+
     for browser in browsers:
-        matrix[browser] = {}
+        encoder_matrix[browser] = {}
+        decoder_matrix[browser] = {}
         for platform in platforms:
             combo_key = f"{browser}+{platform}"
-            if combo_key in family_data['byCombo']:
-                stats = family_data['byCombo'][combo_key]
-                matrix[browser][platform] = {
+
+            # Encoder matrix
+            if combo_key in family_data['encoder']['byCombo']:
+                stats = family_data['encoder']['byCombo'][combo_key]
+                encoder_matrix[browser][platform] = {
                     'percentage': stats['supportPercentage'],
                     'count': stats['supportedCount'],
                     'total': stats['totalCount']
                 }
             else:
-                matrix[browser][platform] = None
+                encoder_matrix[browser][platform] = None
+
+            # Decoder matrix
+            if combo_key in family_data['decoder']['byCombo']:
+                stats = family_data['decoder']['byCombo'][combo_key]
+                decoder_matrix[browser][platform] = {
+                    'percentage': stats['supportPercentage'],
+                    'count': stats['supportedCount'],
+                    'total': stats['totalCount']
+                }
+            else:
+                decoder_matrix[browser][platform] = None
 
     # Generate HTML
     html = f"""<!DOCTYPE html>
@@ -426,7 +496,7 @@ def generate_family_page(family_data, output_file):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{display_name} Family - Codec Support | WebCodecs Fundamentals</title>
-    <meta name="description" content="Browser and platform support data for {display_name} codec family. Real-world compatibility testing from {global_stats['totalCount']:,} sessions across {len(codecs)} codec variants.">
+    <meta name="description" content="Browser and platform support data for {display_name} codec family. Encoder support from {encoder_stats['totalCount']:,} sessions, decoder support from {decoder_stats['totalCount']:,} sessions across {len(codecs)} codec variants.">
     <style>
         * {{
             margin: 0;
@@ -593,60 +663,99 @@ def generate_family_page(family_data, output_file):
 
     <header>
         <h1>{display_name} Codec Family</h1>
-        <div class="global-support" style="color: {'#28a745' if global_stats['supportPercentage'] >= 90 else '#ffc107' if global_stats['supportPercentage'] >= 70 else '#dc3545'}">
-            {global_stats['supportPercentage']}% Global Encoder Support
+        <div class="global-support" style="color: {'#28a745' if encoder_stats['supportPercentage'] >= 90 else '#ffc107' if encoder_stats['supportPercentage'] >= 60 else '#dc3545'}">
+            {encoder_stats['supportPercentage']}% Encoder Support
         </div>
         <div class="stats">
-            {global_stats['supportedCount']:,} of {global_stats['totalCount']:,} tests supported {display_name} across {len(codecs)} codec variants
+            {encoder_stats['supportedCount']:,} of {encoder_stats['totalCount']:,} tests supported {display_name} encoding across {len(codecs)} codec variants
+        </div>
+        <div class="global-support" style="color: {'#28a745' if decoder_stats['supportPercentage'] >= 90 else '#ffc107' if decoder_stats['supportPercentage'] >= 60 else '#dc3545'}; margin-top: 1rem;">
+            {decoder_stats['supportPercentage']}% Decoder Support
+        </div>
+        <div class="stats">
+            {decoder_stats['supportedCount']:,} of {decoder_stats['totalCount']:,} tests supported {display_name} decoding
         </div>
     </header>
+"""
 
+    # Helper function to generate matrix table HTML for family
+    def generate_family_matrix_table(matrix, title, description):
+        table_html = f"""
     <div class="support-matrix">
-        <h2>Browser × Platform Support Matrix</h2>
+        <h2>{title}</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-            Aggregate support across all {display_name} variants. Browser detection based on user agent strings.
+            {description}
         </p>
         <table>
             <thead>
                 <tr>
                     <th>Browser</th>
 """
+        # Add platform headers with icons
+        for platform in platforms:
+            icon_path = platform_icons[platform]
+            table_html += f'                    <th style="text-align: center;"><img src="{icon_path}" alt="{platform}" class="platform-icon"> {platform}</th>\n'
 
-    # Add platform headers with icons
-    for platform in platforms:
-        icon_path = platform_icons[platform]
-        html += f'                    <th style="text-align: center;"><img src="{icon_path}" alt="{platform}" class="platform-icon"> {platform}</th>\n'
-
-    html += """                </tr>
+        table_html += """                </tr>
             </thead>
             <tbody>
 """
-
-    # Add rows for each browser
-    for browser in browsers:
-        icon_path = browser_icons[browser]
-        html += f'''                <tr>
+        # Add rows for each browser
+        for browser in browsers:
+            icon_path = browser_icons[browser]
+            table_html += f'''                <tr>
                     <td><div class="browser-cell"><img src="{icon_path}" alt="{browser}" class="browser-icon">{browser_labels[browser]}</div></td>
 '''
+            for platform in platforms:
+                # Skip Safari on non-Apple platforms (not valid combinations)
+                if browser == 'Safari' and platform in ['Linux', 'Windows', 'Android']:
+                    table_html += '                    <td class="support-cell no-data">—</td>\n'
+                    continue
 
-        for platform in platforms:
-            data = matrix[browser][platform]
+                data = matrix[browser][platform]
 
-            if data is None or data['total'] < 10:
-                html += '                    <td class="support-cell no-data">—</td>\n'
-            else:
-                bg_color = get_cell_color(data['percentage'])
-                html += f'''                    <td class="support-cell" style="background-color: {bg_color};">
+                if data is None or data['total'] < 10:
+                    table_html += '                    <td class="support-cell no-data">—</td>\n'
+                else:
+                    bg_color = get_cell_color(data['percentage'])
+                    table_html += f'''                    <td class="support-cell" style="background-color: {bg_color};">
                         {data['percentage']}%
                         <span class="count">{data['count']:,} / {data['total']:,}</span>
                     </td>
 '''
+            table_html += "                </tr>\n"
 
-        html += "                </tr>\n"
-
-    html += """            </tbody>
+        table_html += """            </tbody>
         </table>
     </div>
+"""
+        return table_html
+
+    # Add encoder support matrix
+    html += generate_family_matrix_table(
+        encoder_matrix,
+        "VideoEncoder Support Matrix",
+        f"Aggregate encoder support across all {display_name} variants from {encoder_stats['totalCount']:,} tests."
+    )
+
+    # Add decoder support matrix
+    if decoder_stats['totalCount'] > 0:
+        html += generate_family_matrix_table(
+            decoder_matrix,
+            "VideoDecoder Support Matrix",
+            f"Aggregate decoder support across all {display_name} variants from {decoder_stats['totalCount']:,} tests."
+        )
+    else:
+        html += f"""
+    <div class="support-matrix">
+        <h2>VideoDecoder Support Matrix</h2>
+        <p style="color: #666; font-size: 0.9rem;">
+            Decoder support data not yet available for {display_name}. Data collection started Jan 2026.
+        </p>
+    </div>
+"""
+
+    html += """
 
     <div class="support-matrix">
 """

@@ -64,21 +64,37 @@ FAMILY_DISPLAY_NAMES = {
 def aggregate_codecs(results_dir, output_dir, max_files=None):
     """Aggregate codec results into per-codec stats."""
 
-    # Data structure: codec -> dimension -> key -> {supported, total}
+    # Data structure: codec -> encoder/decoder -> dimension -> key -> {supported, total}
     codec_stats = defaultdict(lambda: {
-        'global': {'supported': 0, 'total': 0},
-        'byBrowser': defaultdict(lambda: {'supported': 0, 'total': 0}),
-        'byPlatform': defaultdict(lambda: {'supported': 0, 'total': 0}),
-        'byCombo': defaultdict(lambda: {'supported': 0, 'total': 0})
+        'encoder': {
+            'global': {'supported': 0, 'total': 0},
+            'byBrowser': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byPlatform': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byCombo': defaultdict(lambda: {'supported': 0, 'total': 0})
+        },
+        'decoder': {
+            'global': {'supported': 0, 'total': 0},
+            'byBrowser': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byPlatform': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byCombo': defaultdict(lambda: {'supported': 0, 'total': 0})
+        }
     })
 
-    # Family stats: family -> dimension -> key -> {supported, total}
+    # Family stats: family -> encoder/decoder -> dimension -> key -> {supported, total}
     family_stats = defaultdict(lambda: {
         'codecs': set(),  # Track which codecs belong to this family
-        'global': {'supported': 0, 'total': 0},
-        'byBrowser': defaultdict(lambda: {'supported': 0, 'total': 0}),
-        'byPlatform': defaultdict(lambda: {'supported': 0, 'total': 0}),
-        'byCombo': defaultdict(lambda: {'supported': 0, 'total': 0})
+        'encoder': {
+            'global': {'supported': 0, 'total': 0},
+            'byBrowser': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byPlatform': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byCombo': defaultdict(lambda: {'supported': 0, 'total': 0})
+        },
+        'decoder': {
+            'global': {'supported': 0, 'total': 0},
+            'byBrowser': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byPlatform': defaultdict(lambda: {'supported': 0, 'total': 0}),
+            'byCombo': defaultdict(lambda: {'supported': 0, 'total': 0})
+        }
     })
 
     # Find all JSON files
@@ -112,7 +128,6 @@ def aggregate_codecs(results_dir, output_dir, max_files=None):
             # Process each codec test result
             for result in results:
                 codec = result.get('string')
-                supported = result.get('supported', False)
 
                 if not codec:
                     continue
@@ -123,39 +138,87 @@ def aggregate_codecs(results_dir, output_dir, max_files=None):
                 family = categorize_codec(codec)
                 family_stats[family]['codecs'].add(codec)
 
-                # Update per-codec stats
-                codec_stats[codec]['global']['total'] += 1
-                if supported:
-                    codec_stats[codec]['global']['supported'] += 1
+                # Check if this file has encoder/decoder split or old format
+                has_encode_field = 'encode' in result
+                has_decode_field = 'decode' in result
 
-                codec_stats[codec]['byBrowser'][browser]['total'] += 1
-                if supported:
-                    codec_stats[codec]['byBrowser'][browser]['supported'] += 1
+                # Handle encoder support
+                if has_encode_field:
+                    encode_supported = result.get('encode', False)
+                else:
+                    # Old format - treat 'supported' as encoder support
+                    encode_supported = result.get('supported', False)
 
-                codec_stats[codec]['byPlatform'][platform]['total'] += 1
-                if supported:
-                    codec_stats[codec]['byPlatform'][platform]['supported'] += 1
+                # Update encoder stats (all files contribute)
+                codec_stats[codec]['encoder']['global']['total'] += 1
+                if encode_supported:
+                    codec_stats[codec]['encoder']['global']['supported'] += 1
 
-                codec_stats[codec]['byCombo'][combo]['total'] += 1
-                if supported:
-                    codec_stats[codec]['byCombo'][combo]['supported'] += 1
+                codec_stats[codec]['encoder']['byBrowser'][browser]['total'] += 1
+                if encode_supported:
+                    codec_stats[codec]['encoder']['byBrowser'][browser]['supported'] += 1
 
-                # Update family stats
-                family_stats[family]['global']['total'] += 1
-                if supported:
-                    family_stats[family]['global']['supported'] += 1
+                codec_stats[codec]['encoder']['byPlatform'][platform]['total'] += 1
+                if encode_supported:
+                    codec_stats[codec]['encoder']['byPlatform'][platform]['supported'] += 1
 
-                family_stats[family]['byBrowser'][browser]['total'] += 1
-                if supported:
-                    family_stats[family]['byBrowser'][browser]['supported'] += 1
+                codec_stats[codec]['encoder']['byCombo'][combo]['total'] += 1
+                if encode_supported:
+                    codec_stats[codec]['encoder']['byCombo'][combo]['supported'] += 1
 
-                family_stats[family]['byPlatform'][platform]['total'] += 1
-                if supported:
-                    family_stats[family]['byPlatform'][platform]['supported'] += 1
+                # Update family encoder stats
+                family_stats[family]['encoder']['global']['total'] += 1
+                if encode_supported:
+                    family_stats[family]['encoder']['global']['supported'] += 1
 
-                family_stats[family]['byCombo'][combo]['total'] += 1
-                if supported:
-                    family_stats[family]['byCombo'][combo]['supported'] += 1
+                family_stats[family]['encoder']['byBrowser'][browser]['total'] += 1
+                if encode_supported:
+                    family_stats[family]['encoder']['byBrowser'][browser]['supported'] += 1
+
+                family_stats[family]['encoder']['byPlatform'][platform]['total'] += 1
+                if encode_supported:
+                    family_stats[family]['encoder']['byPlatform'][platform]['supported'] += 1
+
+                family_stats[family]['encoder']['byCombo'][combo]['total'] += 1
+                if encode_supported:
+                    family_stats[family]['encoder']['byCombo'][combo]['supported'] += 1
+
+                # Handle decoder support (only if decode field exists)
+                if has_decode_field:
+                    decode_supported = result.get('decode', False)
+
+                    codec_stats[codec]['decoder']['global']['total'] += 1
+                    if decode_supported:
+                        codec_stats[codec]['decoder']['global']['supported'] += 1
+
+                    codec_stats[codec]['decoder']['byBrowser'][browser]['total'] += 1
+                    if decode_supported:
+                        codec_stats[codec]['decoder']['byBrowser'][browser]['supported'] += 1
+
+                    codec_stats[codec]['decoder']['byPlatform'][platform]['total'] += 1
+                    if decode_supported:
+                        codec_stats[codec]['decoder']['byPlatform'][platform]['supported'] += 1
+
+                    codec_stats[codec]['decoder']['byCombo'][combo]['total'] += 1
+                    if decode_supported:
+                        codec_stats[codec]['decoder']['byCombo'][combo]['supported'] += 1
+
+                    # Update family decoder stats
+                    family_stats[family]['decoder']['global']['total'] += 1
+                    if decode_supported:
+                        family_stats[family]['decoder']['global']['supported'] += 1
+
+                    family_stats[family]['decoder']['byBrowser'][browser]['total'] += 1
+                    if decode_supported:
+                        family_stats[family]['decoder']['byBrowser'][browser]['supported'] += 1
+
+                    family_stats[family]['decoder']['byPlatform'][platform]['total'] += 1
+                    if decode_supported:
+                        family_stats[family]['decoder']['byPlatform'][platform]['supported'] += 1
+
+                    family_stats[family]['decoder']['byCombo'][combo]['total'] += 1
+                    if decode_supported:
+                        family_stats[family]['decoder']['byCombo'][combo]['supported'] += 1
 
         except Exception as e:
             print(f"\nError processing {json_file}: {e}", file=sys.stderr)
@@ -184,50 +247,53 @@ def aggregate_codecs(results_dir, output_dir, max_files=None):
         def calc_percentage(supported, total):
             return round(supported / total * 100, 2) if total > 0 else 0.0
 
-        # Format global stats
-        global_stats = {
-            "supportedCount": stats['global']['supported'],
-            "totalCount": stats['global']['total'],
-            "supportPercentage": calc_percentage(
-                stats['global']['supported'],
-                stats['global']['total']
-            )
-        }
-
-        # Format browser stats
-        browser_stats = {}
-        for browser, counts in stats['byBrowser'].items():
-            browser_stats[browser] = {
-                "supportedCount": counts['supported'],
-                "totalCount": counts['total'],
-                "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+        # Helper function to format stats for encoder or decoder
+        def format_support_stats(support_data):
+            global_stats = {
+                "supportedCount": support_data['global']['supported'],
+                "totalCount": support_data['global']['total'],
+                "supportPercentage": calc_percentage(
+                    support_data['global']['supported'],
+                    support_data['global']['total']
+                )
             }
 
-        # Format platform stats
-        platform_stats = {}
-        for platform, counts in stats['byPlatform'].items():
-            platform_stats[platform] = {
-                "supportedCount": counts['supported'],
-                "totalCount": counts['total'],
-                "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+            browser_stats = {}
+            for browser, counts in support_data['byBrowser'].items():
+                browser_stats[browser] = {
+                    "supportedCount": counts['supported'],
+                    "totalCount": counts['total'],
+                    "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+                }
+
+            platform_stats = {}
+            for platform, counts in support_data['byPlatform'].items():
+                platform_stats[platform] = {
+                    "supportedCount": counts['supported'],
+                    "totalCount": counts['total'],
+                    "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+                }
+
+            combo_stats = {}
+            for combo, counts in support_data['byCombo'].items():
+                combo_stats[combo] = {
+                    "supportedCount": counts['supported'],
+                    "totalCount": counts['total'],
+                    "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+                }
+
+            return {
+                "global": global_stats,
+                "byBrowser": browser_stats,
+                "byPlatform": platform_stats,
+                "byCombo": combo_stats
             }
 
-        # Format combo stats
-        combo_stats = {}
-        for combo, counts in stats['byCombo'].items():
-            combo_stats[combo] = {
-                "supportedCount": counts['supported'],
-                "totalCount": counts['total'],
-                "supportPercentage": calc_percentage(counts['supported'], counts['total'])
-            }
-
-        # Build per-codec output
+        # Build per-codec output with both encoder and decoder
         codec_output = {
             "codec": codec,
-            "global": global_stats,
-            "byBrowser": browser_stats,
-            "byPlatform": platform_stats,
-            "byCombo": combo_stats
+            "encoder": format_support_stats(stats['encoder']),
+            "decoder": format_support_stats(stats['decoder'])
         }
 
         # Write codec file (sanitize filename)
@@ -237,12 +303,19 @@ def aggregate_codecs(results_dir, output_dir, max_files=None):
         with open(codec_file_path, 'w') as f:
             json.dump(codec_output, f, indent=2)
 
-        # Add to master index
+        # Add to master index (with both encoder and decoder stats)
         master_index["codecs"].append({
             "string": codec,
-            "supportedCount": global_stats["supportedCount"],
-            "totalCount": global_stats["totalCount"],
-            "supportPercentage": global_stats["supportPercentage"],
+            "encoder": {
+                "supportedCount": codec_output["encoder"]["global"]["supportedCount"],
+                "totalCount": codec_output["encoder"]["global"]["totalCount"],
+                "supportPercentage": codec_output["encoder"]["global"]["supportPercentage"]
+            },
+            "decoder": {
+                "supportedCount": codec_output["decoder"]["global"]["supportedCount"],
+                "totalCount": codec_output["decoder"]["global"]["totalCount"],
+                "supportPercentage": codec_output["decoder"]["global"]["supportPercentage"]
+            },
             "file": f"codecs/{codec_filename}"
         })
 
@@ -260,47 +333,53 @@ def aggregate_codecs(results_dir, output_dir, max_files=None):
         return round(supported / total * 100, 2) if total > 0 else 0.0
 
     for family_name, stats in family_stats.items():
-        # Format family stats
-        family_global = {
-            "supportedCount": stats['global']['supported'],
-            "totalCount": stats['global']['total'],
-            "supportPercentage": calc_percentage(stats['global']['supported'], stats['global']['total'])
-        }
-
-        family_browser_stats = {}
-        for browser, counts in stats['byBrowser'].items():
-            family_browser_stats[browser] = {
-                "supportedCount": counts['supported'],
-                "totalCount": counts['total'],
-                "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+        # Helper function to format family support stats (encoder or decoder)
+        def format_family_support(support_data):
+            family_global = {
+                "supportedCount": support_data['global']['supported'],
+                "totalCount": support_data['global']['total'],
+                "supportPercentage": calc_percentage(support_data['global']['supported'], support_data['global']['total'])
             }
 
-        family_platform_stats = {}
-        for platform, counts in stats['byPlatform'].items():
-            family_platform_stats[platform] = {
-                "supportedCount": counts['supported'],
-                "totalCount": counts['total'],
-                "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+            family_browser_stats = {}
+            for browser, counts in support_data['byBrowser'].items():
+                family_browser_stats[browser] = {
+                    "supportedCount": counts['supported'],
+                    "totalCount": counts['total'],
+                    "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+                }
+
+            family_platform_stats = {}
+            for platform, counts in support_data['byPlatform'].items():
+                family_platform_stats[platform] = {
+                    "supportedCount": counts['supported'],
+                    "totalCount": counts['total'],
+                    "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+                }
+
+            family_combo_stats = {}
+            for combo, counts in support_data['byCombo'].items():
+                family_combo_stats[combo] = {
+                    "supportedCount": counts['supported'],
+                    "totalCount": counts['total'],
+                    "supportPercentage": calc_percentage(counts['supported'], counts['total'])
+                }
+
+            return {
+                "global": family_global,
+                "byBrowser": family_browser_stats,
+                "byPlatform": family_platform_stats,
+                "byCombo": family_combo_stats
             }
 
-        family_combo_stats = {}
-        for combo, counts in stats['byCombo'].items():
-            family_combo_stats[combo] = {
-                "supportedCount": counts['supported'],
-                "totalCount": counts['total'],
-                "supportPercentage": calc_percentage(counts['supported'], counts['total'])
-            }
-
-        # Build family output
+        # Build family output with both encoder and decoder
         family_output = {
             "family": family_name,
             "displayName": FAMILY_DISPLAY_NAMES[family_name],
             "codecCount": len(stats['codecs']),
             "codecs": sorted(list(stats['codecs'])),
-            "global": family_global,
-            "byBrowser": family_browser_stats,
-            "byPlatform": family_platform_stats,
-            "byCombo": family_combo_stats
+            "encoder": format_family_support(stats['encoder']),
+            "decoder": format_family_support(stats['decoder'])
         }
 
         # Write family file
@@ -315,7 +394,14 @@ def aggregate_codecs(results_dir, output_dir, max_files=None):
             "name": family_name,
             "displayName": FAMILY_DISPLAY_NAMES[family_name],
             "codecCount": len(stats['codecs']),
-            "supportPercentage": family_global["supportPercentage"],
+            "encoder": {
+                "supportPercentage": family_output["encoder"]["global"]["supportPercentage"],
+                "totalCount": family_output["encoder"]["global"]["totalCount"]
+            },
+            "decoder": {
+                "supportPercentage": family_output["decoder"]["global"]["supportPercentage"],
+                "totalCount": family_output["decoder"]["global"]["totalCount"]
+            },
             "file": f"families/{family_filename}"
         })
 

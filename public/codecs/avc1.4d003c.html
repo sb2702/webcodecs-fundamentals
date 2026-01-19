@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>avc1.4d003c - Codec Support | WebCodecs Fundamentals</title>
-    <meta name="description" content="Browser and platform support data for avc1.4d003c codec. Real-world compatibility testing from 40,314 sessions.">
+    <meta name="description" content="Browser and platform support data for avc1.4d003c codec. Encoder support from 63,120 sessions, decoder support from 11,846 sessions.">
     <style>
         * {
             margin: 0;
@@ -163,10 +163,16 @@
     <header>
         <h1>Codec: <span class="codec-string">avc1.4d003c</span></h1>
         <div class="global-support" style="color: #ffc107">
-            86.2% Global Encoder Support
+            84.8% Encoder Support
         </div>
         <div class="stats">
-            34,749 of 40,314 sessions supported this codec
+            53,528 of 63,120 sessions supported encoding
+        </div>
+        <div class="global-support" style="color: #ffc107; margin-top: 1rem;">
+            85.35% Decoder Support
+        </div>
+        <div class="stats">
+            10,111 of 11,846 sessions supported decoding
         </div>
     </header>
 
@@ -199,9 +205,9 @@
     </div>
 
     <div class="support-matrix">
-        <h2>Browser × Platform Support Matrix</h2>
+        <h2>VideoEncoder Support Matrix</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-            Browser detection based on user agent strings. See the <a href="/datasets/codec-support/">dataset page</a> for details.
+            Browser × Platform encoder support from 63,120 test sessions. Browser detection based on user agent strings.
         </p>
         <table>
             <thead>
@@ -218,33 +224,33 @@
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/chromium.svg" alt="Chrome" class="browser-icon">Chrome/Chromium</div></td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        99.17%
-                        <span class="count">18,242 / 18,395</span>
+                        99.22%
+                        <span class="count">27,652 / 27,868</span>
                     </td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        99.93%
-                        <span class="count">2,993 / 2,995</span>
+                        99.91%
+                        <span class="count">4,291 / 4,295</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        97.79%
-                        <span class="count">7,514 / 7,684</span>
+                        97.64%
+                        <span class="count">11,938 / 12,226</span>
                     </td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        96.69%
-                        <span class="count">789 / 816</span>
+                        97.18%
+                        <span class="count">1,549 / 1,594</span>
                     </td>
                 </tr>
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/safari.svg" alt="Safari" class="browser-icon">Safari</div></td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        2.17%
-                        <span class="count">24 / 1,107</span>
+                        2.24%
+                        <span class="count">36 / 1,604</span>
                     </td>
                     <td class="support-cell" style="background-color: #f8d7da;">
-                        1.08%
-                        <span class="count">44 / 4,069</span>
+                        1.42%
+                        <span class="count">99 / 6,986</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell no-data">—</td>
@@ -252,35 +258,124 @@
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/edge.svg" alt="Edge" class="browser-icon">Edge</div></td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        99.73%
-                        <span class="count">3,277 / 3,286</span>
+                        99.79%
+                        <span class="count">5,138 / 5,149</span>
                     </td>
                     <td class="support-cell" style="background-color: #d4edda;">
                         100.0%
-                        <span class="count">28 / 28</span>
+                        <span class="count">48 / 48</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell" style="background-color: #d4edda;">
+                        98.4%
+                        <span class="count">123 / 125</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #d4edda;">
                         100.0%
-                        <span class="count">54 / 54</span>
+                        <span class="count">15 / 15</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/firefox.svg" alt="Firefox" class="browser-icon">Firefox</div></td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        95.6%
+                        <span class="count">2,062 / 2,157</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        100.0%
+                        <span class="count">265 / 265</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        99.63%
+                        <span class="count">272 / 273</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="support-matrix">
+        <h2>VideoDecoder Support Matrix</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+            Browser × Platform decoder support from 11,846 test sessions. Decoder data collection started Jan 2026.
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Browser</th>
+                    <th style="text-align: center;"><img src="/assets/icons/windows.svg" alt="Windows" class="platform-icon"> Windows</th>
+                    <th style="text-align: center;"><img src="/assets/icons/osx.svg" alt="macOS" class="platform-icon"> macOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/ios.svg" alt="iOS" class="platform-icon"> iOS</th>
+                    <th style="text-align: center;"><img src="/assets/icons/android.svg" alt="Android" class="platform-icon"> Android</th>
+                    <th style="text-align: center;"><img src="/assets/icons/linux.svg" alt="Linux" class="platform-icon"> Linux</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/chromium.svg" alt="Chrome" class="browser-icon">Chrome/Chromium</div></td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        99.96%
+                        <span class="count">5,174 / 5,176</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        99.7%
+                        <span class="count">657 / 659</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        99.69%
+                        <span class="count">2,254 / 2,261</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        98.66%
+                        <span class="count">369 / 374</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/safari.svg" alt="Safari" class="browser-icon">Safari</div></td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        4.02%
+                        <span class="count">10 / 249</span>
+                    </td>
+                    <td class="support-cell" style="background-color: #f8d7da;">
+                        1.88%
+                        <span class="count">27 / 1,434</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell no-data">—</td>
+                </tr>
+                <tr>
+                    <td><div class="browser-cell"><img src="/assets/icons/edge.svg" alt="Edge" class="browser-icon">Edge</div></td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        100.0%
+                        <span class="count">1,071 / 1,071</span>
+                    </td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell no-data">—</td>
+                    <td class="support-cell" style="background-color: #d4edda;">
+                        100.0%
+                        <span class="count">36 / 36</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                 </tr>
                 <tr>
                     <td><div class="browser-cell"><img src="/assets/icons/firefox.svg" alt="Firefox" class="browser-icon">Firefox</div></td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        95.52%
-                        <span class="count">1,406 / 1,472</span>
+                        100.0%
+                        <span class="count">396 / 396</span>
                     </td>
                     <td class="support-cell" style="background-color: #d4edda;">
                         100.0%
-                        <span class="count">187 / 187</span>
+                        <span class="count">41 / 41</span>
                     </td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell no-data">—</td>
                     <td class="support-cell" style="background-color: #d4edda;">
-                        99.42%
-                        <span class="count">172 / 173</span>
+                        100.0%
+                        <span class="count">53 / 53</span>
                     </td>
                 </tr>
             </tbody>

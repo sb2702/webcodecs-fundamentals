@@ -50,8 +50,8 @@ def generate_codec_table(codecs, title, family_data=None):
 <thead>
 <tr>
 <th>Codec String</th>
-<th style="text-align: right;">Global Encode Support</th>
-<th style="text-align: right;">Tests</th>
+<th style="text-align: right;">Encoder Support</th>
+<th style="text-align: right;">Decoder Support</th>
 <th>Details</th>
 </tr>
 </thead>
@@ -61,33 +61,48 @@ def generate_codec_table(codecs, title, family_data=None):
     # Add family aggregate row if available
     if family_data:
         family_name = family_data['name']
-        support_pct = family_data['supportPercentage']
+        encoder_pct = family_data['encoder']['supportPercentage']
+        decoder_pct = family_data['decoder']['supportPercentage']
         codec_count = family_data['codecCount']
+        decoder_tests = family_data['decoder']['totalCount']
 
-        bg_color = get_cell_color(support_pct)
+        encoder_bg = get_cell_color(encoder_pct)
+        decoder_bg = get_cell_color(decoder_pct) if decoder_tests > 0 else "#f0f0f0"
+
         table += f'<tr style="background-color: #f0f0f0; font-weight: bold;">'
         table += f'<td>All variants</td>'
-        table += f'<td style="text-align: right; background-color: {bg_color};">{support_pct}%</td>'
-        table += f'<td style="text-align: right;">{codec_count} variants</td>'
+        table += f'<td style="text-align: right; background-color: {encoder_bg};">{encoder_pct}%</td>'
+        if decoder_tests > 0:
+            table += f'<td style="text-align: right; background-color: {decoder_bg};">{decoder_pct}%</td>'
+        else:
+            table += f'<td style="text-align: right; color: #999;">—</td>'
         table += f'<td><a href="/codecs/{family_name}.html">View Family Support</a></td>'
         table += '</tr>\n'
 
-    # Sort codecs by support percentage (descending), then by name
-    sorted_codecs = sorted(codecs, key=lambda x: (-x['supportPercentage'], x['string']))
+    # Sort codecs by encoder support percentage (descending), then by name
+    sorted_codecs = sorted(codecs, key=lambda x: (-x['encoder']['supportPercentage'], x['string']))
 
     for codec in sorted_codecs:
         codec_string = codec['string']
-        support_pct = codec['supportPercentage']
-        total_tests = codec['totalCount']
+        encoder_pct = codec['encoder']['supportPercentage']
+        decoder_pct = codec['decoder']['supportPercentage']
+        decoder_tests = codec['decoder']['totalCount']
 
         # Create filename for detail page
         detail_filename = codec_string.replace('/', '_') + '.html'
         detail_link = f"/codecs/{detail_filename}"
 
-        # Format support percentage with color indication
-        bg_color = get_cell_color(support_pct)
+        # Format support percentages with color indication
+        encoder_bg = get_cell_color(encoder_pct)
+        decoder_bg = get_cell_color(decoder_pct) if decoder_tests > 0 else "#f0f0f0"
 
-        table += f'<tr><td><code>{codec_string}</code></td><td style="text-align: right; background-color: {bg_color};">{support_pct}%</td><td style="text-align: right;">{total_tests:,}</td><td><a href="{detail_link}">View Details</a></td></tr>\n'
+        table += f'<tr><td><code>{codec_string}</code></td>'
+        table += f'<td style="text-align: right; background-color: {encoder_bg};">{encoder_pct}%</td>'
+        if decoder_tests > 0:
+            table += f'<td style="text-align: right; background-color: {decoder_bg};">{decoder_pct}%</td>'
+        else:
+            table += f'<td style="text-align: right; color: #999;">—</td>'
+        table += f'<td><a href="{detail_link}">View Details</a></td></tr>\n'
 
     table += "</tbody>\n</table>\n</div>\n"
     return table
@@ -133,7 +148,7 @@ description: Complete table of {index['codecCount']:,} codec strings tested acro
 
 This page contains a comprehensive table of **{index['codecCount']:,} codec strings** tested with the WebCodecs API across real-world browsers and platforms.
 
-> **About this dataset:** This data comes from {index['totalSessions']:,} real user sessions testing {index['totalTests']:,} codecs. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
+> **About this dataset:** This data comes from {index['totalSessions']:,} real user sessions with a total of {index['totalTests']:,} individual codec string tests. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
 ## Codec Families
 
 **Video Codecs:**
