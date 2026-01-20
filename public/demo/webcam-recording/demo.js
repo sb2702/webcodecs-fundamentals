@@ -13,7 +13,8 @@ const preview = document.getElementById('preview');
 const playback = document.getElementById('playback');
 
 // Import from CDN
-const { WebcamRecorder, getWebcam } = await import('https://unpkg.com/webcodecs-examples@latest/dist/index.js');
+const { WebcamRecorder, getWebcam } = await import('https://unpkg.com/webcodecs-examples@0.1.15/dist/index.js');
+
 
 // Start webcam
 startWebcamBtn.addEventListener('click', async () => {
