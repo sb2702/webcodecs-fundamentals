@@ -15,6 +15,7 @@
     "grunt": "^1.6.1",
     "grunt-aws-s3": "^2.0.2",
     "sharp": "^0.34.2",
+    "starlight-llms-txt": "^0.7.0",
     "webcodecs-examples": "^0.1.10"
   }
 }

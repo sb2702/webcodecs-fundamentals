@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightLlmsTxt from 'starlight-llms-txt';
 
 // https://astro.build/config
 export default defineConfig({
@@ -31,6 +32,7 @@ export default defineConfig({
 	},
 	integrations: [
 		starlight({
+			plugins: [starlightLlmsTxt()],
 			components: {
 				ThemeProvider: './src/components/ThemeProvider.astro',
 			  },
@@ -173,6 +175,7 @@ export default defineConfig({
 						{ label: 'About', slug: 'reference/about' },
 						{ label: 'Sources', slug: 'reference/sources' },
 						{ label: 'Inside Jokes', slug: 'reference/inside-jokes' },
+						{ label: 'LLM Resources', slug: 'llms' },
 					],
 				},
 			],
