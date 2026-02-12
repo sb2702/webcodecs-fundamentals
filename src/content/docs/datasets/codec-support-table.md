@@ -5,7 +5,7 @@ description: Complete table of 1,087 codec strings tested across real-world brow
 
 This page contains a comprehensive table of **1,087 codec strings** tested with the WebCodecs API across real-world browsers and platforms.
 
-> **About this dataset:** This data comes from 224,360 real user sessions with a total of 71,334,708 individual codec string tests. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
+> **About this dataset:** This data comes from 224,360 real user sessions of [free.upscaler.video](https://free.upscaler.video) with a total of 71,334,708 individual codec string tests. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
 ## Codec Families
 
 **Video Codecs:**
