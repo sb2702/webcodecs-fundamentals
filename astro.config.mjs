@@ -40,11 +40,19 @@ export default defineConfig({
 				{
 					tag: 'script',
 					attrs: {
-						src: 'https://cdn.usefathom.com/script.js',
-						'data-site': 'XAWNAHQY',
-						defer: true,
+						src: 'https://analytics.upscaler.video/js/pa-eEsyvyp9f-2BhtPl9ZzC-.js',
+						async: true,
 					},
 				},
+
+				{
+					tag: 'script',
+					content: `
+		  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+					`
+				},
+
 				{
 					tag: 'script',
 					attrs: {
