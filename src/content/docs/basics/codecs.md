@@ -1,6 +1,6 @@
 ---
 title: Codecs
-description: Codecs and codec strings
+description: Understanding WebCodecs codec strings - AVC, HEVC, VP9, AV1 formats, how to generate valid codec strings, and choosing the right codec for your use case.
 ---
 
 Codecs are the algorithms for turning raw video frames into compact binary encoded video data.

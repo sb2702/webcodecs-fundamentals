@@ -1,6 +1,6 @@
 ---
 title: Main use cases for WebCodecs
-description: Managing encoder queues and flushing
+description: Common WebCodecs use cases: video playback, transcoding, editing, live streaming, and programmatic video generation - with architecture guidance for each.
 ---
 
 Work in Progress

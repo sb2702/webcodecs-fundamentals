@@ -71,7 +71,7 @@ export default defineConfig({
 				},
 			],
 			title: 'WebCodecs Fundamentals',
-			description: 'The missing manual for the WebCodecs API - from basics to production patterns.',
+			description: 'WebCodecs API tutorials, production code patterns, and the world\'s largest codec support dataset. Learn browser-based video encoding, decoding, transcoding, and playback.',
 			tableOfContents: false,
 			customCss: [
 				'./src/styles/custom.css',

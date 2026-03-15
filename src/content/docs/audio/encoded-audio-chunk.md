@@ -1,6 +1,6 @@
 ---
 title: EncodedAudioChunk
-description: Why WebCodecs is harder than it looks
+description: Understanding EncodedAudioChunk in WebCodecs - the data type for encoded audio, timestamps, duration, and how it fits into the audio encoding/decoding pipeline.
 ---
 
 The `EncodedAudioChunk`, as you might guess, is the encoded / compressed form of an `AudioData` object.

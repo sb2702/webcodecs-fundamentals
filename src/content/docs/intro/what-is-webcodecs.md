@@ -1,6 +1,6 @@
 ---
 title: What is WebCodecs?
-description: Beyond the spec - understanding the WebCodecs API and its place in web video engineering
+description: A complete introduction to the WebCodecs API - VideoDecoder, VideoEncoder, VideoFrame, and EncodedVideoChunk. The starting point for browser-based video processing.
 ---
 
 WebCodecs is a browser API that enables low level control over video encoding and decoding of video files and streams on the client, allowing frontend application developers to manipulate video in the browser on a per-frame basis. 

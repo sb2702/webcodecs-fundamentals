@@ -1,6 +1,6 @@
 ---
 title: Intro to Audio
-description: How and when to use Audio
+description: Introduction to audio processing with WebCodecs - AudioEncoder, AudioDecoder, AudioData, and how to build audio pipelines alongside video.
 ---
 
 Up until now we've been exclusively focusing on Video because, well, video is hard enough on its own, without the additional challenge of also managing audio, let alone handling audio-video sync.

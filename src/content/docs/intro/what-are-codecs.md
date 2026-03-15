@@ -1,6 +1,6 @@
 ---
 title: What are Codecs?
-description: Beyond the spec - understanding the WebCodecs API and its place in web video engineering
+description: Learn what video codecs are, how encoding and decoding work, and why codec choice is critical for web video applications built with WebCodecs.
 ---
 
 

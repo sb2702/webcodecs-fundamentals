@@ -1,6 +1,6 @@
 ---
 title: Muxing and Demuxing
-description: Why WebCodecs is harder than it looks
+description: How to mux and demux video in the browser with WebCodecs - working with MP4, WebM containers and choosing the right demuxing library.
 ---
 
 As mentioned before, WebCodecs by itself cannot read or write playable video files. You can't just take a bunch of `EncodedVideoChunk` objects, put them in a `Blob` and call it a day.

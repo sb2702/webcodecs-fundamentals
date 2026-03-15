@@ -1,6 +1,6 @@
 ---
 title: How to transcode video with WebCodecs
-description: A comprehensive guide for to use WebCodecs to transcode video in the browser
+description: A comprehensive guide to transcoding video in the browser with WebCodecs - building encoder/decoder pipelines, managing streams, and handling edge cases.
 ---
 
 In the [Video Decoder](../../basics/decoder) section, we learned how to decode video, and in the [Video Encoder](../../basics/decoder) section, we learned how to encode video, and so naturally you'd think that transcoding is just chaining those two things together.

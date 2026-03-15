@@ -1,5 +1,5 @@
 ---
-title: The upscaler.video Codec Support Dataset
+title: WebCodecs Codec Support Dataset
 description: The world's first empirical registry of WebCodecs hardware support, collected from 224,360 real-world user sessions
 head:
   - tag: meta
@@ -9,7 +9,7 @@ head:
   - tag: meta
     attrs:
       name: citation_title
-      content: The upscaler.video Codec Support Dataset
+      content: WebCodecs Codec Support Dataset
   - tag: meta
     attrs:
       name: citation_author
@@ -21,7 +21,7 @@ head:
   - tag: meta
     attrs:
       name: DC.title
-      content: The upscaler.video Codec Support Dataset
+      content: WebCodecs Codec Support Dataset
   - tag: meta
     attrs:
       name: DC.creator

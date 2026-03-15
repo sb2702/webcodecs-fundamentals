@@ -1,6 +1,6 @@
 ---
 title: VideoEncoder
-description: Why WebCodecs is harder than it looks
+description: How to use the WebCodecs VideoEncoder API - configuration, encode settings, queue management, keyframe control, and production patterns.
 ---
 
 

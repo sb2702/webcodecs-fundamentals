@@ -1,6 +1,6 @@
 ---
 title: AudioData
-description: Why WebCodecs is harder than it looks
+description: Understanding the WebCodecs AudioData interface - working with raw audio samples, format conversion, and memory management.
 ---
 
 `AudioData` is the class used by WebCodecs to represent raw audio information. 

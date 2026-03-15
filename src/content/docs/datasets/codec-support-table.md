@@ -1,6 +1,6 @@
 ---
-title: Codec Support Table
-description: Complete table of 1,087 codec strings tested across real-world browsers and platforms
+title: WebCodecs Codec Support Table
+description: Real-world WebCodecs codec support across browsers and platforms - 1,087 codec strings tested across 224k user sessions. Find which codecs work in Chrome, Safari, Firefox, and Edge.
 ---
 
 This page contains a comprehensive table of **1,087 codec strings** tested with the WebCodecs API across real-world browsers and platforms.
