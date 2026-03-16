@@ -1,6 +1,6 @@
 ---
 title: Why Use WebCodecs?
-description: WebCodecs use cases: browser-based video editing, transcoding, live streaming, and programmatic video generation - with no server costs.
+description: "WebCodecs use cases: browser-based video editing, transcoding, live streaming, and programmatic video generation - with no server costs."
 ---
 
 WebCodecs enables low-level video processing in the browser, with native or near-native level encoding and decoding performance.
