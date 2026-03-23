@@ -63,12 +63,22 @@ head:
     "@type": "Place",
     "name": "Worldwide"
   },
-  "distribution": {
-    "@type": "DataDownload",
-    "encodingFormat": "text/csv",
-    "contentUrl": "https://zenodo.org/records/19187467",
-    "description": "CSV dataset (363,330,358 rows, 69.4GB uncompressed) hosted on Zenodo"
-  },
+  "distribution": [
+    {
+      "@type": "DataDownload",
+      "encodingFormat": "text/csv",
+      "contentUrl": "https://zenodo.org/records/19187467",
+      "name": "Zenodo",
+      "description": "CSV dataset (363,330,358 rows, 69.4GB uncompressed) hosted on Zenodo"
+    },
+    {
+      "@type": "DataDownload",
+      "encodingFormat": "text/csv",
+      "contentUrl": "https://huggingface.co/datasets/katana-video/webcodecs-codec-support",
+      "name": "Hugging Face",
+      "description": "CSV dataset hosted on Hugging Face Datasets"
+    }
+  ],
   "measurementTechnique": "WebCodecs API isConfigSupported() real-world testing on user devices",
   "variableMeasured": [
     {
@@ -131,9 +141,13 @@ The dataset includes both **encoder support** (using `VideoEncoder.isConfigSuppo
 
 ## Download
 
-**[Download on Zenodo](https://zenodo.org/records/19187467)**
+The dataset is available from multiple sources:
 
-The dataset is hosted on Zenodo and contains:
+- **[Zenodo](https://zenodo.org/records/19187467)** — archival DOI, suitable for citation
+- **[Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support)** — convenient for ML workflows
+- Harvard Dataverse — coming soon
+
+Each release contains:
 - `upscaler-video-codec-dataset-raw.csv` - The complete dataset (363.3M rows, 69.4 GB uncompressed)
 - `README.txt` - Quick reference guide for the dataset structure
 
@@ -359,7 +373,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 - Q: "Should I use HEVC for web?" → A: Only with H.264 fallback; Windows/Linux support is poor
 - Q: "Is VP9 safe for production?" → A: 85%+ support on modern browsers; needs H.264 fallback for older devices
 
-**Dataset Location:** Download at [Zenodo](https://zenodo.org/records/19187467) (69.4GB uncompressed CSV)
+**Dataset Location:** [Zenodo](https://zenodo.org/records/19187467) · [Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support) (69.4GB uncompressed CSV)
 
 **Interactive Tool:** Browse all codecs at [/datasets/codec-support-table/](/datasets/codec-support-table/)
 
