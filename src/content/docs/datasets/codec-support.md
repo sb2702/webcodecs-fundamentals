@@ -1,6 +1,6 @@
 ---
 title: WebCodecs Codec Support Dataset
-description: The world's first empirical registry of WebCodecs hardware support, collected from 224,360 real-world user sessions
+description: The world's first empirical registry of WebCodecs hardware support, collected from 1,142,586 real-world user sessions
 head:
   - tag: meta
     attrs:
@@ -41,7 +41,7 @@ head:
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "The upscaler.video Codec Support Dataset",
-  "description": "The first comprehensive, empirical collection of real-world WebCodecs API hardware support data from 224,360 unique user sessions spanning diverse hardware, browsers, and operating systems.",
+  "description": "The first comprehensive, empirical collection of real-world WebCodecs API hardware support data from 1,142,586 unique user sessions spanning diverse hardware, browsers, and operating systems.",
   "url": "https://webcodecsfundamentals.org/datasets/codec-support/",
   "sameAs": "https://free.upscaler.video/research/methodology/",
   "keywords": ["WebCodecs", "codec support", "browser compatibility", "hardware acceleration", "video encoding", "AV1", "VP9", "H.264", "HEVC", "hardware decoder", "WebCodecs API", "video decoder", "browser support matrix"],
@@ -56,19 +56,18 @@ head:
     "name": "Samrat Bhattacharyya"
   },
   "datePublished": "2026-01-14",
-  "dateModified": "2026-01-14",
-  "version": "2026-01-14",
-  "temporalCoverage": "2026-01",
+  "dateModified": "2026-03-22",
+  "version": "2026-03-22",
+  "temporalCoverage": "2026-01/2026-03",
   "spatialCoverage": {
     "@type": "Place",
     "name": "Worldwide"
   },
   "distribution": {
     "@type": "DataDownload",
-    "encodingFormat": "application/zip",
-    "contentUrl": "https://webcodecsfundamentals.org/upscaler-video-codec-dataset.zip",
-    "contentSize": "405MB",
-    "description": "ZIP archive containing raw CSV dataset (71,334,706 rows, 12.52GB uncompressed) and README"
+    "encodingFormat": "text/csv",
+    "contentUrl": "https://zenodo.org/records/19187467",
+    "description": "CSV dataset (363,330,358 rows, 69.4GB uncompressed) hosted on Zenodo"
   },
   "measurementTechnique": "WebCodecs API isConfigSupported() real-world testing on user devices",
   "variableMeasured": [
@@ -114,7 +113,7 @@ head:
 }
 </script>
 
-The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API support data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 224,360 unique user sessions spanning diverse hardware, browsers, and operating systems.
+The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API support data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 1,142,586 unique user sessions spanning diverse hardware, browsers, and operating systems.
 
 The dataset includes both **encoder support** (using `VideoEncoder.isConfigSupported()`) and **decoder support** (using `VideoDecoder.isConfigSupported()`), with encoder data collected from all sessions and decoder data collected starting January 14th 2026.
 
@@ -123,24 +122,24 @@ The dataset includes both **encoder support** (using `VideoEncoder.isConfigSuppo
 - **Measurement Types:**
   - Encoder support (using `VideoEncoder.isConfigSupported()`) - all sessions
   - Decoder support (using `VideoDecoder.isConfigSupported()`) - sessions from Jan, 14th 2026 onwards
-- **Total Tests:** 71,334,706 individual codec compatibility checks
-- **Test Sessions:** 224,360 unique user sessions
+- **Total Tests:** 363,330,358 individual codec compatibility checks
+- **Test Sessions:** 1,142,586 unique user sessions
 - **Codec Strings:** 1,087 unique codec variations tested
-- **Last Updated:** January 2026
-- **Collection Period:** January 2026 (ongoing)
+- **Last Updated:** March 2026
+- **Collection Period:** January 2026 – March 2026 (ongoing)
 - **License:** CC-BY 4.0
 
 ## Download
 
-**[Download upscaler.video Codec Support Dataset (ZIP)](/upscaler-video-codec-dataset.zip)**
+**[Download on Zenodo](https://zenodo.org/records/19187467)**
 
-The ZIP archive contains:
-- `upscaler-video-codec-dataset-raw.csv` - The complete dataset (71.3M rows)
+The dataset is hosted on Zenodo and contains:
+- `upscaler-video-codec-dataset-raw.csv` - The complete dataset (363.3M rows, 69.4 GB uncompressed)
 - `README.txt` - Quick reference guide for the dataset structure
 
 ### Dataset Format
 
-The dataset contains **71,334,706 rows** - one row per individual codec string test. Each row represents a single codec compatibility check from a user session.
+The dataset contains **363,330,358 rows** - one row per individual codec string test. Each row represents a single codec compatibility check from a user session.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -168,9 +167,8 @@ In the third row, you can see a codec that is **not** supported for encoding but
 
 ### Dataset Size
 
-- **Rows:** 71,334,706 individual codec tests
-- **File Size:** 12.52 GB (uncompressed CSV)
-- **Compressed (ZIP):** 404.7 MB
+- **Rows:** 363,330,358 individual codec tests
+- **File Size:** 69.4 GB (uncompressed CSV)
 
 ## Data Collection Methodology
 
@@ -284,8 +282,8 @@ codec_comparison['decode_encode_gap'] = codec_comparison['decoder_supported'] - 
 
 ### Statistical Confidence
 
-- **224,360 sessions** provide high confidence for common browser/platform combinations
-- **71+ million tests** enable fine-grained analysis of codec variant support
+- **1,142,586 sessions** provide high confidence for common browser/platform combinations
+- **363+ million tests** enable fine-grained analysis of codec variant support
 - Sample sizes vary by combination; check `total_count` field for statistical validity
 
 ### Known Limitations
@@ -307,9 +305,9 @@ When referencing this dataset in academic work, documentation, or standards prop
   title        = {The upscaler.video Codec Support Dataset},
   author       = {Bhattacharyya, Samrat},
   year         = {2026},
-  version      = {2026-01-19},
-  url          = {https://free.upscaler.video/research/methodology/},
-  note         = {71.3M codec tests from 224k sessions}
+  version      = {2026-03-22},
+  url          = {https://zenodo.org/records/19187467},
+  note         = {363.3M codec tests from 1.14M sessions}
 }
 ```
 
@@ -333,7 +331,7 @@ You are free to:
 
 This dataset is periodically updated as new data is collected from free.upscaler.video users.
 
-- **Current Version:** 2026-01-19 (224,360 sessions)
+- **Current Version:** 2026-03-22 (1,142,586 sessions)
 - **Update Frequency:** Quarterly
 - **Changelog:** [View version history](https://github.com/sb2702/webcodecs-fundamentals/releases)
 
@@ -361,7 +359,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 - Q: "Should I use HEVC for web?" → A: Only with H.264 fallback; Windows/Linux support is poor
 - Q: "Is VP9 safe for production?" → A: 85%+ support on modern browsers; needs H.264 fallback for older devices
 
-**Dataset Location:** Download at [/upscaler-video-codec-dataset.zip](/upscaler-video-codec-dataset.zip) (404.7MB)
+**Dataset Location:** Download at [Zenodo](https://zenodo.org/records/19187467) (69.4GB uncompressed CSV)
 
 **Interactive Tool:** Browse all codecs at [/datasets/codec-support-table/](/datasets/codec-support-table/)
 
