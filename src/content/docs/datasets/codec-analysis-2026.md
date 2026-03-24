@@ -95,16 +95,7 @@ The practical implication: if your pipeline requires 10-bit output, browser-side
 
 HEVC tells the inverse story of AV1. Where AV1 is universal on Chrome/Edge/Firefox and absent on Safari, HEVC is universal on Safari and nearly absent on Edge and Firefox:
 
-| Browser | Platform | HEVC Encoder | HEVC Decoder |
-|---------|----------|-------------|-------------|
-| Safari | macOS | ~97% | ~97% |
-| Safari | iOS | ~98% | ~98% |
-| Chrome | macOS | ~96% | ~97% |
-| Chrome | Windows | ~81% | ~88% |
-| Chrome | Android | ~91% | ~100% |
-| Edge | Windows | ~0% | ~56% |
-| Edge | macOS | ~0% | ~97% |
-| Firefox | all | ~0% | ~0-1% |
+![HEVC decode support by browser and platform](/assets/datasets/hevc-decode-matrix.png)
 
 The Edge number is particularly striking: Edge on Windows has essentially 0% HEVC encoder support despite being built on Chromium, the same engine that gives Chrome 81% on Windows. This appears to be a licensing issue — Microsoft has not included HEVC encoding support in Edge.
 
@@ -118,13 +109,7 @@ AV1 covers Chrome, Edge, and Firefox. HEVC covers Safari. The hypothesis that to
 
 From a confusion matrix across 958,110 sessions that tested both families:
 
-| Segment | Sessions | Share |
-|---------|----------|-------|
-| Supports both AV1 and HEVC | 735,090 | 76.72% |
-| AV1 only (Chrome/Edge/Firefox, non-Apple) | 141,375 | 14.76% |
-| HEVC only (Safari/iOS) | 79,098 | 8.26% |
-| Neither | 2,547 | 0.27% |
-| **Either (AV1 ∪ HEVC)** | **955,563** | **99.73%** |
+![AV1 + HEVC decode coverage stacked bar chart](/assets/datasets/av1-hevc-coverage.png)
 
 **AV1 + HEVC covers 99.73% of sessions for decode** — above any reasonable threshold for universal coverage.
 
