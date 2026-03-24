@@ -38,12 +38,7 @@ AV1 Profile 0, 8-bit variants have reached **~91.5% decoder support** across rea
 
 The nuance is in who's missing. Breaking down by browser and platform:
 
-| Browser | Windows | macOS | iOS | Android | Linux |
-|---------|---------|-------|-----|---------|-------|
-| Chrome | 100% | 100% | — | ~100% | ~99.6% |
-| Edge | 100% | ~100% | — | ~99.5% | 100% |
-| Firefox | ~99.7% | ~99.7% | — | 0% | ~99.6% |
-| Safari | — | ~24% | ~33% | — | — |
+![AV1 decode support by browser and platform](/assets/datasets/av1-decode-matrix.png)
 
 Two things stand out:
 
