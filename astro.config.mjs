@@ -160,7 +160,7 @@ export default defineConfig({
 				{
 					label: 'Datasets',
 					items: [
-
+						{ label: 'Codec Analysis 2026', slug: 'datasets/codec-analysis-2026' },
 						{ label: 'Codec Support Table', slug: 'datasets/codec-support-table' },
 						{ label: 'Codec Support Dataset', slug: 'datasets/codec-support' },
 
