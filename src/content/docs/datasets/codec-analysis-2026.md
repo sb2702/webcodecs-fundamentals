@@ -277,6 +277,8 @@ All data in this analysis comes from the **[WebCodecs Codec Support Dataset](/da
 
 The confusion matrix analysis (sections 5 and 7) uses per-session data with canonical codec string selection — only sessions that tested at least one well-supported representative string for each family are included in a given comparison. This avoids false negatives from sessions that happened to test only unsupported variants (e.g. 12-bit AV1).
 
+You can find a full detailed explanation of methodology [here](https://free.upscaler.video/research/methodology)
+
 Full dataset available on [Zenodo](https://zenodo.org/records/19187467) and [Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support) under CC-BY 4.0.
 
 **[Browse the full codec registry →](/datasets/codec-support-table/)**
