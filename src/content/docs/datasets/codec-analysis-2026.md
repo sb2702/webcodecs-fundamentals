@@ -39,15 +39,13 @@ Here are some of the most interesting findings from the data
 
 
 **Key findings:**
-- [AV1 has ~91.5% decode support](#1-av1-decode-has-crossed-the-threshold)
-- [AV1 only has widespread support for some profiles](#2-av1-encoding-profile-choice-is-everything)
-- [HEVC is nearly universal on Safari — and nearly absent on Firefox and Edge](#4-hevc-safaris-codec)
-- [AV1 + HEVC now covers 99.73% of sessions, is h264 needed anymore?](#5-av1--hevc--universal-decode-coverage)
-- [VP9 is now more universally supported than H.264 Baseline](#6-vp9-as-universal-as-h264)
-- [There's still a big gap between encode and decode capabilities](#7-the-encodedecode-asymmetry-strategy-depends-on-use-case)
-- [For audio encoding, only Opus and AAC are production-ready](#8-audio-only-opus-and-aac-matter-for-encoding)
-
----
+- [AV1 has ~91.5% decode support](#av1-decode-has-crossed-the-threshold)
+- [AV1 only has widespread support for some profiles](#av1-profile-choice-is-everything)
+- [HEVC is nearly universal on Safari — and nearly absent on Firefox and Edge](#hevc-safaris-codec)
+- [AV1 + HEVC now covers 99.73% of sessions, is h264 needed anymore?](#av1hevc--universal-decode-coverage)
+- [VP9 is now more universally supported than H.264 Baseline](#vp9-as-universal-as-h264)
+- [There's still a big gap between encode and decode capabilities](#the-encodedecode-asymmetry-strategy-depends-on-use-case)
+- [For audio encoding, only Opus and AAC are production-ready](#audio-only-opus-and-aac-matter-for-encoding)
 
 ---
 
