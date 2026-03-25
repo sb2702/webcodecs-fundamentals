@@ -33,7 +33,7 @@ The closest analogues available are:
 * [Bitmovin Developer report](https://bitmovin.com/video-developer-report/) - which is a survey of developers on what codecs they implement
 
 
-The [Codec Support dataset](../codec-support/) is the first public, empircal dataset with hard numbers on codec support for AV1, HEVC, VP9, AVC and others for 1 million + devices. The dataset direcly uses Device/Browser APIs to directly query codec decode/encode support from real user sessions of [free.upscaler.video](https://free.upscaler.video)
+The [Codec Support dataset](../codec-support/) is the first public, empirical dataset with hard numbers on codec support for AV1, HEVC, VP9, AVC and others for 1 million + devices. The dataset directly uses Device/Browser APIs to query codec decode/encode support from real user sessions of [free.upscaler.video](https://free.upscaler.video)
 
 Here are some of the most interesting findings from the data
 
@@ -194,7 +194,7 @@ The 1.84% gap — ~21,000 sessions — supports neither AV1 nor HEVC encoding. T
 
 Audio is likely less relevant than video codecs, however there is nuance. For decode, AAC and Opus are pretty much universally supported, as are alternate codecs like PCM, Vorbis and FLAC.
 
-For the WebCodecs api specifically, only Opus and AAC are well suported, however as audio codecs typically don't require hardware acceleration, support can be added in for CPU based audio encode for any platform.
+For the WebCodecs api specifically, only Opus and AAC are well supported, however as audio codecs typically don't require hardware acceleration, support can be added in for CPU based audio encode for any platform.
 
 <table>
 <thead>
@@ -231,7 +231,9 @@ FLAC and MP3 have essentially universal decoder support but **zero encoder suppo
 
 All data in this analysis comes from the **[Codec Support Dataset](/datasets/codec-support/)** — 363,330,358 individual codec tests from 1,142,586 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January–March 2026.
 
-Keep in mind that this dataset specifically uses queries from the WebCodecs API which has it's own quirks. It seems safe to conclude that if decode/encode is supported by the WebCodecs API, that it is also supported by the device, however there may be codecs supported by the device not supported by the WebCodecs API, so these numbers are inherently conservative.
+Keep in mind that this dataset specifically uses queries from the WebCodecs API which has its own quirks. It seems safe to conclude that if decode/encode is supported by the WebCodecs API, that it is also supported by the device, however there may be codecs supported by the device not supported by the WebCodecs API, so these numbers are inherently conservative.
+
+**A note on aggregate numbers:** codec family aggregate numbers can be misleading. When you see "AV1: 20% encoder support," that averages across all 432 AV1 codec string variants — including 10-bit and 12-bit profiles that essentially no browser can encode. Throughout this analysis, support numbers refer to well-supported representative codec strings (Profile 0, 8-bit for AV1; Profile 1 Main tier for HEVC; Profile 0 8-bit for VP9; Baseline for H.264), not family-wide averages.
 
 You can find a full detailed explanation of methodology [here](https://free.upscaler.video/research/methodology)
 
@@ -249,7 +251,7 @@ The data comes from a live application I run. I will soon begin work on version 
 
 I want to make this dataset as useful for developers, industry experts and academics in video streaming space. If you have feedback or would like to request something specific for the next version of the dataset, feel free to reach out at sam@webcodecsfundamentals.org.
 
-If you want to know when the next version of the dataset is released, you register to be notified here
+If you want to know when the next version of the dataset is released, you can register to be notified here, or just email me.
 
 <!-- MailerLite Universal -->
 <script>
