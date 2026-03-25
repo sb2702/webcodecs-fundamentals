@@ -375,7 +375,7 @@ def generate_codec_page(codec_data, output_file):
 
     html += """
     <footer>
-        <p>Data from the <a href="/datasets/codec-support/">upscaler.video Codec Support Dataset</a></p>
+        <p>Data from the <a href="/datasets/codec-support/">Codec Support Dataset</a></p>
         <p><a href="/">WebCodecs Fundamentals</a> | <a href="/datasets/codec-support-table/">Codec Support Table</a></p>
     </footer>
 </body>
@@ -771,7 +771,7 @@ def generate_family_page(family_data, output_file):
     </div>
 
     <footer>
-        <p>Data from the <a href="/datasets/codec-support/">upscaler.video Codec Support Dataset</a></p>
+        <p>Data from the <a href="/datasets/codec-support/">Codec Support Dataset</a></p>
         <p><a href="/">WebCodecs Fundamentals</a> | <a href="/datasets/codec-support-table/">Codec Support Table</a></p>
     </footer>
 </body>

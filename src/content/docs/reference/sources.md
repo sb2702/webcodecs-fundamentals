@@ -114,7 +114,7 @@ Real-world WebCodecs applications referenced:
 
 ## Dataset & Research
 
-- [upscaler.video Codec Support Dataset](/datasets/codec-support/) - Empirical WebCodecs codec support data
+- [Codec Support Dataset](/datasets/codec-support/) - Empirical WebCodecs codec support data
   - [Full Codec Support Table](/datasets/codec-support-table/)
   - [Dataset Methodology](https://free.upscaler.video/research/methodology/)
 

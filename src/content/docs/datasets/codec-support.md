@@ -1,5 +1,5 @@
 ---
-title: WebCodecs Codec Support Dataset
+title: Codec Support Dataset
 description: The world's first empirical registry of WebCodecs hardware support, collected from 1,142,586 real-world user sessions
 head:
   - tag: meta
@@ -9,7 +9,7 @@ head:
   - tag: meta
     attrs:
       name: citation_title
-      content: WebCodecs Codec Support Dataset
+      content: Codec Support Dataset
   - tag: meta
     attrs:
       name: citation_author
@@ -21,7 +21,7 @@ head:
   - tag: meta
     attrs:
       name: DC.title
-      content: WebCodecs Codec Support Dataset
+      content: Codec Support Dataset
   - tag: meta
     attrs:
       name: DC.creator
@@ -40,7 +40,7 @@ head:
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "The upscaler.video Codec Support Dataset",
+  "name": "The Codec Support Dataset",
   "description": "The first comprehensive, empirical collection of real-world WebCodecs API hardware support data from 1,142,586 unique user sessions spanning diverse hardware, browsers, and operating systems.",
   "url": "https://webcodecsfundamentals.org/datasets/codec-support/",
   "sameAs": "https://free.upscaler.video/research/methodology/",
@@ -123,7 +123,7 @@ head:
 }
 </script>
 
-The **upscaler.video Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API support data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 1,142,586 unique user sessions spanning diverse hardware, browsers, and operating systems.
+The **Codec Support Dataset** is the first comprehensive, empirical collection of real-world WebCodecs API support data. Unlike synthetic benchmarks or browser-reported capabilities, this dataset represents actual compatibility testing across 1,142,586 unique user sessions spanning diverse hardware, browsers, and operating systems.
 
 The dataset includes both **encoder support** (using `VideoEncoder.isConfigSupported()`) and **decoder support** (using `VideoDecoder.isConfigSupported()`), with encoder data collected from all sessions and decoder data collected starting January 14th 2026.
 
@@ -316,7 +316,7 @@ When referencing this dataset in academic work, documentation, or standards prop
 
 ```bibtex
 @dataset{upscaler_codec_dataset_2026,
-  title        = {The upscaler.video Codec Support Dataset},
+  title        = {The Codec Support Dataset},
   author       = {Bhattacharyya, Samrat},
   year         = {2026},
   version      = {2026-03-22},
@@ -327,7 +327,7 @@ When referencing this dataset in academic work, documentation, or standards prop
 
 For informal citations:
 
-> **Data Source:** [The upscaler.video Codec Support Dataset](https://free.upscaler.video/research/methodology/)
+> **Data Source:** [The  Codec Support Dataset](https://free.upscaler.video/research/methodology/)
 > **License:** CC-BY 4.0
 
 ## License
@@ -339,7 +339,7 @@ You are free to:
 - **Adapt** — remix, transform, and build upon the data
 - **Commercial use** — use for any purpose, including commercially
 
-**Attribution requirement:** Credit "upscaler.video Codec Support Dataset" with a link to this page.
+**Attribution requirement:** Credit "Codec Support Dataset" with a link to this page.
 
 ## Updates & Versioning
 

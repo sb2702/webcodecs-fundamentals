@@ -12,7 +12,7 @@ head:
       href: https://webcodecsfundamentals.org/datasets/codec-analysis-2026/
 ---
 
-*Data from the [WebCodecs Codec Support Dataset](/datasets/codec-support/) — 363,330,358 individual codec tests across 1,142,586 real user sessions. See [methodology](#methodology) for collection details.*
+*Data from the [Codec Support Dataset](/datasets/codec-support/) — 363,330,358 individual codec tests across 1,142,586 real user sessions. See [methodology](#methodology) for collection details.*
 
 <br/>
 
@@ -273,7 +273,7 @@ For production audio encoding: **Opus first, AAC as fallback.** For decoding, al
 
 ## Methodology
 
-All data in this analysis comes from the **[WebCodecs Codec Support Dataset](/datasets/codec-support/)** — 363,330,358 individual codec tests from 1,142,586 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January–March 2026.
+All data in this analysis comes from the **[Codec Support Dataset](/datasets/codec-support/)** — 363,330,358 individual codec tests from 1,142,586 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January–March 2026.
 
 The confusion matrix analysis (sections 5 and 7) uses per-session data with canonical codec string selection — only sessions that tested at least one well-supported representative string for each family are included in a given comparison. This avoids false negatives from sessions that happened to test only unsupported variants (e.g. 12-bit AV1).
 

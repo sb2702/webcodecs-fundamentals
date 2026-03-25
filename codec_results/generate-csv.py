@@ -145,7 +145,7 @@ def main():
 
     generate_raw_csv(results_dir, output_file)
 
-    print(f"\n📊 The raw 'upscaler.video Codec Support Dataset' is ready!")
+    print(f"\n📊 The raw 'Codec Support Dataset' is ready!")
     print(f"   This dataset contains individual test results with full user agent strings.")
     print(f"   Each row represents one codec test from one user session.")
 
