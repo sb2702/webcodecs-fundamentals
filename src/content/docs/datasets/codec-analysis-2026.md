@@ -12,6 +12,9 @@ head:
       href: https://webcodecsfundamentals.org/datasets/codec-analysis-2026/
 ---
 
+
+
+
 *Data from the [Codec Support Dataset](/datasets/codec-support/) — 363,330,358 individual codec tests across 1,142,586 real user sessions. See [methodology](#methodology) for collection details.*
 
 <br/>
@@ -23,33 +26,32 @@ head:
 
 ---
 
-The conventional wisdom for codec strategy goes something like this: use AV1 where supported, fall back to VP9, and keep H.264 as the universal baseline. That wisdom is based largely on spec claims and browser capability tables. This analysis is based on 363 million real-world codec tests across 1.1 million user sessions, and the picture is more nuanced — and in some ways more optimistic — than the conventional wisdom suggests.
+While there is a lot of talk in the video/streaming industry about codecs like AV1 and HEVC, as far as I'm aware there is no hard data on how widespread support for these codecs is across devices, which is one of the most important things you would want to know when making codec choices for a video application.
 
-A few findings stand out: AV1 decode has crossed the threshold into mainstream support. AV1 combined with HEVC covers virtually all devices for playback without H.264. And VP9 — often treated as a legacy stepping stone — turns out to be as universally supported as H.264 itself.
+The closest analogues available are:
+* [ScientaMobile](https://scientiamobile.com/av1-codec-hardware-decode-adoption/), which measures codec adoption from chip specfications and market reports of chip distribution
+* [Bitmovin Developer report](https://bitmovin.com/video-developer-report/) - which is a survey of developers on what codecs they implement
 
-The right strategy also depends on your use case. The answers for a streaming pipeline (primarily decode) differ meaningfully from those for an encoding pipeline (WebCodecs apps, transcoders, video editors). More on that below.
+
+The [Codec Support dataset](../codec-support/) is the first public, empircal dataset with hard numbers on codec support for AV1, HEVC, VP9, AVC and others for 1 million + devices. The dataset direcly uses Device/Browser APIs to directly query codec decode/encode support from real user sessions of [free.upscaler.video](https://free.upscaler.video)
+
+Here are some of the most interesting findings from the data
+
 
 **Key findings:**
-- [AV1 decode has crossed into mainstream — ~91.5% of real-world sessions](#1-av1-decode-has-crossed-the-threshold)
-- [AV1 encoding requires the right profile — 88% for Profile 0 8-bit, 0% for most others](#2-av1-encoding-profile-choice-is-everything)
-- [The 10-bit encoding wall affects every codec family, not just AV1](#3-the-10-bit-encoding-wall)
+- [AV1 has ~91.5% decode support](#1-av1-decode-has-crossed-the-threshold)
+- [AV1 only has widespread support for some profiles](#2-av1-encoding-profile-choice-is-everything)
 - [HEVC is nearly universal on Safari — and nearly absent on Firefox and Edge](#4-hevc-safaris-codec)
-- [AV1 + HEVC covers 99.73% of sessions for decode — without H.264](#5-av1--hevc--universal-decode-coverage)
-- [VP9 Profile 0 is as universally supported as H.264 Baseline](#6-vp9-as-universal-as-h264)
-- [AV1 + HEVC only reaches 98.16% for encoding — you need VP9 or AVC as a safety net](#7-the-encodedecode-asymmetry-strategy-depends-on-use-case)
+- [AV1 + HEVC now covers 99.73% of sessions, is h264 needed anymore?](#5-av1--hevc--universal-decode-coverage)
+- [VP9 is now more universally supported than H.264 Baseline](#6-vp9-as-universal-as-h264)
+- [There's still a big gap between encode and decode capabilities](#7-the-encodedecode-asymmetry-strategy-depends-on-use-case)
 - [For audio encoding, only Opus and AAC are production-ready](#8-audio-only-opus-and-aac-matter-for-encoding)
 
 ---
 
-## A Note on Aggregate Numbers
-
-Before diving in: codec family aggregate numbers are misleading. When you see "AV1: 20% encoder support," that averages across all 432 AV1 codec string variants — including 10-bit and 12-bit profiles that essentially no browser can encode. The real question is whether the *right* AV1 codec string is supported, not whether some AV1 variant is.
-
-Throughout this analysis, support numbers refer to well-supported representative codec strings (Profile 0, 8-bit for AV1; Profile 1 Main tier for HEVC; Profile 0 8-bit for VP9; Baseline for H.264), not family-wide averages.
-
 ---
 
-## 1. AV1 Decode Has Crossed the Threshold
+## AV1 Decode Has Crossed the Threshold
 
 AV1 Profile 0, 8-bit variants have reached **~91.5% decoder support** across real-world sessions. That is a mainstream number.
 
@@ -67,7 +69,7 @@ For Chrome, Edge, and Firefox on desktop and Android, AV1 decode is effectively 
 
 ---
 
-## 2. AV1 Encoding: Profile Choice Is Everything
+## AV1 Profile Choice Is Everything
 
 **~88% of sessions support AV1 encoding** — but only with the right codec string. The support landscape varies dramatically by profile and bit depth:
 
@@ -96,35 +98,9 @@ The 10-bit row deserves attention: decoder support stays at ~91% (the same as 8-
 
 ---
 
-## 3. The 10-Bit Encoding Wall
 
-The AV1 10-bit cliff is not an AV1-specific quirk. It appears across every codec family:
 
-<table>
-<thead>
-<tr>
-<th>Codec</th>
-<th>Example</th>
-<th style="text-align: right;">8-bit Encoder</th>
-<th style="text-align: right;">10-bit Encoder</th>
-<th style="text-align: right;">10-bit Decoder</th>
-</tr>
-</thead>
-<tbody>
-<tr><td>AVC Baseline</td><td><code>avc1.420020</code></td><td style="text-align: right; background-color: #d4edda;">99.7%</td><td style="text-align: right; color: #999;">—</td><td style="text-align: right; color: #999;">—</td></tr>
-<tr><td>AV1 Profile 0</td><td><code>av01.0.16M.08</code> / <code>av01.0.18H.10</code></td><td style="text-align: right; background-color: #fff3cd;">87.9%</td><td style="text-align: right; background-color: #f8d7da;">8.4%</td><td style="text-align: right; background-color: #d4edda;">91.5%</td></tr>
-<tr><td>VP9 Profile 0 → 2, 10-bit</td><td><code>vp09.00.10.08.00</code> / <code>vp09.02.10.10.00</code></td><td style="text-align: right; background-color: #d4edda;">99.99%</td><td style="text-align: right; background-color: #fff3cd;">78.2%</td><td style="text-align: right; background-color: #d4edda;">99.5%</td></tr>
-<tr><td>HEVC Profile 1 → Main 10</td><td><code>hvc1.1.6.L120.B0</code> / <code>hvc1.2.4.H120.B0</code></td><td style="text-align: right; background-color: #fff3cd;">73.8%</td><td style="text-align: right; background-color: #f8d7da;">12.4%</td><td style="text-align: right; background-color: #fff3cd;">75.4%</td></tr>
-</tbody>
-</table>
-
-The pattern is consistent: hardware decoders support high bit depth broadly, but hardware encoders lag significantly. This is a GPU/driver limitation, not a browser limitation.
-
-The practical implication: if your pipeline requires 10-bit output, browser-side encoding via WebCodecs is not a reliable option for most users. Server-side encoding or a software encoder fallback is required.
-
----
-
-## 4. HEVC: Safari's Codec
+## HEVC: Safari's Codec
 
 HEVC tells the inverse story of AV1. Where AV1 is universal on Chrome/Edge/Firefox and absent on Safari, HEVC is universal on Safari and nearly absent on Edge and Firefox:
 
@@ -136,7 +112,7 @@ For practical purposes: HEVC encoding works on Apple devices and Chrome on non-W
 
 ---
 
-## 5. AV1 + HEVC = Universal Decode Coverage
+## AV1+HEVC = Universal Decode Coverage
 
 AV1 covers Chrome, Edge, and Firefox. HEVC covers Safari. The hypothesis that together they reach virtually everyone turns out to be correct.
 
@@ -148,11 +124,11 @@ From a confusion matrix across 958,110 sessions that tested both families:
 
 The 0.27% that support neither are likely very old hardware. H.264 covers them, but they represent a vanishingly small population.
 
-For streaming and playback use cases, AV1 + HEVC is a complete modern codec strategy. H.264 is a legacy safety net, not a primary codec.
+For streaming and playback use cases, AV1 + HEVC is a complete modern codec strategy, without the need for fallbacks to older codecs like h264.
 
 ---
 
-## 6. VP9: As Universal as H.264
+## VP9 as Universal as H.264
 
 VP9 Profile 0 (8-bit) is frequently treated as a transitional codec — more modern than H.264, less modern than AV1. The data suggests a different view: VP9 is as universally supported as H.264 itself.
 
@@ -181,7 +157,7 @@ The same holds for H.264: AVC × VP9 shows 99.93% supporting both for decode, wi
 
 ---
 
-## 7. The Encode/Decode Asymmetry: Strategy Depends on Use Case
+## The Encode/Decode Asymmetry: Strategy Depends on Use Case
 
 This is where the streaming audience and the encoding pipeline audience diverge.
 
@@ -214,9 +190,11 @@ The 1.84% gap — ~21,000 sessions — supports neither AV1 nor HEVC encoding. T
 
 ---
 
-## 8. Audio: Only Opus and AAC Matter for Encoding
+## Audio: Only Opus and AAC Matter for Encoding
 
-The audio codec picture is simpler than video:
+Audio is likely less relevant than video codecs, however there is nuance. For decode, AAC and Opus are pretty much universally supported, as are alternate codecs like PCM, Vorbis and FLAC.
+
+For the WebCodecs api specifically, only Opus and AAC are well suported, however as audio codecs typically don't require hardware acceleration, support can be added in for CPU based audio encode for any platform.
 
 <table>
 <thead>
@@ -245,40 +223,43 @@ The audio codec picture is simpler than video:
 
 FLAC and MP3 have essentially universal decoder support but **zero encoder support** via WebCodecs. If your pipeline needs to produce MP3 or FLAC output, you'll need a WebAssembly encoder.
 
-For production audio encoding: **Opus first, AAC as fallback.** For decoding, almost anything works.
-
 ---
 
-## Recommended Codec Strategies
 
-### For streaming / playback (decode)
-
-- **Primary:** AV1 Profile 0, 8-bit (e.g. `av01.0.16M.08`)
-- **Safari fallback:** HEVC Profile 1 (e.g. `hvc1.1.6.L120.B0`)
-- **Legacy fallback:** H.264 Baseline/Main for the ~0.3% not covered above
-
-### For encoding (WebCodecs applications)
-
-- **AV1:** Profile 0, 8-bit only. Avoid 10-bit and all other profiles in production.
-- **Safety net:** VP9 Profile 0 8-bit (`vp09.00.10.08.00`) or H.264 Baseline — both are ~99.9%+ universal
-- **HEVC encoding:** viable on Safari, macOS Chrome, and Android Chrome — not elsewhere
-- **Avoid:** any 10-bit or 12-bit encoding variant across any codec family
-
-### For audio
-
-- **Encoding:** Opus (`opus`) → AAC (`mp4a.40.2`) fallback
-- **Decoding:** anything works; no special considerations needed
-
----
 
 ## Methodology
 
 All data in this analysis comes from the **[Codec Support Dataset](/datasets/codec-support/)** — 363,330,358 individual codec tests from 1,142,586 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January–March 2026.
 
-The confusion matrix analysis (sections 5 and 7) uses per-session data with canonical codec string selection — only sessions that tested at least one well-supported representative string for each family are included in a given comparison. This avoids false negatives from sessions that happened to test only unsupported variants (e.g. 12-bit AV1).
+Keep in mind that this dataset specifically uses queries from the WebCodecs API which has it's own quirks. It seems safe to conclude that if decode/encode is supported by the WebCodecs API, that it is also supported by the device, however there may be codecs supported by the device not supported by the WebCodecs API, so these numbers are inherently conservative.
 
 You can find a full detailed explanation of methodology [here](https://free.upscaler.video/research/methodology)
 
 Full dataset available on [Zenodo](https://zenodo.org/records/19187467) and [Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support) under CC-BY 4.0.
 
 **[Browse the full codec registry →](/datasets/codec-support-table/)**
+
+
+## Future work
+
+The data comes from a live application I run. I will soon begin work on version 2 of this dataset with:
+
+* Hardware level codec support from native APIs on mobile (Android, iOS)
+* Capturing richer information on GPU such as vendor name / GPU class.
+
+I want to make this dataset as useful for developers, industry experts and academics in video streaming space. If you have feedback or would like to request something specific for the next version of the dataset, feel free to reach out at sam@webcodecsfundamentals.org.
+
+If you want to know when the next version of the dataset is released, you register to be notified here
+
+<!-- MailerLite Universal -->
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '1290599');
+</script>
+<!-- End MailerLite Universal -->
+
+<div class="ml-embedded" data-form="YJdS8R"></div>
+
