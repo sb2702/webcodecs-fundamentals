@@ -229,9 +229,29 @@ FLAC and MP3 have essentially universal decoder support but **zero encoder suppo
 
 All data in this analysis comes from the **[Codec Support Dataset](/datasets/codec-support/)** — 363,330,358 individual codec tests from 1,142,586 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January–March 2026.
 
+**This is WebCodecs data**
+
 Keep in mind that this dataset specifically uses queries from the WebCodecs API which has its own quirks. It seems safe to conclude that if decode/encode is supported by the WebCodecs API, that it is also supported by the device, however there may be codecs supported by the device not supported by the WebCodecs API, so these numbers are inherently conservative.
 
-**A note on aggregate numbers:** codec family aggregate numbers can be misleading. When you see "AV1: 20% encoder support," that averages across all 432 AV1 codec string variants — including 10-bit and 12-bit profiles that essentially no browser can encode. Throughout this analysis, support numbers refer to well-supported representative codec strings (Profile 0, 8-bit for AV1; Profile 1 Main tier for HEVC; Profile 0 8-bit for VP9; Baseline for H.264), not family-wide averages.
+**Sessions, not devices**
+
+All numbers (like 91.5% decode support) are based on *device-sessions*, which is reflective of real-world traffic to the specific application [free.upscaler.video](https://free.upscaler.video), but which may not be reflective of traffic for another application. Here is the traffic distribution for this data set:
+
+![Traffic distribution](/assets/datasets/session-distribution.png)
+
+A different application would likely have a different traffic distribution, however you are more than welcome to download the dataset yourself and weight codec support based on your own application's traffic distribution.
+
+Also, the dataset prevents the same device from being counted twice by using an in-browser localstorage uuid identifier, however a user on the same device with private / incognito mode (or the same device with different browsers) would count as seperate entries in the dataset.
+
+
+**Chromium**
+
+Due to the plethora of Chromium based browsers (Google Chrome, Edge, Brave, Opera, Perplexity etc..), all the Chromium  based browsers are bundled together. The only exception is Edge, as (1) it exposes Edge as an identifier in the user agent string unlike most other Chromium browsers, (2) Edge is by far the most popular Chromium browser after Google Chrome. Perhaps in version 2 of the dataset I will track other chromium based browsers specifically, but from a developer standpoint regarding codec support it is unlikely to matter much.
+
+
+**A note on aggregate numbers** 
+
+Codec family aggregate numbers can be misleading. When you see "AV1: 20% encoder support," that averages across all 432 AV1 codec string variants — including 10-bit and 12-bit profiles that essentially no browser can encode. Throughout this analysis, support numbers refer to well-supported representative codec strings (Profile 0, 8-bit for AV1; Profile 1 Main tier for HEVC; Profile 0 8-bit for VP9; Baseline for H.264), not family-wide averages.
 
 You can find a full detailed explanation of methodology [here](https://free.upscaler.video/research/methodology)
 
