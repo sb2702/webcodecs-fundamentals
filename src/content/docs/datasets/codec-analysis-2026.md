@@ -106,9 +106,9 @@ HEVC tells the inverse story of AV1. Where AV1 is universal on Chrome/Edge/Firef
 
 ![HEVC decode support by browser and platform](/assets/datasets/hevc-decode-matrix.png)
 
-The Edge number is particularly striking: Edge on Windows has essentially 0% HEVC encoder support despite being built on Chromium, the same engine that gives Chrome 81% on Windows. This appears to be a licensing issue — Microsoft has not included HEVC encoding support in Edge.
+The Edge number is particularly striking: Edge on Windows has much less decode support on Windows (56%) than the same engine that gives Chrome 81% on Windows. This appears to be a licensing issue — Microsoft does not always include HEVC decoding support in Edge.
 
-For practical purposes: HEVC encoding works on Apple devices and Chrome on non-Windows platforms. It does not work on Edge or Firefox.
+For practical purposes: HEVC decoding works on Apple devices and Chrome on non-Windows platforms. It does not work on Edge or Firefox.
 
 ---
 
