@@ -87,7 +87,7 @@ You need to specify a *codec string* such as  'vp9.00.10.08.00' or 'avc1.42003e'
 ##### Bitrate
 Video codecs apply a trade-off between file size and video quality, where you can have high quality video with large file sizes, or you can have compact files with low quality video. This tradeoff is specified in the bitrate, where higher bitrates result in larger files but higher quality. 
 
-Here's a visualization of how bitrate affects quality, with the same [1080p file](https://larmoire.org/jellyfish/) transcoded at different bitrates
+Here's a visualization of how bitrate affects quality, with the same 1080p file transcoded at different bitrates
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px;">
   <div style="text-align: center;">

@@ -55,7 +55,7 @@ This page lists the main sources, references, and resources cited throughout Web
 
 - [CPU vs GPU with Canvas API](https://www.middle-engine.com/blog/posts/2020/08/21/cpu-versus-gpu-with-the-canvas-web-api) - Analysis of Canvas rendering performance
 - [WebCodecs Performance (Paul Adenot)](https://www.w3.org/2021/03/media-production-workshop/talks/paul-adenot-webcodecs-performance.html) - W3C workshop talk
-- [GPU Memory Management](https://people.ece.ubc.ca/sasha/papers/ismm-2017.pdf) - Academic paper on GPU/CPU memory
+- [GPU Memory Management](/assets/basics/cpu/ismm-2017.pdf) - Academic paper on GPU/CPU memory
 - [WebGPU Explainer](https://gpuweb.github.io/gpuweb/explainer/) - GPU memory model
 
 ## Video Streaming Protocols

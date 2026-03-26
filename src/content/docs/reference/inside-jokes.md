@@ -44,7 +44,7 @@ If you are interested in watching it, here is the full movie.
 
 <video src="https://katana-misc-files.s3.us-east-1.amazonaws.com/videos/bbb-fixed.mp4" width="640" height="360" controls> </video>
 
-If you do watch the whole thing, you can of course give it a rating on [IMDB](https://www.imdb.com/title/tt1254207/)
+If you do watch the whole thing, you can of course give it a rating on IMDB:  https://www.imdb.com/title/tt1254207/
 
 
 ## Rube Goldberg Machine

@@ -5,7 +5,7 @@ description: Understanding ImageData vs VideoFrame
 
 import { Badge } from '@astrojs/starlight/components'
 
-Before even getting to WebCodecs, I want to cover some very important core concepts that most guides don't talk about, which lots of demo pages from reputable open source projects like [Mediabunny](https://mediabunny.dev/) and [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/image_segmenter) leave out for simplicity, but which are absolutely critical to building performant video processing applications in the web.
+Before even getting to WebCodecs, I want to cover some very important core concepts that most guides don't talk about, which lots of demo pages from reputable open source projects like [Mediabunny](https://mediabunny.dev/) and [MediaPipe](https://github.com/google-ai-edge/mediapipe) leave out for simplicity, but which are absolutely critical to building performant video processing applications in the web.
 
 The first concept is the distinction between CPU and the GPU, and how data flows between them during video processing operations.
 
@@ -40,7 +40,7 @@ A mostly* accurate view of a generalized consumer device system might look like 
 ![](/assets/basics/cpu/system.svg)
 
 
-\*  In reality, integrated graphics cards actually do use the same physical RAM device as the CPU, but the operating system reserves a portion for the graphics card, and the graphics card manages the memory separately, and often use different caching/storage mechanisms so that, for practical purposes, GPU memory and CPU memory act as separate stores, requiring CPU cycles and data copies to move data between GPU and the CPU [[1](https://people.ece.ubc.ca/sasha/papers/ismm-2017.pdf)][[2](https://gpuweb.github.io/gpuweb/explainer/#:~:text=2.2.&text=When%20using%20a%20discrete%20GPU,process%20and%20the%20content%20process.)][[3](https://www.w3.org/2021/03/media-production-workshop/talks/paul-adenot-webcodecs-performance.html)].
+\*  In reality, integrated graphics cards actually do use the same physical RAM device as the CPU, but the operating system reserves a portion for the graphics card, and the graphics card manages the memory separately, and often use different caching/storage mechanisms so that, for practical purposes, GPU memory and CPU memory act as separate stores, requiring CPU cycles and data copies to move data between GPU and the CPU [[1](/assets/basics/cpu/ismm-2017.pdf)][[2](https://gpuweb.github.io/gpuweb/explainer/#:~:text=2.2.&text=When%20using%20a%20discrete%20GPU,process%20and%20the%20content%20process.)][[3](https://www.w3.org/2021/03/media-production-workshop/talks/paul-adenot-webcodecs-performance.html)].
 
 
 
