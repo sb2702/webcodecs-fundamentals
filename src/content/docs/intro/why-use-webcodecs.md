@@ -9,10 +9,10 @@ This enables web application developers to develop high-performance video applic
 
 A few common examples of types of applications where WebCodecs would be relevant:
 
-* Browser based video editing software (like [Diffusion Studio](https://www.diffusion.studio/) or [Clipchamp](https://www.clipchamp.com))
-* Streaming media to/from browser with more control than WebRTC (e.g. [Media Over Quic](https://moq.dev/))
-* Generating videos programatically in the browser (e.g. [Remotion](https://www.remotion.dev/))
-* Video utilities to [convert](https://www.remotion.dev/convert) or [enhance](https://free.upscaler.video) videos in the browser
+* Browser based video editing software (like Diffusion Studio or Clipchamp)
+* Streaming media to/from browser with more control than WebRTC (e.g. [Media Over Quic](../../projects/moq))
+* Generating videos programatically in the browser (e.g. Remotion)
+* Video utilities to convert or enhance videos in the browser
 
 
 
@@ -37,7 +37,7 @@ You could also build an application using server-side processing and a web-appli
 
 * No server-side costs
 
-I can't provide specifics for other companies, however having worked for companies like [Streamyard](https://streamyard.com) (browser-based live streaming tool), I know that server-side video processing was one of the biggest costs, and when it came time to build my own [video editing software](https://katana.video) I chose to implement in WebCodecs to enable trivially low operating costs even at scale.
+I can't provide specifics for other companies, however having worked for companies like Streamyard (browser-based live streaming tool), I know that server-side video processing was one of the biggest costs, and when it came time to build my own [video editing software](https://katana.video) I chose to implement in WebCodecs to enable trivially low operating costs even at scale.
 
 
 #### WebCodecs is the best of both worlds
@@ -48,7 +48,7 @@ Let's say someone gave you a WebM file and you needed to convert it to an MP4.
 
 **The Desktop option**:
 
-Previously, you could download software like [Handbrake](https://handbrake.fr/)
+Previously, you could download software like Handbrake
 
 ![](https://handbrake.fr/img/slides/slide2_lin.jpg)
 
@@ -57,14 +57,14 @@ Handbrake is great that it's free and open source, but it does require (1) insta
 
 **Server Option**:
 
-If you search "Convert WebM to MP4", many search engines will show results like [Free Convert](https://www.freeconvert.com/webm-to-mp4) but, because the service is server based, they (1) Have strict limits, (2) often have advertising to compensate for server-costs.
+If you search "Convert WebM to MP4", many search engines will show results like Free Convert but, because the service is server based, they (1) Have strict limits, (2) often have advertising to compensate for server-costs.
 
 ![](/assets/basics/what-is-webcodecs/free-convert.png)
 
 
 **WebCodecs option**:
 
-Compared to both, consider [Remotion convert](https://www.remotion.dev/convert), a simple webcodecs based video conversion tool. There is nothing to install, it has no ads, it has a great UI/UX and it just works.
+Compared to both, consider Remotion Convert, a simple webcodecs based video conversion tool. There is nothing to install, it has no ads, it has a great UI/UX and it just works.
 
 
 ![](/assets/basics/what-is-webcodecs/webcodecs.png)
