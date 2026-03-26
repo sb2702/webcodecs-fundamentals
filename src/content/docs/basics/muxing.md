@@ -112,7 +112,7 @@ for await (const packet of sink.packets()) {
 
 You'd first import the relevant functions from Mediabunny, and then create an `Input` reference to a file, extract the `VideoTrack`.
 
-From there, to read individual source chunks, you could create an `EncodedPacketSink`, and get packets from the sink, but as we'll see in the [Mediabunny Section](../media-bunny/use-cases.md), you don't actually need to touch `EncodedVideoChunk` directly, the library can handle decoding you can directly go to reading `VideoFrame` objects without dealing with a `VideoDecoder`, making Mediabunny by far the most user-friendly option.
+From there, to read individual source chunks, you could create an `EncodedPacketSink`, and get packets from the sink, but as we'll see in the [Mediabunny Section](../../projects/media-bunny), you don't actually need to touch `EncodedVideoChunk` directly, the library can handle decoding you can directly go to reading `VideoFrame` objects without dealing with a `VideoDecoder`, making Mediabunny by far the most user-friendly option.
 
 ##### web-demuxer
 
@@ -416,7 +416,7 @@ async function muxChunks(function(chunks: EncodedVideoChunk[]): Promise <Blob>{
 
 ```
 
-Though as with demuxing with Mediabunny, in most cases, you don't even need to deal with `EncodedVideoChunk` or `VideoEncoder` objects, Mediabunny is actually *less verbose* for writing video frames to a file as we'll see in the [Mediabunny Section](../media-bunny/use-cases.md).
+Though as with demuxing with Mediabunny, in most cases, you don't even need to deal with `EncodedVideoChunk` or `VideoEncoder` objects, Mediabunny is actually *less verbose* for writing video frames to a file as we'll see in the [Mediabunny Section](../../projects/media-bunny).
 
 
 ##### WebMMuxer/MP4Muxer

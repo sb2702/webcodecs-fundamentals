@@ -1454,7 +1454,7 @@ Many existing platforms use a similar approach with WebRTC where the sever joins
 
 One advantage of Webcodecs is that we can avoid a decode/encode process and directly mux video to hard disk which is much more efficient. Because WebCodecs provides raw encoded video/audio data, it can work with server-side media processing libraries like [PyAV](https://github.com/PyAV-Org/PyAV) and [NodeAV](https://github.com/seydx/node-av), which are server-runtime bindings for ffmpeg, allowing you to mux encoded video data on the server (to record a user's stream). 
 
-Because [Mediabunny](../../projects/mediabunny) works on the server, we'll use that as our example, but you can use whatever media processing library is available for your target language:
+Because [Mediabunny](../../projects/media-bunny) works on the server, we'll use that as our example, but you can use whatever media processing library is available for your target language:
 
 
 Using Mediabunny to mux files in a javascript/typescript run time, here's how you'd set up the muxer to write the encoded stream to disk:

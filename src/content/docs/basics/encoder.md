@@ -4,7 +4,7 @@ description: How to use the WebCodecs VideoEncoder API - configuration, encode s
 ---
 
 
-The `VideoEncoder` allows transforming [VideoFrame](./video-frame) objects into [EncodedVideoChunk](./encoded-video-chunk) objects allowing you to write rendered / raw video frames to a compressed/encoded video stream or file.
+The `VideoEncoder` allows transforming [VideoFrame](../video-frame) objects into [EncodedVideoChunk](../encoded-video-chunk) objects allowing you to write rendered / raw video frames to a compressed/encoded video stream or file.
 
 ![](/assets/basics/encoder/video-encoder.png)
 
@@ -53,7 +53,7 @@ setInterval(function(){
 
 Like the `VideoDecoder` though, there is a big gap between hello world demos and production pipelines, so in this article we'll focus specifically on the `VideoEncoder` and how to actually manage an encoder in a production pipeline.
 
-[Mediabunny](../media-bunny/intro) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use Mediabunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
+[Mediabunny](../../projects/media-bunny) abstracts the `VideoEncoder` away, simplifying a lot of the pipeline and process management,  so if you want to use Mediabunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
 
 
@@ -245,7 +245,7 @@ Encoding performance varies dramatically across devices and browsers, and is in 
 
 #### Another Rube-Goldberg machine
 
-Much like the [VideoDecoder](../video-decoder), you shouldn't think of the `encode()` function as some async task, it's better to treat the encoder as a [Rube Goldberg machine](../../reference/inside-jokes#rube-goldberg-machine), where you continuously feed frames, feeding frames in pushes the process along, and encoded chunks come out the other end.
+Much like the [VideoDecoder](../decoder), you shouldn't think of the `encode()` function as some async task, it's better to treat the encoder as a [Rube Goldberg machine](../../reference/inside-jokes#rube-goldberg-machine), where you continuously feed frames, feeding frames in pushes the process along, and encoded chunks come out the other end.
 
 ![](/assets/basics/encoder/rube-goldber-encoder.png)
 
@@ -264,7 +264,7 @@ You now also have to manage memory bottlenecks at multiple points (`decoder.deco
 
 When you build a pipeline with both a `VideoDecoder` and `VideoEncoder` in WebCodecs, you really do have to pay attention to data flows, progress and memory bottlenecks.
 
-Some of this gets easier with libraries like [Mediabunny](../../media-bunny/intro), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
+Some of this gets easier with libraries like [Mediabunny](../../projects/media-bunny), and later in design patterns, we'll include full working examples for transcoding, playback and editing that you can copy and modify.
 
 
 #### WebGPU Rendering
@@ -450,7 +450,7 @@ function getBitrate(width, height, fps, quality = 'good') {
 
 ```
 
-**getBestCodec()**: For production use, we should detect the best supported codec string rather than hardcoding one. This ensures compatibility across different browsers and devices. See [codecs](./codecs#how-to-choose-a-codec-string) for more details on why this is necessary.
+**getBestCodec()**: For production use, we should detect the best supported codec string rather than hardcoding one. This ensures compatibility across different browsers and devices. See [codecs](../codecs#how-to-choose-a-codec-string) for more details on why this is necessary.
 
 ```typescript
 

@@ -7,8 +7,8 @@ Work in Progress
 
 
 * [Video Player](../playback)
-* [Transcoding](../patterns)
-* [Video Editing](../patterns/)
+* [Transcoding](../transcoding)
+* [Video Editing](../editing/)
 * [Programmatic Video Generation](../generation)
-* [Live Streaming + Conferencing](../patterns/)
+* [Live Streaming + Conferencing](../live-streaming/)
 

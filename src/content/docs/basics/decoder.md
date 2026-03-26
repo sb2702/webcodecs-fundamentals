@@ -34,7 +34,7 @@ The hello world looks pretty simple, and these docs already have multiple code e
 
 In this article we'll focus specifically on the `VideoDecoder` and how to actually manage decoders in a production decoding pipeline.
 
-[Mediabunny](../media-bunny/intro) abstracts the `VideoDecoder` away, simplifying a lot of the pipeline and process management,  so if you want to use Mediabunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
+[Mediabunny](../../projects/media-bunny) abstracts the `VideoDecoder` away, simplifying a lot of the pipeline and process management,  so if you want to use Mediabunny, this section isn't necessary, but might still be helpful to understand how WebCodecs works.
 
 ### Configuration
 
