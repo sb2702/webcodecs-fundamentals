@@ -121,7 +121,7 @@ Where you can see that the firefox performance improves dramatically, almost cer
 
 ### WebGPU importExternalTexture
 
-[WebGPU](https://webgpufundamentals.org/) is a fairly complicated graphics API enabling highly performance graphics (or machine learning workloads) in the browser, but it has a steep learning curve.
+[WebGPU](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API) is a fairly complicated graphics API enabling highly performance graphics (or machine learning workloads) in the browser, but it has a steep learning curve.
 
 One key advantage that it has though is the `importExternalTexture` method, which enables rendering `VideoFrame` objects to a canvas in a true *zero-copy* fashion, meaning that the video frame isn't copied anywhere, it moves directly from where it is in GPU memory to the canvas.
 

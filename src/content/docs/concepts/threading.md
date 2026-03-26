@@ -26,7 +26,7 @@ When a user opens your website in a Chromium browser, their task manager (or equ
 
 When a user opens a new tab and navigates to your website, the browser allocates a *main thread*, where the UI (HTML / CSS), event handlers, and (unless otherwise specified) all the javascript is run.
 
-This means that the browser cannot update the UI at the same time that it is executing Javascript. Modern Browsers use [optimized engines](https://v8.dev/) execute Javascript so quickly that UI delays aren't noticeable, unless the web-app is doing particularly heavy processing.
+This means that the browser cannot update the UI at the same time that it is executing Javascript. Modern Browsers use optimized engines which execute Javascript so quickly that UI delays aren't noticeable, unless the web-app is doing particularly heavy processing.
 
 Video Processing absolutely counts as "particularly heavy processing", which is why running everything on the main thread (the default) is not ideal. A web-application using WebCodecs, implemented without workers, would in practice have a very laggy UI that would freeze or crash the tab during key moments when reading large files, rendering or encoding.
 

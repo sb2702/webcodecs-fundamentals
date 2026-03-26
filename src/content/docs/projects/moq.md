@@ -117,7 +117,7 @@ To understand Media over Quic and whether it's something you need to consider fo
 
 **What it is:**
 
-When most people talk about live streams, such as a live-streamed sports match, HLS/DASH + MSE is almost always the stack being used. It is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[1](https://www.mux.com/articles/hls-vs-dash-what-s-the-difference-between-the-video-streaming-protocols)].
+When most people talk about live streams, such as a live-streamed sports match, HLS/DASH + MSE is almost always the stack being used. It is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[1](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Audio_and_video_delivery/Live_streaming_web_audio_and_video)].
 ![](/assets/patterns/livestreaming/server-browser-3.svg)
 
 You then have video player software like [hls.js](https://github.com/video-dev/hls.js) or [shaka player](https://github.com/shaka-project/shaka-player) on each viewer's device which progressively fetch chunks of the video from a CDN using normal HTTP requests.
@@ -192,7 +192,6 @@ For everything else there's ~~Mastercard~~ WebRTC and HLS/DASH. If you are build
 **Official Resources:**
 - [moq.dev](https://moq.dev/) - Official MoQ project site
 - [moq setup](https://doc.moq.dev/setup/) - How to get started with MoQ
-- [IETF MoQ Working Group](https://datatracker.ietf.org/group/moq/about/) - Specification development
 
 **Libraries:**
 - [@moq/lite](https://github.com/moq-dev/moq/tree/main/js/moq-lite) - JavaScript/TypeScript library for browser

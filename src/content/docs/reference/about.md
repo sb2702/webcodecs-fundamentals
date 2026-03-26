@@ -62,7 +62,7 @@ My name is [Sam Bhattacharyya](https://sambhattacharyya.com/). I have a backgrou
 
 <img src="/assets/references/about/sam.jpg" alt="Sam Bhattacharyya" style="width: 200px; margin: auto; border-radius: 8px;" />
 
-- After grad school I started [Vectorly](https://sambhattacharyya.com/vectorly) where I patented a [video codec](https://patents.google.com/patent/US10116963B1/en), (<small>learned it's hard to commercialize a new codec</small>), pivoted to an [AI filters SDK](https://sambhattacharyya.com/blog/building-a-more-efficient-background-segmentation-model-than-google/) that was acquired by Hopin in 2021
+- After grad school I started [Vectorly](https://sambhattacharyya.com/vectorly) where I patented a video codec, (<small>learned it's hard to commercialize a new codec</small>), pivoted to an [AI filters SDK](https://sambhattacharyya.com/blog/building-a-more-efficient-background-segmentation-model-than-google/) that was acquired by Hopin in 2021
 - I was the head of AI for [Hopin](https://en.wikipedia.org/wiki/Hopin_(company)), building AI features for several products before it itself was acquired in 2024
 - I started my 2nd startup [Katana](https://katana.video/) to build AI models to automatically edit podcasts
 - My free [open source hobby project](https://free.upscaler.video) to upscale videos randomly took off and has ~200,000 monthly active users 🤷

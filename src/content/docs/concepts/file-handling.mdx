@@ -99,7 +99,7 @@ In either case, it's only during this second file reading step that data actuall
 ### Reading large files
 
 
-If you are decoding video, you will need to demux the file. For MP4 files specifically, to even begin demuxing, the demuxer library (e.g. [Mediabunny](https://mediabunny.dev/), [MP4Box.js](https://github.com/gpac/mp4box.js)) needs to find the [moov atom](https://developer.apple.com/documentation/quicktime-file-format/movie_atom), which is often at the end of the file.
+If you are decoding video, you will need to demux the file. For MP4 files specifically, to even begin demuxing, the demuxer library (e.g. [Mediabunny](https://mediabunny.dev/), [MP4Box.js](https://github.com/gpac/mp4box.js)) needs to find the [moov atom](https://github.com/alfg/quick-dive-into-mp4), which is often at the end of the file.
 
 You will therefore often need to read through the entire file once to even begin to demux it, and reading through a full 5GB video on a low-end netbook to find the moov atom can take over 1 minute, which is important to keep in mind when designing UI.
 

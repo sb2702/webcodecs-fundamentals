@@ -1699,7 +1699,7 @@ You'll be able to stream encoded video data to the local server over webcodecs, 
 
 #### HLS & Dash
 
-The primary use case for streaming video from a server to a browser would be your typical "live streaming" use case where a server broadcasts some live stream of video from a source (like a sports match), which is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[3](https://www.mux.com/articles/hls-vs-dash-what-s-the-difference-between-the-video-streaming-protocols)].
+The primary use case for streaming video from a server to a browser would be your typical "live streaming" use case where a server broadcasts some live stream of video from a source (like a sports match), which is typically done by encoding and packaging a source stream into a streaming format like HLS or Dash, which get sent to a CDN [[3](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Audio_and_video_delivery/Live_streaming_web_audio_and_video)].
 ![](/assets/patterns/livestreaming/server-browser-3.svg)
 
 You then have video player software like [hls.js](https://github.com/video-dev/hls.js) or [shaka player](https://github.com/shaka-project/shaka-player) on each viewer's device which progressively fetch chunks of the video from a CDN using normal HTTP requests.
