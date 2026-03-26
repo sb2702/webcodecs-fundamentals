@@ -66,7 +66,7 @@ and as we saw, it's pretty easy to draw a frame to an image
 ctx.drawImage(frame, 0, 0);
 ```
 
-The problem with the 2d canvas is that, to enable its simple graphics API, many operations in the canvas 2d API are implemented using CPU rendering. Because the web standard doesn't specify how 2d canvas should be implemented, and at least Chromium seems to dynamically decide how to implement each function depending on a number of factors [[1](https://www.middle-engine.com/blog/posts/2020/08/21/cpu-versus-gpu-with-the-canvas-web-api)], it's not clear or consistent how `drawImage` will behave, and as we'll see, its performance varies greatly between browsers.
+The problem with the 2d canvas is that, to enable its simple graphics API, many operations in the canvas 2d API are implemented using CPU rendering. Because the web standard doesn't specify how 2d canvas should be implemented, and at least Chromium seems to dynamically decide how to implement each function depending on a number of factors [[1](https://groups.google.com/a/chromium.org/g/blink-dev/c/NPSQdiXSK4w/m/jgzIaJPJxh8J)], it's not clear or consistent how `drawImage` will behave, and as we'll see, its performance varies greatly between browsers.
 
 Benchmarking the speed of decoding + `drawImage` [Big Buck Bunny](../../reference/inside-jokes#big-buck-bunny) at 1080p on my Macbook M4 Laptop on 3 browsers*
 

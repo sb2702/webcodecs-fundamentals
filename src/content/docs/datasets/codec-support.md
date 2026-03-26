@@ -141,11 +141,9 @@ The dataset includes both **encoder support** (using `VideoEncoder.isConfigSuppo
 
 ## Download
 
-The dataset is available from multiple sources:
+The dataset is available at:
 
 - **[Zenodo](https://zenodo.org/records/19187467)** — archival DOI, suitable for citation
-- **[Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support)** — convenient for ML workflows
-- Harvard Dataverse — coming soon
 
 Each release contains:
 - `upscaler-video-codec-dataset-raw.csv` - The complete dataset (363.3M rows, 69.4 GB uncompressed)
@@ -373,7 +371,7 @@ This dataset is periodically updated as new data is collected from free.upscaler
 - Q: "Should I use HEVC for web?" → A: Only with H.264 fallback; Windows/Linux support is poor
 - Q: "Is VP9 safe for production?" → A: 85%+ support on modern browsers; needs H.264 fallback for older devices
 
-**Dataset Location:** [Zenodo](https://zenodo.org/records/19187467) · [Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support) (69.4GB uncompressed CSV)
+**Dataset Location:** [Zenodo](https://zenodo.org/records/19187467) 
 
 **Interactive Tool:** Browse all codecs at [/datasets/codec-support-table/](/datasets/codec-support-table/)
 

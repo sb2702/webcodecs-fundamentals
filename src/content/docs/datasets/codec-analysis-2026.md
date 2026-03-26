@@ -255,7 +255,7 @@ Codec family aggregate numbers can be misleading. When you see "AV1: 20% encoder
 
 You can find a full detailed explanation of methodology [here](https://free.upscaler.video/research/methodology)
 
-Full dataset available on [Zenodo](https://zenodo.org/records/19187467) and [Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support) under CC-BY 4.0.
+Full dataset available on [Zenodo](https://zenodo.org/records/19187467) under CC-BY 4.0.
 
 **[Browse the full codec registry →](/datasets/codec-support-table/)**
 
