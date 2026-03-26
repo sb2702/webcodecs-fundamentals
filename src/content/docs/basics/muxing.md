@@ -57,8 +57,8 @@ Storing data into a file (according to the specification) is called muxing, and 
 The format specifications are complex, and **the point of muxing/demuxing libraries is to follow these specifications**, so you can read/write video to files without worrying about the details.
 
 In the video world, we call file itself a *container* and the format (e.g. WebM, MP4) a *container format*.  For the curious, here are the docs for each container format:
-* [WebM](https://www.webmproject.org/docs/container/)
-* [MP4](https://developer.apple.com/documentation/quicktime-file-format)
+* [WebM](https://www.w3.org/TR/mse-byte-stream-format-webm/)
+* [MP4](https://github.com/alfg/quick-dive-into-mp4)
 
 
 
@@ -171,7 +171,7 @@ const chunks = await demuxer.extractSegment('video', 0, 30); //First 30 seconds
 
 MP4 files store data in the form of 'boxes', and there are different types of boxes, like *mdat* (audio/video data) and *moov* (metadata) which each contain different types of data, and syntax for storing or parsing that data. Boxes can be nested, and so you'd need to read through a file, separate out all the boxes, and parse the data from each box.
 
-Here is a [list](https://mp4ra.org/registered-types/boxes) of boxes, and you can inspect the [source code](https://github.com/gpac/mp4box.js) of MP4Box to see how they parse boxes and how they handle [each box type](https://github.com/gpac/mp4box.js/tree/main/src/boxes).
+Here is a [list](https://github.com/alfg/quick-dive-into-mp4) of boxes, and you can inspect the [source code](https://github.com/gpac/mp4box.js) of MP4Box to see how they parse boxes and how they handle [each box type](https://github.com/gpac/mp4box.js/tree/main/src/boxes).
 
 <br/>
 <small>
@@ -189,7 +189,7 @@ const arrayBuffer = await file.arrayBuffer();
 const ebmlElms = decoder.decode(arrayBuffer);
 ```
 
-You can refer to the [official docs](https://www.webmproject.org/docs/container/) for what each Element name is and does, or can just read in a WebM file in a browser and inspect for yourself.  
+You can refer to the [official docs](https://www.w3.org/TR/mse-byte-stream-format-webm/) for what each Element name is and does, or can just read in a WebM file in a browser and inspect for yourself.  
 
 Here is a very barebones example of manually parsing a WebM file purely for illustrative purposes.
 

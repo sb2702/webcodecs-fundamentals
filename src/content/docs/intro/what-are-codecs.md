@@ -85,4 +85,4 @@ Also, if you render video, either by rendering complex 3d graphics, or generate 
 
 ###### Both Decoding and Encoding
 
-Some common use cases for encoding and decoding are when building video editing software (where source videos need to be decoded and the frames painted onto some kind of canvas, and then encoded when exporting the video), or with video processing utilities like [ffmpeg](https://www.ffmpeg.org/) or handbrake which can convert video from one format to another, or even [upscaling software](https://github.com/k4yt3x/video2x).
+Some common use cases for encoding and decoding are when building video editing software (where source videos need to be decoded and the frames painted onto some kind of canvas, and then encoded when exporting the video), or with video processing utilities like [ffmpeg](https://github.com/ffmpeg/ffmpeg) or handbrake which can convert video from one format to another, or even [upscaling software](https://github.com/k4yt3x/video2x).
