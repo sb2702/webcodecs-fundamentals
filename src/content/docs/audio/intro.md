@@ -94,7 +94,7 @@ Because the solutions for audio are different based on use case, I wanted to pro
 
 * You can skip this entire section if you use [Mediabunny](../../media-bunny/intro), though the docs may still be helpful to understand fundamentals
 * If you don't need to re-encode audio at all (e.g. video transcoding), feel free to skip the section entirely
-* If you only care about playback and aren't encoding audio, feel free to skip straight to [playback](../playback)
+* If you only care about playback and aren't encoding audio, feel free to skip straight to [playback](../web-audio)
 * If you only will be working with audio, feel free to skip straight to [this section](../mp3)
 
 Otherwise, let's continue and in the next section I'll actually start talking about WebCodecs audio.

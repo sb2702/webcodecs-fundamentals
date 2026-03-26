@@ -3,7 +3,7 @@ title: VideoDecoder
 description: How to use the WebCodecs VideoDecoder API - configuration, the decoding loop, buffer management, flush behavior, and production pipeline patterns.
 ---
 
-The `VideoDecoder` allows transforming [EncodedVideoChunk](./encoded-video-chunk) objects into [VideoFrame](./video-frame) objects, allowing you to read and render raw video frames from a video file or video stream.
+The `VideoDecoder` allows transforming [EncodedVideoChunk](../encoded-video-chunk) objects into [VideoFrame](../video-frame) objects, allowing you to read and render raw video frames from a video file or video stream.
 
 ![](/assets/basics/decoder/video-decoder.png)
 

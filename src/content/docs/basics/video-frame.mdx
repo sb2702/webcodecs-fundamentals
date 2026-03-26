@@ -10,7 +10,7 @@ Video is essentially just a series of images (called frames) with timestamps, in
 ![](/assets/basics/video-frames/bbb-frames.png)
 
 The javascript `VideoFrame` class,  likewise, is represented as a combination of pixel data (like RGB values) and some metadata (including the timestamp). <mark>Keep in mind that VideoFrame and other WebCodecs interfaces represent time in microseconds.</mark>
-![](/src//assets//content//basics/video-frames/video-frame.svg)
+![](/assets/basics/video-frames/video-frame.svg)
 
 
 A `VideoFrame` has all the information needed to render or display the image in a `<canvas>`, or to access raw pixel data (e.g. for AI model inference), but can't directly be stored in a normal video file.
