@@ -48,7 +48,7 @@ Let's start with the obvious:
 ##### Muxing/Demuxing
 How do you extract `EncodedVideoChunk` objects from a `File`? I put this mysterious `getChunks` method as a placeholder, but in reality the process of going from `File` to `EncodedVideoChunk[]` is a whole other thing called [demuxing](../../basics/muxing), involving parsing the source video, and extracting byte ranges for each frame, and constructing an `EncodedVideoChunk` object. 
 
-The WebCodecs API **doesn't help you at all there**, you need to "Bring your own chunks", but fortunately there are [libraries](../media-bunny/) that help with this, which we'll get to.
+The WebCodecs API **doesn't help you at all there**, you need to "Bring your own chunks", but fortunately there are [libraries](../../projects/media-bunny/) that help with this, which we'll get to.
 
 
 

@@ -3,14 +3,14 @@ title: MP3
 description: How to encode MP3
 ---
 
-If your application needs to read or write audio-only files, you'll probably want to support MP3 files. Unfortunately, WebCodecs doesn't currently support MP3 [[1](../../datasets/codec-strings)], so you'll need a 3rd party library.
+If your application needs to read or write audio-only files, you'll probably want to support MP3 files. Unfortunately, WebCodecs doesn't currently support MP3 [[1](../../datasets/codec-support-table)], so you'll need a 3rd party library.
 
 Fortunately, here are a few:
 
 
 ### Mediabunny
 
-For this example, we won't work with the manual WebCodecs API since WebCodecs doesn't even support MP3 [[1](../../datasets/codec-strings)], so we'll use a pure Mediabunny example, which will take the audio source from whatever input file you provide, and transcode it to audio.
+For this example, we won't work with the manual WebCodecs API since WebCodecs doesn't even support MP3 [[1](../../datasets/codec-support-table)], so we'll use a pure Mediabunny example, which will take the audio source from whatever input file you provide, and transcode it to audio.
 
 ```typescript
 import { registerMp3Encoder } from '@mediabunny/mp3-encoder';

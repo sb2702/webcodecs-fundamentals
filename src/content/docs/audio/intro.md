@@ -27,7 +27,7 @@ If you're only working with audio, you might be better off with the WebAudio API
 
 #### Web Audio API
 
-The [WebAudio API](./web-audio.md) is a completely different API for decoding and playing audio in the browser, as well as applying custom audio processing and filters.
+The [WebAudio API](../web-audio) is a completely different API for decoding and playing audio in the browser, as well as applying custom audio processing and filters.
 
 
 Unhelpfully, while there is some overlap in these APIs (both can be used to decode audio), they also don't really talk to each other. For example, WebCodecs represents raw audio via the `AudioData` object, but you can't play back `AudioData` in the browser. You need WebAudio to play audio in the browser, and WebAudio uses `AudioBuffer`, a completely different class for representing raw audio.
@@ -35,7 +35,7 @@ Unhelpfully, while there is some overlap in these APIs (both can be used to deco
 You can convert `AudioData` to `AudioBuffer` with some hacky `Float32Array` gymnastics, but it takes cpu effort to do so and you can't do this in a worker because WebAudio is only available on the main thread.
 
 
-You're better off just ignoring WebCodecs, and just using WebAudio for playback, which we'll cover in the [WebAudio section](./web-audio.md)
+You're better off just ignoring WebCodecs, and just using WebAudio for playback, which we'll cover in the [WebAudio section](../web-audio)
 
 #### When to use which
 

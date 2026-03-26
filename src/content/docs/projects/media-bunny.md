@@ -3,7 +3,7 @@ title: Mediabunny - ffmpeg for the web
 description: How Mediabunny helps with this
 ---
 
-Hopefully you are convinced that WebCodecs is [more complex than it looks](../reality-check), but you can make your life significantly easier by using [Mediabunny](https://mediabunny.dev/), which can be thought of as the "ffmpeg for the web";
+Hopefully you are convinced that WebCodecs is [more complex than it looks](../../intro/reality-check), but you can make your life significantly easier by using [Mediabunny](https://mediabunny.dev/), which can be thought of as the "ffmpeg for the web";
 
 WebCodecs gives low-level access to hardware accelerated video encoding and decoding in the browser. [Mediabunny](https://mediabunny.dev/) builds on top of WebCodecs, adding key utilities like muxing/demuxing, simplifying the API, and implementing best practices. The result is a general purpose media processing library for the browser.
 

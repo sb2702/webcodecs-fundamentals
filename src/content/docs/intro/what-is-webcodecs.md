@@ -72,7 +72,7 @@ encoder.encode(<VideoFrame> rawVideoFrame);
 
 ##### There's a lot more to it
 
-So the core of WebCodecs is to expose interfaces around a `VideoDecoder` and `VideoEncoder`, and while those classes look simple enough, there's [a lot more]((../reality-check)) to take into account, from basics like working with audio, how to get `EncodedVideoChunks` objects in the first place, to all the architecture you'd need to create actually build a [video player](../../patterns/playback) or [transcoding pipeline](../../patterns/transcoding).
+So the core of WebCodecs is to expose interfaces around a `VideoDecoder` and `VideoEncoder`, and while those classes look simple enough, there's [a lot more](../reality-check) to take into account, from basics like working with audio, how to get `EncodedVideoChunks` objects in the first place, to all the architecture you'd need to create actually build a [video player](../../patterns/playback) or [transcoding pipeline](../../patterns/transcoding).
 
 So while a hello-world tutorial for WebCodecs can fit in less than 30 lines of code, building a production-level WebCodecs requires a lot more code, a lot more process management and a lot more edge case and error handling.
 
