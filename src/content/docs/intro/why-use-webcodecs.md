@@ -50,7 +50,7 @@ Let's say someone gave you a WebM file and you needed to convert it to an MP4.
 
 Previously, you could download software like Handbrake
 
-![](https://handbrake.fr/img/slides/slide2_lin.jpg)
+![](/assets/basics/what-is-webcodecs/handbrake.jpg)
 
 Handbrake is great that it's free and open source, but it does require (1) installation and configuration (2) knowledge of web codecs and 'what you are doing', and the interface is dated.
 

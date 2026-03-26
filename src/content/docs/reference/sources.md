@@ -30,14 +30,12 @@ This page lists the main sources, references, and resources cited throughout Web
 
 - [Mediabunny](https://mediabunny.dev/) - Media processing library for WebCodecs
   - [Source Code](https://github.com/Vanilagy/mediabunny)
-  - [Discord Community](https://discord.com/invite/hmpkyYuS4U)
 - [web-demuxer](https://github.com/bilibili/web-demuxer/) - WebAssembly-based demuxer
 - [mp4-muxer](https://www.npmjs.com/package/mp4-muxer) - MP4 muxing library
 - [webcodecs-utils](https://www.npmjs.com/package/webcodecs-utils) - Utility functions and polyfills
 
 ### Media Over QUIC (MoQ)
 
-- [MoQ Specification](https://datatracker.ietf.org/wg/moq/about/)
 - [moq-dev GitHub](https://github.com/moq-dev/moq)
 - [Hang Protocol Library](https://github.com/moq-dev/moq/tree/main/js/hang)
 - [@moq/lite](https://www.npmjs.com/package/@moq/lite) - JavaScript MoQ client
@@ -59,12 +57,9 @@ This page lists the main sources, references, and resources cited throughout Web
 - [WebCodecs Performance (Paul Adenot)](https://www.w3.org/2021/03/media-production-workshop/talks/paul-adenot-webcodecs-performance.html) - W3C workshop talk
 - [GPU Memory Management](https://people.ece.ubc.ca/sasha/papers/ismm-2017.pdf) - Academic paper on GPU/CPU memory
 - [WebGPU Explainer](https://gpuweb.github.io/gpuweb/explainer/) - GPU memory model
-- [Browser Process Architecture](https://sunandakarunajeewa.medium.com/how-web-browsers-use-processes-and-threads-5ddbea938b1c)
 
 ## Video Streaming Protocols
 
-- [HLS vs DASH Comparison (Mux)](https://www.mux.com/articles/hls-vs-dash-what-s-the-difference-between-the-video-streaming-protocols)
-- [Media over QUIC (Cloudflare)](https://blog.cloudflare.com/moq/) - CDN provider perspective
 - [Facebook MoQ Encoder-Player](https://github.com/facebookexperimental/moq-encoder-player)
 - [QUIC Protocol](https://en.wikipedia.org/wiki/QUIC)
 - [RTMP Protocol](https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol)
@@ -76,11 +71,7 @@ This page lists the main sources, references, and resources cited throughout Web
 - [Spectral Band Replication (SBR)](https://en.wikipedia.org/wiki/Spectral_band_replication) - AAC enhancement
 - [Parametric Stereo](https://en.wikipedia.org/wiki/Parametric_stereo) - AAC stereo encoding
 
-## Test Videos & Media
 
-- [Big Buck Bunny](https://peach.blender.org/) - Open-source test video (Blender Foundation)
-  - [Download](https://download.blender.org/demo/movies/BBB/)
-- [Jellyfish Test Video](https://larmoire.org/jellyfish/) - 1080p quality comparison test
 
 ## Example Code & Demos
 
@@ -108,7 +99,6 @@ Real-world WebCodecs applications referenced:
 
 ## Other Technical Resources
 
-- [WebGPU Fundamentals](https://webgpufundamentals.org/) - WebGPU learning resource
 - [Publish-Subscribe Pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
 - [Rube Goldberg Machine](https://en.wikipedia.org/wiki/Rube_Goldberg_machine) - Metaphor used for encoder/decoder architecture
 

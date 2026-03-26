@@ -16,7 +16,7 @@ Each application runs as a *process*, with it's own sandbox of memory, and each 
 
 An example would be a server script (like a NodeJS or python script) that could download multiple files in parallel, where the main script is a single process, but which can span multiple threads which run in parallel, often each on a different CPU core.
 
-Many browsers (like Chromium browsers) actually run in multiple processes [[1]](https://sunandakarunajeewa.medium.com/how-web-browsers-use-processes-and-threads-5ddbea938b1c), with each tab running it's own process. 
+Many browsers (like Chromium browsers) actually run in multiple processes,  with each tab running it's own process. 
 
 When a user opens your website in a Chromium browser, their task manager (or equivalent) will show a specific process that was created just for your browsing website.
 
