@@ -65,7 +65,7 @@ My name is [Sam Bhattacharyya](https://sambhattacharyya.com/). I have a backgrou
 - After grad school I started [Vectorly](https://sambhattacharyya.com/vectorly) where I patented a video codec, (<small>learned it's hard to commercialize a new codec</small>), pivoted to an [AI filters SDK](https://sambhattacharyya.com/blog/building-a-more-efficient-background-segmentation-model-than-google/) that was acquired by Hopin in 2021
 - I was the head of AI for [Hopin](https://en.wikipedia.org/wiki/Hopin_(company)), building AI features for several products before it itself was acquired in 2024
 - I started my 2nd startup [Katana](https://katana.video/) to build AI models to automatically edit podcasts
-- My free [open source hobby project](https://free.upscaler.video) to upscale videos randomly took off and has ~200,000 monthly active users 🤷
+- My free [open source hobby project](https://free.upscaler.video/video-enhancer), a free online video enhancer, randomly took off and has ~400,000 monthly active users 🤷
 
 I've done a bit of everything, from enterprise sales to consumer app marketing to product management to fundraising to engineering to actual ML research (maybe that's par for the course for founders?). I'm better at the tech stuff though. I'm a particular fan of the intersection of browsers, video and efficient AI models - all 3 of my last major projects involved writing custom neural networks in WebGL/WebGPU for real-time video inference [[4](https://free.upscaler.video/technical/architecture/)][[5](https://katana.video/blog/what-does-katana-actually-do)][[6](https://sambhattacharyya.com/blog/building-a-more-efficient-background-segmentation-model-than-google/)]
 
