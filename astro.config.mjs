@@ -40,7 +40,7 @@ export default defineConfig({
 				{
 					tag: 'script',
 					attrs: {
-						src: 'https://analytics.upscaler.video/js/pa-eEsyvyp9f-2BhtPl9ZzC-.js',
+						src: 'https://plausible.katana-internal.us/js/pa-ZxBM76nUUplR7hywLnl33.js',
 						async: true,
 					},
 				},
