@@ -77,7 +77,7 @@ Among the motivations for this project was also to explore building developer-fo
 Special thanks to:
 - David (Vanilagy) for building [Mediabunny](https://mediabunny.dev/) and providing detailed technical feedback on this documentation
 - Jonny Burger for somehow finding this website, fixing mistakes and submitting a PR before I even told anyone about it
-- The 200,000+ users of free.upscaler.video who (unknowingly) contributed to the codec support dataset
+- The 700,000+ monthly users of free.upscaler.video who (unknowingly) contributed to the codec support dataset
 - Claude for vibe coding the UI for the demos and the animations, and for being the world's most computationally inefficient spell-checker. I couldn't have built this whole site in 10 days without the help
 
 ## Contact

@@ -141,14 +141,15 @@ def generate_registry_page(aggregated_dir, output_file):
         codec_families[family].append(codec)
 
     # Start building Markdown content
+    sessions_short = f"{index['totalSessions'] / 1e6:.1f}M"
     md_content = f"""---
-title: Codec Support Table
-description: Complete table of {index['codecCount']:,} codec strings tested across real-world browsers and platforms
+title: WebCodecs Codec Support Table
+description: Real-world WebCodecs codec support across browsers and platforms - {index['codecCount']:,} codec strings tested across {sessions_short} user sessions. Find which codecs work in Chrome, Safari, Firefox, and Edge.
 ---
 
 This page contains a comprehensive table of **{index['codecCount']:,} codec strings** tested with the WebCodecs API across real-world browsers and platforms.
 
-> **About this dataset:** This data comes from {index['totalSessions']:,} real user sessions with a total of {index['totalTests']:,} individual codec string tests. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
+> **About this dataset:** This data comes from {index['totalSessions']:,} real user sessions of [free.upscaler.video](https://free.upscaler.video) with a total of {index['totalTests']:,} individual codec string tests. See the [Codec Support Dataset](/datasets/codec-support/) page for methodology, download links, and usage information. 
 ## Codec Families
 
 **Video Codecs:**

@@ -1,6 +1,6 @@
 ---
-title: "AV1, H265 support in 2026: Data from 1M+ devices"
-description: "Empirical analysis of AV1, HEVC, VP9, and H.264 support across 1.1 million real-world browser sessions. Key findings: AV1+HEVC covers 99.7% for decode, VP9 is as universal as H.264, and the 10-bit encoding wall affects every codec family."
+title: "AV1, H265 support in 2026: Data from 7M+ devices"
+description: "Empirical analysis of AV1, HEVC, VP9, and H.264 support across 7.6 million real-world browser sessions. Key findings: AV1+HEVC covers 99.6% for decode, VP9 is as universal as H.264, and the 10-bit encoding wall affects every codec family."
 head:
   - tag: meta
     attrs:
@@ -15,13 +15,13 @@ head:
 
 
 
-*Data from the [Codec Support Dataset](/datasets/codec-support/) — 363,330,358 individual codec tests across 1,142,586 real user sessions. See [methodology](#methodology) for collection details.*
+*Data from the [Codec Support Dataset](/datasets/codec-support/) — 2,434,549,264 individual codec tests across 7,655,853 real user sessions. See [methodology](#methodology) for collection details.*
 
 <br/>
 
 <div class="article-byline">
   <img src="/assets/references/about/sam.jpg" alt="Sam Bhattacharyya" />
-  <span>By <a href="https://sambhattacharyya.com" target="_blank">Sam Bhattacharyya</a> · March 2026</span>
+  <span>By <a href="https://sambhattacharyya.com" target="_blank">Sam Bhattacharyya</a> · March 2026 · Updated October 2026</span>
 </div>
 
 ---
@@ -33,16 +33,16 @@ The closest analogues available are:
 * [Bitmovin Developer report](https://bitmovin.com/video-developer-report/) - which is a survey of developers on what codecs they implement
 
 
-The [Codec Support dataset](../codec-support/) is the first public, empirical dataset with hard numbers on codec support for AV1, HEVC, VP9, AVC and others for 1 million + devices. The dataset directly uses Device/Browser APIs to query codec decode/encode support from real user sessions of [free.upscaler.video](https://free.upscaler.video)
+The [Codec Support dataset](../codec-support/) is the first public, empirical dataset with hard numbers on codec support for AV1, HEVC, VP9, AVC and others for 7 million+ devices. The dataset directly uses Device/Browser APIs to query codec decode/encode support from real user sessions of [free.upscaler.video](https://free.upscaler.video)
 
 Here are some of the most interesting findings from the data
 
 
 **Key findings:**
-- [AV1 has ~91.5% decode support](#av1-decode-has-crossed-the-threshold)
+- [AV1 has ~91% decode support](#av1-decode-has-crossed-the-threshold)
 - [AV1 only has widespread support for some profiles](#av1-profile-choice-is-everything)
 - [HEVC is nearly universal on Safari — and nearly absent on Firefox and Edge](#hevc-safaris-codec)
-- [AV1 + HEVC now covers 99.73% of sessions, is h264 needed anymore?](#av1hevc--universal-decode-coverage)
+- [AV1 + HEVC now covers 99.6% of sessions, is h264 needed anymore?](#av1hevc--universal-decode-coverage)
 - [VP9 is now more universally supported than H.264 Baseline](#vp9-as-universal-as-h264)
 - [There's still a big gap between encode and decode capabilities](#the-encodedecode-asymmetry-strategy-depends-on-use-case)
 - [For audio encoding, only Opus and AAC are production-ready](#audio-only-opus-and-aac-matter-for-encoding)
@@ -51,7 +51,7 @@ Here are some of the most interesting findings from the data
 
 ## AV1 Decode Has Crossed the Threshold
 
-AV1 Profile 0, 8-bit variants have reached **~91.5% decoder support** across real-world sessions. That is a mainstream number.
+AV1 Profile 0, 8-bit variants have reached **~91% decoder support** across real-world sessions. That is a mainstream number.
 
 The nuance is in who's missing. Breaking down by browser and platform:
 
@@ -59,7 +59,7 @@ The nuance is in who's missing. Breaking down by browser and platform:
 
 Two things stand out:
 
-**Safari is the genuine holdout.** macOS Safari supports AV1 decode on only ~24% of sessions, iOS Safari on ~33%. This is the hardware gap — older Apple Silicon and all Intel Macs lack hardware AV1 decode, and Apple has not shipped a software decoder.
+**Safari is the genuine holdout.** macOS Safari supports AV1 decode on only ~27% of sessions, iOS Safari on ~33%. This is the hardware gap — older Apple Silicon and all Intel Macs lack hardware AV1 decode, and Apple has not shipped a software decoder.
 
 **Firefox Android shows 0% — but this is a WebCodecs API gap, not an AV1 hardware problem.** Firefox has not fully implemented the WebCodecs API on Android. The hardware on those devices almost certainly supports AV1; Firefox just doesn't expose the API. This caveat applies throughout this analysis: Firefox Android numbers reflect API availability, not hardware capability.
 
@@ -69,7 +69,7 @@ For Chrome, Edge, and Firefox on desktop and Android, AV1 decode is effectively 
 
 ## AV1 Profile Choice Is Everything
 
-**~88% of sessions support AV1 encoding** — but only with the right codec string. The support landscape varies dramatically by profile and bit depth:
+**~87% of sessions support AV1 encoding** — but only with the right codec string. The support landscape varies dramatically by profile and bit depth:
 
 <table>
 <thead>
@@ -81,16 +81,16 @@ For Chrome, Edge, and Firefox on desktop and Android, AV1 decode is effectively 
 </tr>
 </thead>
 <tbody>
-<tr><td>Profile 0, 8-bit (levels 4+)</td><td><code>av01.0.16M.08</code></td><td style="text-align: right; background-color: #d4edda;">~88%</td><td style="text-align: right; background-color: #d4edda;">~91%</td></tr>
+<tr><td>Profile 0, 8-bit (levels 4+)</td><td><code>av01.0.16M.08</code></td><td style="text-align: right; background-color: #d4edda;">~87%</td><td style="text-align: right; background-color: #d4edda;">~91%</td></tr>
 <tr><td>Profile 0, 8-bit (low levels)</td><td><code>av01.0.00H.08</code></td><td style="text-align: right; background-color: #d4edda;">~84%</td><td style="text-align: right; background-color: #d4edda;">~88%</td></tr>
-<tr><td>Profile 1, 8-bit</td><td><code>av01.1.06H.08</code></td><td style="text-align: right; background-color: #fff3cd;">~79%</td><td style="text-align: right; background-color: #d4edda;">~84%</td></tr>
+<tr><td>Profile 1, 8-bit</td><td><code>av01.1.06H.08</code></td><td style="text-align: right; background-color: #fff3cd;">~80%</td><td style="text-align: right; background-color: #d4edda;">~84%</td></tr>
 <tr><td>Profile 0, 10-bit</td><td><code>av01.0.18H.10</code></td><td style="text-align: right; background-color: #f8d7da;">~8%</td><td style="text-align: right; background-color: #d4edda;">~91%</td></tr>
 <tr><td>Profile 1, 10/12-bit</td><td><code>av01.1.00H.10</code></td><td style="text-align: right; background-color: #f8d7da;">0%</td><td style="text-align: right; background-color: #d4edda;">~84%</td></tr>
-<tr><td>Profile 2, all variants</td><td><code>av01.2.00M.08</code></td><td style="text-align: right; background-color: #f8d7da;">0%</td><td style="text-align: right; background-color: #d4edda;">~84%</td></tr>
+<tr><td>Profile 2, all variants</td><td><code>av01.2.00M.08</code></td><td style="text-align: right; background-color: #f8d7da;">0–3%</td><td style="text-align: right; background-color: #d4edda;">~84%</td></tr>
 </tbody>
 </table>
 
-For production AV1 encoding: **use Profile 0, 8-bit only.** Profile 1 drops to ~79%, and anything beyond that is effectively unsupported for encoding.
+For production AV1 encoding: **use Profile 0, 8-bit only.** Profile 1 drops to ~80%, and anything beyond that is effectively unsupported for encoding.
 
 The 10-bit row deserves attention: decoder support stays at ~91% (the same as 8-bit), but encoder support falls to ~8%. The hardware can decode 10-bit AV1 — it just can't encode it. This encode/decode asymmetry is not unique to AV1.
 
@@ -104,7 +104,7 @@ HEVC tells the inverse story of AV1. Where AV1 is universal on Chrome/Edge/Firef
 
 ![HEVC decode support by browser and platform](/assets/datasets/hevc-decode-matrix.png)
 
-The Edge number is particularly striking: Edge on Windows has much less decode support on Windows (56%) than the same engine that gives Chrome 81% on Windows. This appears to be a licensing issue — Microsoft does not always include HEVC decoding support in Edge.
+The Edge number is particularly striking: Edge on Windows has much less decode support on Windows (57%) than the same engine that gives Chrome 85% on Windows. This appears to be a licensing issue — Microsoft does not always include HEVC decoding support in Edge.
 
 For practical purposes: HEVC decoding works on Apple devices and Chrome on non-Windows platforms. It does not work on Edge or Firefox.
 
@@ -114,13 +114,13 @@ For practical purposes: HEVC decoding works on Apple devices and Chrome on non-W
 
 AV1 covers Chrome, Edge, and Firefox. HEVC covers Safari. The hypothesis that together they reach virtually everyone turns out to be correct.
 
-From a confusion matrix across 958,110 sessions that tested both families:
+From a confusion matrix across 7,454,611 sessions that tested both families:
 
 ![AV1 + HEVC decode coverage stacked bar chart](/assets/datasets/av1-hevc-coverage.png)
 
-**AV1 + HEVC covers 99.73% of sessions for decode** — above any reasonable threshold for universal coverage.
+**AV1 + HEVC covers 99.6% of sessions for decode** — above any reasonable threshold for universal coverage.
 
-The 0.27% that support neither are likely very old hardware. H.264 covers them, but they represent a vanishingly small population.
+The 0.4% that support neither are likely very old hardware. H.264 covers them, but they represent a vanishingly small population.
 
 For streaming and playback use cases, AV1 + HEVC is a complete modern codec strategy, without the need for fallbacks to older codecs like h264.
 
@@ -140,18 +140,18 @@ VP9 Profile 0 (8-bit) is frequently treated as a transitional codec — more mod
 </tr>
 </thead>
 <tbody>
-<tr><td>H.264 Baseline</td><td><code>avc1.420020</code></td><td style="text-align: right; background-color: #d4edda;">99.72%</td><td style="text-align: right; background-color: #d4edda;">99.94%</td></tr>
-<tr><td>VP9 Profile 0</td><td><code>vp09.00.10.08.00</code></td><td style="text-align: right; background-color: #d4edda;">99.99%</td><td style="text-align: right; background-color: #d4edda;">99.99%</td></tr>
-<tr><td>AV1 Profile 0, 8-bit</td><td><code>av01.0.16M.08</code></td><td style="text-align: right; background-color: #fff3cd;">87.9%</td><td style="text-align: right; background-color: #d4edda;">91.5%</td></tr>
-<tr><td>HEVC Profile 1</td><td><code>hvc1.1.6.L120.B0</code></td><td style="text-align: right; background-color: #fff3cd;">73.8%</td><td style="text-align: right; background-color: #d4edda;">85.1%</td></tr>
+<tr><td>H.264 Baseline</td><td><code>avc1.420020</code></td><td style="text-align: right; background-color: #d4edda;">99.63%</td><td style="text-align: right; background-color: #d4edda;">99.80%</td></tr>
+<tr><td>VP9 Profile 0</td><td><code>vp09.00.10.08.00</code></td><td style="text-align: right; background-color: #d4edda;">99.99%</td><td style="text-align: right; background-color: #d4edda;">99.87%</td></tr>
+<tr><td>AV1 Profile 0, 8-bit</td><td><code>av01.0.16M.08</code></td><td style="text-align: right; background-color: #fff3cd;">87.4%</td><td style="text-align: right; background-color: #d4edda;">91.3%</td></tr>
+<tr><td>HEVC Profile 1</td><td><code>hvc1.1.6.L120.B0</code></td><td style="text-align: right; background-color: #fff3cd;">77.1%</td><td style="text-align: right; background-color: #d4edda;">86.7%</td></tr>
 </tbody>
 </table>
 
 VP9 Profile 0 actually edges out H.264 Baseline for both encode and decode.
 
-The confusion matrix confirms this: in the AV1 × VP9 comparison, AV1-only sessions (support AV1 but not VP9) = **0.00%** (22 sessions out of 958,000). Essentially nobody supports AV1 without also supporting VP9. VP9 is a strict superset of AV1 support.
+The confusion matrix confirms this: in the AV1 × VP9 comparison, AV1-only sessions (support AV1 but not VP9) = **0.00%** (222 sessions out of 7.45 million). Essentially nobody supports AV1 without also supporting VP9. VP9 is a strict superset of AV1 support.
 
-The same holds for H.264: AVC × VP9 shows 99.93% supporting both for decode, with near-zero supporting either alone.
+The same holds for H.264: AVC × VP9 shows 99.80% supporting both for decode, with near-zero supporting either alone.
 
 ---
 
@@ -159,13 +159,13 @@ The same holds for H.264: AVC × VP9 shows 99.93% supporting both for decode, wi
 
 This is where the streaming audience and the encoding pipeline audience diverge.
 
-**AV1 + HEVC covers 99.73% for decode — but only 98.16% for encode.**
+**AV1 + HEVC covers 99.6% for decode — but only 97.49% for encode.**
 
-From the encoder confusion matrix (1,139,587 sessions):
+From the encoder confusion matrix (7,636,241 sessions):
 
 ![AV1 + HEVC encode coverage stacked bar chart](/assets/datasets/av1-hevc-encode-coverage.png)
 
-The 1.84% gap — ~21,000 sessions — supports neither AV1 nor HEVC encoding. To close it:
+The 2.51% gap — ~192,000 sessions — supports neither AV1 nor HEVC encoding. To close it:
 
 <table>
 <thead>
@@ -175,14 +175,14 @@ The 1.84% gap — ~21,000 sessions — supports neither AV1 nor HEVC encoding. T
 </tr>
 </thead>
 <tbody>
-<tr><td>AV1 only</td><td style="text-align: right; background-color: #fff3cd;">~88%</td></tr>
-<tr><td>AV1 + HEVC</td><td style="text-align: right; background-color: #fff3cd;">98.16%</td></tr>
-<tr><td>AV1 + VP9</td><td style="text-align: right; background-color: #d4edda;">99.91%</td></tr>
+<tr><td>AV1 only</td><td style="text-align: right; background-color: #fff3cd;">~87%</td></tr>
+<tr><td>AV1 + HEVC</td><td style="text-align: right; background-color: #fff3cd;">97.49%</td></tr>
+<tr><td>AV1 + VP9</td><td style="text-align: right; background-color: #d4edda;">99.92%</td></tr>
 <tr><td>AV1 + AVC</td><td style="text-align: right; background-color: #d4edda;">99.94%</td></tr>
 </tbody>
 </table>
 
-**If you're building a streaming pipeline (decode):** AV1 + HEVC gets you to 99.73%. You're done. H.264 is a legacy safety net for the 0.27%.
+**If you're building a streaming pipeline (decode):** AV1 + HEVC gets you to 99.6%. You're done. H.264 is a legacy safety net for the 0.4%.
 
 **If you're building an encoding pipeline** (WebCodecs transcoder, video editor, capture tool): AV1 + HEVC isn't sufficient. You need AVC or VP9 as your encoding safety net. Both are effectively universal for encoding — pick one.
 
@@ -204,12 +204,12 @@ For the WebCodecs api specifically, only Opus and AAC are well supported, howeve
 </tr>
 </thead>
 <tbody>
-<tr><td>Opus</td><td><code>opus</code></td><td style="text-align: right; background-color: #d4edda;">96%</td><td style="text-align: right; background-color: #d4edda;">96%</td></tr>
-<tr><td>AAC</td><td><code>mp4a.40.2</code></td><td style="text-align: right; background-color: #d4edda;">90%</td><td style="text-align: right; background-color: #d4edda;">96%</td></tr>
-<tr><td>PCM variants</td><td><code>pcm-u8</code></td><td style="text-align: right; background-color: #f8d7da;">~8%</td><td style="text-align: right; background-color: #d4edda;">~94%</td></tr>
-<tr><td>Vorbis</td><td><code>vorbis</code></td><td style="text-align: right; background-color: #f8d7da;">~4%</td><td style="text-align: right; background-color: #d4edda;">96%</td></tr>
-<tr><td>FLAC</td><td><code>flac</code></td><td style="text-align: right; background-color: #f8d7da;">0%</td><td style="text-align: right; background-color: #d4edda;">96%</td></tr>
-<tr><td>MP3</td><td><code>mp3</code></td><td style="text-align: right; background-color: #f8d7da;">0%</td><td style="text-align: right; background-color: #d4edda;">96%</td></tr>
+<tr><td>Opus</td><td><code>opus</code></td><td style="text-align: right; background-color: #d4edda;">97%</td><td style="text-align: right; background-color: #d4edda;">97%</td></tr>
+<tr><td>AAC</td><td><code>mp4a.40.2</code></td><td style="text-align: right; background-color: #d4edda;">92%</td><td style="text-align: right; background-color: #d4edda;">97%</td></tr>
+<tr><td>PCM variants</td><td><code>pcm-u8</code></td><td style="text-align: right; background-color: #f8d7da;">~10%</td><td style="text-align: right; background-color: #d4edda;">~96%</td></tr>
+<tr><td>Vorbis</td><td><code>vorbis</code></td><td style="text-align: right; background-color: #f8d7da;">~3%</td><td style="text-align: right; background-color: #d4edda;">97%</td></tr>
+<tr><td>FLAC</td><td><code>flac</code></td><td style="text-align: right; background-color: #f8d7da;">0%</td><td style="text-align: right; background-color: #d4edda;">97%</td></tr>
+<tr><td>MP3</td><td><code>mp3</code></td><td style="text-align: right; background-color: #f8d7da;">0%</td><td style="text-align: right; background-color: #d4edda;">97%</td></tr>
 </tbody>
 </table>
 
@@ -227,7 +227,7 @@ FLAC and MP3 have essentially universal decoder support but **zero encoder suppo
 
 ## Methodology
 
-All data in this analysis comes from the **[Codec Support Dataset](/datasets/codec-support/)** — 363,330,358 individual codec tests from 1,142,586 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January–March 2026.
+All data in this analysis comes from the **[Codec Support Dataset](/datasets/codec-support/)** — 2,434,549,264 individual codec tests from 7,655,853 anonymous real-world user sessions of [free.upscaler.video](https://free.upscaler.video), collected January 2 – October 1, 2026.
 
 **This is WebCodecs data**
 
@@ -235,7 +235,7 @@ Keep in mind that this dataset specifically uses queries from the WebCodecs API 
 
 **Sessions, not devices**
 
-All numbers (like 91.5% decode support) are based on *device-sessions*, which is reflective of real-world traffic to the specific application [free.upscaler.video](https://free.upscaler.video), but which may not be reflective of traffic for another application. Here is the traffic distribution for this data set:
+All numbers (like 91% decode support) are based on *device-sessions*, which is reflective of real-world traffic to the specific application [free.upscaler.video](https://free.upscaler.video), but which may not be reflective of traffic for another application. Here is the traffic distribution for this data set:
 
 ![Traffic distribution](/assets/datasets/session-distribution.png)
 
@@ -255,7 +255,7 @@ Codec family aggregate numbers can be misleading. When you see "AV1: 20% encoder
 
 You can find a full detailed explanation of methodology [here](https://free.upscaler.video/research/methodology)
 
-Full dataset available on [Zenodo](https://zenodo.org/records/19187467) under CC-BY 4.0.
+Full dataset available on [Zenodo](https://zenodo.org/records/23107451) and [Hugging Face](https://huggingface.co/datasets/katana-video/webcodecs-codec-support) under CC-BY 4.0.
 
 **[Browse the full codec registry →](/datasets/codec-support-table/)**
 

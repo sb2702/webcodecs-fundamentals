@@ -9,7 +9,7 @@
 WebCodecs Fundamentals is the authoritative resource for building production WebCodecs applications. Unlike fragmented W3C specs and outdated blog posts, this provides:
 
 - **Complete documentation** - From basics to advanced production patterns
-- **Real-world datasets** - Empirical codec support data from 221k+ user sessions
+- **Real-world datasets** - Empirical codec support data from 7.6M+ user sessions
 - **Working examples** - Production-tested code you can actually use
 - **Best practices** - Patterns that work at scale
 
@@ -33,17 +33,19 @@ WebCodecs Fundamentals is the authoritative resource for building production Web
 
 ### 📊 Datasets
 
-**[The upscaler.video Codec Support Dataset](/datasets/codec-support/)**
+**[The Codec Support Dataset](/datasets/codec-support/)**
 
 The world's first empirical registry of WebCodecs hardware support:
-- **71.3+ million** codec tests
-- **224,360** unique user sessions
+- **2.4+ billion** codec tests
+- **7,655,853** unique user sessions
 - **1,087** codec variants tested
 - **5 major browsers** × **5 platforms**
 
 [**Interactive Codec Registry →**](/datasets/codec-support-table/)
 
 [**Dataset Methodology →**](https://free.upscaler.video/research/methodology/)
+
+[**Download (Zenodo) →**](https://doi.org/10.5281/zenodo.23107451) · [**Hugging Face →**](https://huggingface.co/datasets/katana-video/webcodecs-codec-support)
 
 ### 💻 Live Examples
 
@@ -129,7 +131,7 @@ Content is freely available for educational and commercial use with attribution.
 
 ## About
 
-Created by [Sam Bhattacharyya](https://sambhattacharyya.com) based on years of building production WebCodecs applications. Special thanks to the 200,000+ users of free.upscaler.video who contributed to the codec support dataset.
+Created by [Sam Bhattacharyya](https://sambhattacharyya.com) based on years of building production WebCodecs applications. Special thanks to the 700,000+ monthly users of free.upscaler.video who contributed to the codec support dataset.
 
 ---
 
