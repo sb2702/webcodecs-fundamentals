@@ -139,7 +139,7 @@
   </div>
 
   <script>
-   const relay = 'https://interop-relay.cloudflare.mediaoverquic.com:443';
+    const relay = new URLSearchParams(window.location.search).get('relay') || 'https://cdn.moq.dev/anon';
 
     
   // const relay = "http://localhost:4443"

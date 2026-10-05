@@ -113,11 +113,11 @@
   </div>
 
   <script type="module">
-    import * as Moq from 'https://esm.sh/@moq/lite';
+    import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
     const broadcastName = params.get('broadcast') || 'my-broadcast';
     const trackName = params.get('track') || 'chat';
 
@@ -154,26 +154,20 @@
         log(`Connecting to relay: ${relayUrl}`, 'info');
         updateStatus('Connecting to relay...');
 
-        connection = await Moq.Connection.connect(new URL(relayUrl));
+        // The origin holds what we publish; the connection announces it to the relay
+        const origin = new Moq.Origin.Producer();
+        connection = await Moq.Connection.connect({ url: new URL(relayUrl), publish: origin.consume() });
         log('Connected to relay', 'success');
 
-        const broadcast = new Moq.Broadcast();
-        connection.publish(broadcastName, broadcast);
+        const broadcast = origin.createBroadcast(Moq.Path.from(broadcastName));
+        broadcast.announce();
         log(`Published broadcast: "${broadcastName}"`, 'success');
 
-        updateStatus('Waiting for subscriber...');
-        const trackRequest = await broadcast.requested();
+        track = broadcast.createTrack(trackName);
+        log(`Created track: "${trackName}"`, 'success');
 
-        track = trackRequest.track;
-        log(`Track requested: "${track.name}"`, 'success');
-
-        if (track.name === trackName) {
-          updateStatus(`✓ Ready to send on track "${trackName}"`, 'success');
-          sendBtn.disabled = false;
-        } else {
-          log(`Unexpected track name: "${track.name}"`, 'error');
-          updateStatus('Track name mismatch', 'error');
-        }
+        updateStatus(`✓ Ready to send on track "${trackName}"`, 'success');
+        sendBtn.disabled = false;
 
       } catch (error) {
         log(`Error: ${error.message}`, 'error');

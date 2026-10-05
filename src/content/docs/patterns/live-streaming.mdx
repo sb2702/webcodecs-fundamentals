@@ -214,24 +214,23 @@ Unlike WebRTC servers (which are also relays) Media over Quic relays are content
 
 
   ```typescript
-import * as Moq from "@moq/lite";
+import * as Moq from "@moq/net";
 
-const connection = await Moq.connect("https://relay.moq.some-cdn.com");
+// The origin holds what we publish; the connection announces it to the relay
+const origin = new Moq.Origin.Producer();
+const connection = await Moq.Connection.connect({
+  url: new URL("https://relay.moq.some-cdn.com"),
+  publish: origin.consume(),
+});
 
-const broadcast = new Moq.Broadcast();
+const broadcast = origin.createBroadcast(Moq.Path.from("my-broadcast"));
+broadcast.announce();
 
-connection.publish('my-broadcast', broadcast);
+const track = broadcast.createTrack("chat");
 
-// Pull-mode, tracks are created when subscribers subscribe
-const {track, priority} =  await broadcast.requested();
-
-if(track.name ==='chat'){
-    const group = track.appendGroup();
-    group.writeString("Hello, MoQ!");
-    group.close();
-}
-
-
+const group = track.appendGroup();
+group.writeString("Hello, MoQ!");
+group.close();
 ```
   
   </TabItem>
@@ -239,20 +238,25 @@ if(track.name ==='chat'){
   <TabItem label="Subscriber">
 
 ```typescript
+import * as Moq from "@moq/net";
 
-import * as Moq from "@moq/lite";
+const origin = new Moq.Origin.Producer();
+const connection = await Moq.Connection.connect({
+  url: new URL("https://relay.moq.some-cdn.com"),
+  consume: origin,
+});
 
-const connection = await Moq.connect("https://relay.moq.some-cdn.com");
-
-// Subscribe to a broadcast
-const broadcast = connection.consume("my-broadcast");
+// Wait for the publisher to announce the broadcast
+const request = origin.request(Moq.Path.from("my-broadcast"), { announced: true });
+let broadcast = request.active.peek();
+while (!broadcast) broadcast = await request.active.changed();
 
 // Subscribe to a specific track
-const track = await broadcast.subscribe("chat");
+const track = broadcast.track("chat").subscribe();
 
 // Read data as it arrives
 for (;;) {
-	const group = await track.nextGroup();
+	const group = await track.recvGroup();
 	if (!group) break;
 
 	for (;;) {
@@ -266,7 +270,7 @@ for (;;) {
 </Tabs>
 
 
-Here's a quick demo of MoQ using Cloudflare's public relay, where one iframe will publish text messages in a track, and the other a iframe will subscribe to the same track, and listen for messages from the relay
+Here's a quick demo of MoQ using a public relay, where one iframe will publish text messages in a track, and the other a iframe will subscribe to the same track, and listen for messages from the relay
 
 
 <iframe src="/demo/moq/index.html" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
@@ -545,20 +549,20 @@ Now that we can covered:
 
 The next obvious step is to send encoded video over the network. We're going to start with sending data between browsers as it's the simplest case. 
 
-The way to send arbitrary binary data over a track using the `@moq/lite` library is as follows:
+The way to send arbitrary binary data over a track using the `@moq/net` library is as follows:
 
 ```typescript
-// Pull-mode, tracks are created when subscribers subscribe
-const {track, priority} =  await broadcast.requested();
+const track = broadcast.createTrack('video');
 
-if(track.name ==='video'){
-  const group = track.appendGroup();
-  group.writeFrame(<Uint8Array> buffer); //whatever you want
-  group.close();
-}
+const group = track.appendGroup();
+group.writeFrame({
+  payload: <Uint8Array> buffer, // whatever you want
+  timestamp: Moq.Time.Timestamp.now(),
+});
+group.close();
 ```
 
-Where you create a *group*, and in that *group* you can attach an arbitrary number of `Uint8Array` buffers. And as we saw, `EncodedVideoChunk` objects are just binary data + metadata.
+Where you create a *group*, and in that *group* you can attach an arbitrary number of frames, each a `Uint8Array` payload plus a timestamp. And as we saw, `EncodedVideoChunk` objects are just binary data + metadata.
 
 MoQ doesn't provide a specific protocol for how to send video or audio data. A core aspect of MoQ is that it is content agnostic, so you can come up with any schema you want for transmitting encoded chunks, as long as it is packaged as a `Uint8Array`.
 
@@ -607,7 +611,7 @@ Hang works by the publisher publishing a track called `'catalog.json'` with the 
 
 Where you specify available 'audio' tracks under 'audio' and video tracks under 'video'. Each available track is listed under `'renditions'`, and you'd specify the track name for each track.
 
-The value for `catalog.video.tracks[trackName]` is the `VideoDecoderConfig` you need to decode the video track, and `catalog.audio.tracks[trackName]` has the config needed for `AudioDecoderConfig`.
+The value for `catalog.video.renditions[trackName]` is the `VideoDecoderConfig` you need to decode the video track, and `catalog.audio.renditions[trackName]` has the config needed for `AudioDecoderConfig`.
 
 
 So to actually connect to a session, and be ready to start sending data, we'd have the publisher publish a broadcast, and have each subscriber subscribe to a broadcast, which provides the namespace.
@@ -619,10 +623,11 @@ So to actually connect to a session, and be ready to start sending data, we'd ha
 
 
   ```typescript
-import * as Moq from "@moq/lite";
-const connection = await Moq.connect("https://relay.moq.some-cdn.com");
-const broadcast = new Moq.Broadcast();
-connection.publish('my-broadcast', broadcast);
+import * as Moq from "@moq/net";
+const origin = new Moq.Origin.Producer();
+const connection = await Moq.Connection.connect({ url: new URL("https://relay.moq.some-cdn.com"), publish: origin.consume() });
+const broadcast = origin.createBroadcast(Moq.Path.from("my-broadcast"));
+broadcast.announce();
 ```
   
   </TabItem>
@@ -630,40 +635,31 @@ connection.publish('my-broadcast', broadcast);
   <TabItem label="Subscriber">
 
 ```typescript
-import * as Moq from "@moq/lite";
-const connection = await Moq.connect("https://relay.moq.some-cdn.com");
-const broadcast = connection.consume("my-broadcast");
+import * as Moq from "@moq/net";
+const origin = new Moq.Origin.Producer();
+const connection = await Moq.Connection.connect({ url: new URL("https://relay.moq.some-cdn.com"), consume: origin });
+const request = origin.request(Moq.Path.from("my-broadcast"), { announced: true });
+let broadcast = request.active.peek();
+while (!broadcast) broadcast = await request.active.changed();
 ```
   </TabItem>
 </Tabs>
 
-Then, the publisher will publish track info via catalog.json. Because MoQ lite is built in a pull manner, the publisher listens for `catalog.json` track requests.
+Then, the publisher will publish track info via catalog.json. It's written once as a single group, and given a long `maxAge` so the relay can still hand it to subscribers who join later (the default is 5 seconds).
 
 ``` typescript
-for (;;) {
-    const trackRequest = await broadcast.requested();
-    const requestedTrack = trackRequest.track;
-    if (requestedTrack.name === 'catalog.json') {
-      const catalogJson = JSON.stringify(catalogData);
-      const group = requestedTrack.appendGroup();
-      group.writeString(catalogJson);
-      group.close();
-    }
-}
+const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Moq.Time.Milli(60 * 60 * 1000) });
+const group = catalogTrack.appendGroup();
+group.writeJson(catalogData);
+group.close();
 ```
 Any subscriber can then subscribe to the  `catalog.json` track in the broadcast, and once it receives the catalog, it can start listening for the video and audio tracks, as well as set up the `AudioDecoder` and `VideoDecoder`
 
 ```typescript
-const catalogTrack = broadcast.subscribe('catalog.json');
-
-for (;;) {
-  const catalogGroup = await catalogTrack.nextGroup();
-  if (catalogGroup) {
-    const catalogJson = await catalogGroup.readString();
-    const catalog = JSON.parse(catalogJson);
-    // You know what tracks to listen for
-  }
-}
+const catalogTrack = broadcast.track('catalog.json').subscribe();
+const catalogGroup = await catalogTrack.recvGroup();
+const catalog = await catalogGroup.readJson();
+// You know what tracks to listen for
 ```
 
 
@@ -713,7 +709,7 @@ const encoder = new VideoEncoder({
       group = track.appendGroup();
     } 
     const buffer = encodeFrame(frame); // Logic from above
-    group?.writeFrame(buffer);
+    group?.writeFrame({ payload: buffer, timestamp: Moq.Time.Timestamp.fromMicros(frame.timestamp) });
   },
   error: (err: Error) => {
     track.close(err);
@@ -727,19 +723,18 @@ Then, when the subscriber listens for new groups in the track, the first frame i
 
 ```typescript
 
-const track = await broadcast.subscribe("videoTrack");
+const track = broadcast.track("video").subscribe();
 
 // Read data as it arrives
 for (;;) {
-	const group = await track.nextGroup();
+	const group = await track.recvGroup();
 	if (!group) break;
   let keyframe = true; // First is always a key frame
 	for (;;) { 
 		const frame = await group.readFrame(); 
-    if(frame){
-        parseFrame(frame, keyframe);
-        keyframe = false;
-    }
+    if (!frame) break;
+    parseFrame(frame.payload, keyframe);
+    keyframe = false;
   }
 }
 ```
@@ -748,7 +743,7 @@ While MoQ was built to be content agnostic, one reason for including `groups` as
 
 #### Browser to Browser Streaming
 
-With the Hang protocol, we now have everything to start streaming WebCodecs audio and video  over MoQ. We'll start by defining a publisher, which takes in the Audio/Video Config, listens for audio/video tracks, and creates audio/video pipelines to stream over MoQ.
+With the Hang protocol, we now have everything to start streaming WebCodecs audio and video  over MoQ. We'll start by defining a publisher, which takes in the Audio/Video Config, creates the audio/video tracks, and creates audio/video pipelines to stream over MoQ.
 
 <details>
 
@@ -765,8 +760,9 @@ export class MoqPublisher {
   private broadcast: any;
   private videoConfig: VideoEncoderConfig;
   private audioConfig: AudioEncoderConfig;
-  private videoMoqTrack: any = null;
-  private audioMoqTrack: any = null;
+  private toTimestamp: (micros: number) => any;
+  private videoMoqTrack: any;
+  private audioMoqTrack: any;
   private abortController: AbortController | null = null;
 
   constructor(
@@ -774,13 +770,20 @@ export class MoqPublisher {
     audioTrack: MediaStreamTrack,
     broadcast: any,
     videoConfig: VideoEncoderConfig,
-    audioConfig: AudioEncoderConfig
+    audioConfig: AudioEncoderConfig,
+    // @moq/net frames carry their own timestamp, e.g. (us) => Moq.Time.Timestamp.fromMicros(us)
+    toTimestamp: (micros: number) => any
   ) {
     this.videoTrack = videoTrack;
     this.audioTrack = audioTrack;
     this.broadcast = broadcast;
     this.videoConfig = videoConfig;
     this.audioConfig = audioConfig;
+    this.toTimestamp = toTimestamp;
+
+    // Create tracks up front: @moq/net refuses a subscribe to a track that doesn't exist yet
+    this.videoMoqTrack = broadcast.createTrack('video');
+    this.audioMoqTrack = broadcast.createTrack('audio');
   }
 
   async start(): Promise<void> {
@@ -789,57 +792,34 @@ export class MoqPublisher {
     }
 
     this.abortController = new AbortController();
-    
-    for(;;){ // Listen for track requests
-      const trackRequest = this.broadcast.requested();
-      if(trackRequest) this.handleTrackRequest(trackRequest)
-      await new Promise((r)=>requestAnimationFrame(r));
-    }
 
-  
-  }
+    // Video pipeline
+    const videoProcessor = new MediaStreamTrackProcessor({ track: this.videoTrack });
+    const videoEncoderStream = new VideoEncoderStream(this.videoConfig);
 
-  async handleTrackRequest(trackRequestPromise){
+    videoProcessor.readable
+      .pipeThrough(videoEncoderStream)
+      .pipeTo(this.createVideoWriter(this.videoMoqTrack), {
+        signal: this.abortController.signal
+      });
 
-    const trackRequest = await trackRequestPromise;
-    const requestedTrack = trackRequest.track;
-
-    if (requestedTrack.name === 'video' && !this.videoMoqTrack) {
-
-      this.videoMoqTrack = requestedTrack;
-
-      // Video pipeline
-      const videoProcessor = new MediaStreamTrackProcessor({ track: this.videoTrack });
-      const videoEncoderStream = new VideoEncoderStream(this.videoConfig);
-
-      // Start video pipeline
-      videoProcessor.readable
-        .pipeThrough(videoEncoderStream)
-        .pipeTo(this.createVideoWriter(this.videoMoqTrack), {
-          signal: this.abortController.signal
-        });
-    } else if (requestedTrack.name === 'audio' && !this.audioMoqTrack) {
-      this.audioMoqTrack = requestedTrack;
-
-          // Audio pipeline
+    // Audio pipeline
     const audioProcessor = new MediaStreamTrackProcessor({ track: this.audioTrack });
     const audioEncoderStream = new AudioEncoderStream(this.audioConfig);
 
-      // Start audio pipeline
-      audioProcessor.readable
-        .pipeThrough(audioEncoderStream)
-        .pipeTo(this.createAudioWriter(this.audioMoqTrack), {
-          signal: this.abortController.signal
-        });
-    }
-
+    audioProcessor.readable
+      .pipeThrough(audioEncoderStream)
+      .pipeTo(this.createAudioWriter(this.audioMoqTrack), {
+        signal: this.abortController.signal
+      });
   }
 
   private createVideoWriter(moqTrack: any): WritableStream<{ chunk: EncodedVideoChunk; meta: EncodedVideoChunkMetadata }> {
+    const toTimestamp = this.toTimestamp;
     let currentGroup: any = null;
 
     return new WritableStream({
-      async write(value: EncodedVideoChunk) {
+      async write(value) {
         // Start new group on keyframe (GOP - group of pictures)
         if (value.chunk.type === 'key') {
           if (currentGroup) {
@@ -866,7 +846,7 @@ export class MoqPublisher {
         // Write chunk data
         buffer.set(chunkData, 8);
 
-        currentGroup.writeFrame(buffer);
+        currentGroup.writeFrame({ payload: buffer, timestamp: toTimestamp(value.chunk.timestamp) });
       },
       async close() {
         if (currentGroup) {
@@ -877,8 +857,9 @@ export class MoqPublisher {
   }
 
   private createAudioWriter(moqTrack: any): WritableStream<EncodedAudioChunk> {
+    const toTimestamp = this.toTimestamp;
     return new WritableStream({
-      async write(chunk: EncodedAudioChunk) {
+      async write(chunk) {
         const group = moqTrack.appendGroup();
 
         // Hang format: [timestamp (8 bytes)] [data]
@@ -894,7 +875,7 @@ export class MoqPublisher {
         // Write chunk data
         buffer.set(chunkData, 8);
 
-        group.writeFrame(buffer);
+        group.writeFrame({ payload: buffer, timestamp: toTimestamp(chunk.timestamp) });
         group.close();
       }
     });
@@ -959,7 +940,7 @@ export class MoqSubscriber {
     (async () => {
       try {
         while (true) {
-          const group = await this.videoTrack.nextGroup();
+          const group = await this.videoTrack.recvGroup();
           if (!group) break;
 
           // First frame in group is always a keyframe
@@ -967,10 +948,10 @@ export class MoqSubscriber {
 
           // Read all frames in the group
           for (;;) {
-            const frameData = await group.readFrame();
-            if (!frameData) break;
+            const moqFrame = await group.readFrame();
+            if (!moqFrame) break;
 
-            const frame = this.parseVideoFrame(frameData, isKeyframe);
+            const frame = this.parseVideoFrame(moqFrame.payload, isKeyframe);
 
             const chunk = new EncodedVideoChunk({
               timestamp: frame.timestamp,
@@ -1008,11 +989,12 @@ export class MoqSubscriber {
       try {
         while (true) {
 
-          const group = await this.audioTrack.nextGroup();
+          const group = await this.audioTrack.recvGroup();
           if (!group) break;
 
-          const frameData = await group.readFrame();
-          const frame = this.parseAudioFrame(frameData);
+          const moqFrame = await group.readFrame();
+          if (!moqFrame) continue;
+          const frame = this.parseAudioFrame(moqFrame.payload);
 
           const chunk = new EncodedAudioChunk({
             timestamp: frame.timestamp,
@@ -1169,13 +1151,13 @@ Now finally we can add the interface which will load the publisher and subscribe
 
 
   <script type="module">
-    import * as Moq from 'https://esm.sh/@moq/lite';
+    import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
     import { MoqPublisher } from '../../../src/moq/moq-publisher.ts';
     import { getSampleRate, getBitrate, getCodecString } from 'webcodecs-utils';
     
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
     const broadcastName = params.get('broadcast') || 'my-broadcast';
 
     // UI Elements
@@ -1216,9 +1198,10 @@ Now finally we can add the interface which will load the publisher and subscribe
     async function startPublishing() {
       try {
 
-        connection = await Moq.Connection.connect(new URL(relayUrl));
-        broadcast = new Moq.Broadcast();
-        connection.publish(broadcastName, broadcast);
+        const origin = new Moq.Origin.Producer();
+        connection = await Moq.Connection.connect({ url: new URL(relayUrl), publish: origin.consume() });
+        broadcast = origin.createBroadcast(Moq.Path.from(broadcastName));
+        broadcast.announce();
 
 
         startPublishBtn.disabled = true;
@@ -1270,23 +1253,15 @@ Now finally we can add the interface which will load the publisher and subscribe
           }
         };
 
-        // Handle catalog requests
-        (async () => {
-          while (true) {
-            const trackRequest = await broadcast.requested();
-            const requestedTrack = trackRequest.track;
-
-            if (requestedTrack.name === 'catalog.json') {
-              const catalogJson = JSON.stringify(catalogData);
-              const group = requestedTrack.appendGroup();
-              group.writeString(catalogJson);
-              group.close();
-            }
-          }
-        })();
+        // Publish the catalog as a single group, retained for an hour so late subscribers get it
+        const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Moq.Time.Milli(60 * 60 * 1000) });
+        const catalogGroup = catalogTrack.appendGroup();
+        catalogGroup.writeJson(catalogData);
+        catalogGroup.close();
 
         // Start MoQ publisher with configs
-        publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig);
+        const toTimestamp = (micros) => Moq.Time.Timestamp.fromMicros(micros);
+        publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig, toTimestamp);
         await publisher.start();
         log('Publisher started', 'success');
 
@@ -1326,12 +1301,12 @@ Now finally we can add the interface which will load the publisher and subscribe
   </div>
 
   <script type="module">
-    import * as Moq from 'https://esm.sh/@moq/lite';
+    import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
     import { MoqSubscriber, AudioPlayer } from '../../../src/moq/index.ts';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
     const broadcastName = params.get('broadcast') || 'my-broadcast';
 
     // UI Elements
@@ -1346,43 +1321,32 @@ Now finally we can add the interface which will load the publisher and subscribe
     let frameCount = 0;
 
 
-    async function getCatalog(broadcast) {
-      try {
-        const catalogTrack = broadcast.subscribe('catalog.json');
-
-        for (;;) {
-          const catalogGroup = await catalogTrack.nextGroup();
-
-          if (catalogGroup) {
-            const catalogJson = await catalogGroup.readString();
-            const catalog = JSON.parse(catalogJson);
-            log('Received catalog', 'success');
-            console.log('Catalog:', catalog);
-            return catalog;
-          }
-        }
-      } catch (e) {
-        await new Promise((r) => setTimeout(r, 500));
-        return await getCatalog(broadcast);
-      }
+    // Resolves once the publisher has announced the broadcast on the relay
+    async function waitForBroadcast(request) {
+      let active = request.active.peek();
+      while (!active) active = await request.active.changed();
+      return active;
     }
 
-
-
+    async function getCatalog(broadcast) {
+      const catalogTrack = broadcast.track('catalog.json').subscribe();
+      const catalogGroup = await catalogTrack.recvGroup();
+      return await catalogGroup.readJson();
+    }
 
     async function init() {
       try {
       
-        connection = await Moq.Connection.connect(new URL(relayUrl));
+        const origin = new Moq.Origin.Producer();
+        connection = await Moq.Connection.connect({ url: new URL(relayUrl), consume: origin });
 
-        const broadcast = connection.consume(broadcastName);
+        // Without `announced: true`, subscribing before the publisher announces fails with code 54 (Unroutable)
+        const broadcast = await waitForBroadcast(origin.request(Moq.Path.from(broadcastName), { announced: true }));
 
         const catalog = await getCatalog(broadcast);
 
-
-        const videoTrack = await broadcast.subscribe('video');
-
-       const audioTrack = await broadcast.subscribe('audio');
+        const videoTrack = broadcast.track('video').subscribe();
+        const audioTrack = broadcast.track('audio').subscribe();
 
  
 
@@ -1426,7 +1390,7 @@ Now finally we can add the interface which will load the publisher and subscribe
 
 </details>
 
-We can now finally put everything together in a live demo, where it will stream your webcam through Media over Quic (via a public cloudflare relay) from the publisher tab to the subscriber tab.
+We can now finally put everything together in a live demo, where it will stream your webcam through Media over Quic (via a public relay) from the publisher tab to the subscriber tab.
 
 <iframe src="/demo/moq/webcam/index.html" style="width: 100%; height: 700px; border: 1px solid #e2e8f0; border-radius: 8px;"></iframe>
 
@@ -1441,7 +1405,7 @@ A lot of this was manually implemented, but you can also use the [hang library](
 
 The idea behind MoQ is that a server can act as a publisher or a subscriber just like any browser client. When streaming data from a browser to a server, the browser would act as a publisher, and the server would act as a subscriber. When streaming from a server to a browser, the server would be the publisher and the browsers would be subscribers.
 
-#### Server to Browser
+#### Browser to Server
 
 A primary use case for streaming from a browser to a server would be for "recording" features, such as recording a meeting / webinar, or recording high-definition versions of user's web-cameras, which are common features of meeting, webinar and live-streaming softwares.
 
@@ -1669,16 +1633,18 @@ The file will be saved to disk. Muxing is efficient enough that you could record
 
 ###### Demo
 
-The `@moq/lite` client we used earlier in the browser also works on the server, although as of January 2026, WebTransport is not available in any server js environment like Node, Bun or Deno, so the server will fall back to connecting to the relay via WebSockets.
+The `@moq/net` client we used earlier in the browser also works on the server, although as of October 2026, WebTransport is not natively available in server js environments like Node, Bun or Deno, so the server will fall back to connecting to the relay via WebSockets.
 
-Additionally, to use `@moq/lite` in Node, you'll need to use a polyfill to enable WebSocket support
+Bun and Node v21+ have `WebSocket` built in, so no setup is needed. On older versions of Node, you'll need a polyfill to enable WebSocket support
 
 ```javascript
 import WebSocket from 'ws';
-import * as Moq from '@moq/lite';
+import * as Moq from '@moq/net';
 // Polyfill WebSocket for MoQ
 globalThis.WebSocket = WebSocket;
 ```
+
+There is also an experimental [WebTransport polyfill](https://github.com/fails-components/webtransport) if you want full HTTP3/QUIC on the server.
 
 For the first time, this demo can't be embedded in the document as it's a server repo. You'll need a javascript runtime (e.g. node, bun, deno) to run the server:
 
@@ -1757,74 +1723,78 @@ All the examples thus far have used public, un-authenticated relays. MoQ does ha
 MoQ relays use signed JWT tokens for stateless authentication. You first generate a key, then configure your server to use the key, and finally you create keys to authenticate users.
 
 
-###### Setting up your own sever
-
+###### Setting up your own server
 
 **Step 1**
-Clone the moq relay repo
+Install the relay and the `moq` CLI (Rust is a prerequisite, or see the [install docs](https://doc.moq.dev/setup/install) for Homebrew, apt, Docker etc...)
 
 ```bash
-git clone https://github.com/moq-dev/moq.git
-cd moq
+cargo install moq-relay moq-cli
 ```
 
 **Step 2**
-Install Nix https://nixos.org/download/
+Create a `relay.toml`. This is a local development config which allows anyone to publish or subscribe:
+
+```toml
+[listen]
+bind = "[::]:4443"
+tls.generate = ["localhost"]
+
+[web.http]
+listen = "[::]:4443"   # serves the certificate fingerprint for local browsers
+
+[auth]
+public = "**"          # anonymous access to everything; development only
+```
 
 **Step 3**
-Enable Nix flakes: https://nixos.wiki/wiki/Flakes
-
-**Step 4**
-Run the server
-```bash
-nix develop -c just dev
-```
-
-
-See the [setup docs](https://github.com/moq-dev/moq#) for more details
-
-###### Generate a key
-
-You can use either a CLI or a Rust/JS library to generate a key. Here's how you'd install the CLI (Rust is a prerequisite)
-
-**Step 1** Install the CLI
+Run the relay
 
 ```bash
-cargo install moq-token-cli
+moq-relay relay.toml
 ```
 
-**Step 2** Generate a key
+You can then point any of the demos above at `http://localhost:4443`. See the [production setup docs](https://doc.moq.dev/setup/prod) for TLS certificates, clustering and host tuning.
+
+###### Authentication with JWTs
+
+The relay doesn't verify tokens itself. Instead it asks an auth server to approve each session, and the `moq` CLI comes with a reference auth server which verifies JWTs.
+
+**Step 1** Generate a key pair
+
 ```bash
-moq-token --key "root.jwk" generate
+moq auth generate --algorithm ES256 --out private.jwk --public public.jwk
 ```
 
-**Step 3**: Configure the server to use the key
+**Step 2** Run the auth server, which only needs the public key
 
-You need to edit or create `config.toml` in the root of the server repo, and include the following
+```bash
+moq auth serve --listen 127.0.0.1:4440 --key public.jwk
+```
 
-```text
+**Step 3** Configure the relay to use the auth server, replacing the `[auth]` section in `relay.toml`
+
+```toml
 [auth]
-key = "root.jwk" # Path to the key we generated.
+url = "http://127.0.0.1:4440/"
 ```
 
-By specifying the auth and root, the server will by default require auth for all connections
-
-**Step 4**: Use the key to sign tokens
+**Step 4** Use the private key to sign tokens
 
 ```bash
-moq-token --key "root.jwk" sign \
+moq auth sign --key private.jwk \
   --root "rooms/meeting-123" \
-  --subscribe "" \
-  --publish "alice" \
-  --expires 1703980800 > "alice.jwt"
+  --publish 'alice/**' \
+  --subscribe '**' \
+  --expires "$(( $(date +%s) + 3600 ))" > "alice.jwt"
 ```
 
 ***
 
-This creates a token that allows a user to connect to the relay url `<cdn-url>/<root>` and `publish` to any track with the prefix `alice/**` 
+This creates a token, valid for an hour, which allows a user to connect to the relay url `<cdn-url>/rooms/meeting-123?jwt=<token>`, `publish` any broadcast under `alice/`, and `subscribe` to anything in the room. Tokens made with the older `moq-token` CLI are still accepted.
 
 
-See more docs [here](https://github.com/moq-dev/moq/blob/main/doc/concepts/authentication.md)
+See more docs [here](https://doc.moq.dev/bin/relay/auth)
 
 
 #### Retry

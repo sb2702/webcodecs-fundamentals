@@ -108,7 +108,7 @@
     <div id="startScreen" style="text-align: center; padding: 60px 20px;">
       <h2 style="margin-bottom: 20px; color: #2d3748;">Media over QUIC Demo</h2>
       <p style="color: #4a5568; margin-bottom: 30px; font-size: 15px;">
-        Click start to connect to Cloudflare's public MoQ relay and test real-time messaging between publisher and subscriber.
+        Click start to connect to a public MoQ relay and test real-time messaging between publisher and subscriber.
       </p>
       <button id="startBtn" style="padding: 16px 40px; font-size: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
         ▶ Start Demo
@@ -141,7 +141,7 @@
   </div>
 
   <script>
-    const relay = 'https://interop-relay.cloudflare.mediaoverquic.com:443';
+    const relay = new URLSearchParams(window.location.search).get('relay') || 'https://cdn.moq.dev/anon';
 
     // Generate random broadcast name
     function generateBroadcastName() {

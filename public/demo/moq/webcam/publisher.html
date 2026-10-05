@@ -129,13 +129,12 @@
   </div>
 
   <script type="module">
-    import * as Moq from 'https://esm.sh/@moq/lite';
-    import { MoqPublisher, getSampleRate, getBitrate, getCodecString  } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.14/dist/index.js';
-   // import { } from 'https://unpkg.com/webcodecs-utils@latest/dist/index.js';
+    import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
+    import { MoqPublisher, getSampleRate, getBitrate, getCodecString  } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.17/dist/index.js';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
     const broadcastName = params.get('broadcast') || 'my-broadcast';
 
     // UI Elements
@@ -200,9 +199,10 @@
       try {
         updateStatus('Connecting to relay...', 'info');
 
-        connection = await Moq.Connection.connect(new URL(relayUrl));
-        broadcast = new Moq.Broadcast();
-        connection.publish(broadcastName, broadcast);
+        const origin = new Moq.Origin.Producer();
+        connection = await Moq.Connection.connect({ url: new URL(relayUrl), publish: origin.consume() });
+        broadcast = origin.createBroadcast(Moq.Path.from(broadcastName));
+        broadcast.announce();
 
         updateStatus('Publishing...', 'success');
         log('Connected to relay', 'success');
@@ -256,26 +256,16 @@
           }
         };
 
-        // Handle catalog requests
-        (async () => {
-          while (true) {
-            const trackRequest = await broadcast.requested();
-            const requestedTrack = trackRequest.track;
-
-            log(`Track requested: ${requestedTrack.name}`, 'info');
-
-            if (requestedTrack.name === 'catalog.json') {
-              const catalogJson = JSON.stringify(catalogData);
-              const group = requestedTrack.appendGroup();
-              group.writeString(catalogJson);
-              group.close();
-              log('Sent catalog', 'success');
-            }
-          }
-        })();
+        // Publish the catalog as a single group, retained for an hour so late subscribers get it
+        const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Moq.Time.Milli(60 * 60 * 1000) });
+        const catalogGroup = catalogTrack.appendGroup();
+        catalogGroup.writeJson(catalogData);
+        catalogGroup.close();
+        log('Published catalog', 'success');
 
         // Start MoQ publisher with configs
-        publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig);
+        const toTimestamp = (micros) => Moq.Time.Timestamp.fromMicros(micros);
+        publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig, toTimestamp);
         await publisher.start();
         log('Publisher started', 'success');
 

@@ -111,11 +111,11 @@
   </div>
 
   <script type="module">
-    import * as Moq from 'https://esm.sh/@moq/lite';
+    import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
     const broadcastName = params.get('broadcast') || 'my-broadcast';
     const trackName = params.get('track') || 'chat';
 
@@ -161,19 +161,29 @@
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
+    // Resolves once the publisher has announced the broadcast on the relay. Without
+    // `announced: true` the request resolves blindly, and subscribing before the
+    // publisher announces is reset with code 54 (Unroutable)
+    async function waitForBroadcast(request) {
+      let active = request.active.peek();
+      while (!active) active = await request.active.changed();
+      return active;
+    }
+
     async function init() {
       try {
         log(`Connecting to relay: ${relayUrl}`, 'info');
         updateStatus('Connecting to relay...');
 
-        connection = await Moq.Connection.connect(new URL(relayUrl));
+        const origin = new Moq.Origin.Producer();
+        connection = await Moq.Connection.connect({ url: new URL(relayUrl), consume: origin });
         log('Connected to relay', 'success');
 
-        updateStatus('Subscribing to broadcast...');
-        const broadcast = connection.consume(broadcastName);
+        updateStatus('Waiting for broadcast...');
+        const broadcast = await waitForBroadcast(origin.request(Moq.Path.from(broadcastName), { announced: true }));
         log(`Consuming broadcast: "${broadcastName}"`, 'success');
 
-        const track = await broadcast.subscribe(trackName);
+        const track = broadcast.track(trackName).subscribe();
         log(`Subscribed to track: "${trackName}"`, 'success');
         updateStatus(`✓ Listening to "${trackName}"`, 'success');
 
@@ -181,7 +191,7 @@
         (async () => {
           try {
             while (true) {
-              const group = await track.nextGroup();
+              const group = await track.recvGroup();
               if (!group) break;
 
               const message = await group.readString();

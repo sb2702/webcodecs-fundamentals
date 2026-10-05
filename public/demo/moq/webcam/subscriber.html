@@ -93,12 +93,12 @@
   </div>
 
   <script type="module">
-    import * as Moq from 'https://esm.sh/@moq/lite';
-    import { MoqSubscriber, AudioPlayer } from 'https://unpkg.com/webcodecs-examples@latest/dist/index.js';
+    import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
+    import { MoqSubscriber, AudioPlayer } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.17/dist/index.js';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
-    const relayUrl = params.get('relay') || 'https://relay.quic.video:4443';
+    const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
     const broadcastName = params.get('broadcast') || 'my-broadcast';
 
     // UI Elements
@@ -130,44 +130,43 @@
       if (type === 'error') statusEl.className = 'status error';
     }
 
+    // Resolves once the publisher has announced the broadcast on the relay. Without
+    // `announced: true` the request resolves blindly, and subscribing before the
+    // publisher announces is reset with code 54 (Unroutable)
+    async function waitForBroadcast(request) {
+      let active = request.active.peek();
+      while (!active) active = await request.active.changed();
+      return active;
+    }
+
     async function getCatalog(broadcast) {
-      try {
-        const catalogTrack = broadcast.subscribe('catalog.json');
-
-        for (;;) {
-          const catalogGroup = await catalogTrack.nextGroup();
-
-          if (catalogGroup) {
-            const catalogJson = await catalogGroup.readString();
-            const catalog = JSON.parse(catalogJson);
-            log('Received catalog', 'success');
-            console.log('Catalog:', catalog);
-            return catalog;
-          }
-        }
-      } catch (e) {
-        await new Promise((r) => setTimeout(r, 500));
-        return await getCatalog(broadcast);
-      }
+      const catalogTrack = broadcast.track('catalog.json').subscribe();
+      const catalogGroup = await catalogTrack.recvGroup();
+      const catalog = await catalogGroup.readJson();
+      log('Received catalog', 'success');
+      console.log('Catalog:', catalog);
+      return catalog;
     }
 
     async function init() {
       try {
         updateStatus('Connecting to relay...', 'info');
-        connection = await Moq.Connection.connect(new URL(relayUrl));
+        const origin = new Moq.Origin.Producer();
+        connection = await Moq.Connection.connect({ url: new URL(relayUrl), consume: origin });
         log('Connected to relay', 'success');
 
-        const broadcast = connection.consume(broadcastName);
+        updateStatus('Waiting for broadcast...', 'info');
+        const broadcast = await waitForBroadcast(origin.request(Moq.Path.from(broadcastName), { announced: true }));
         log(`Consuming broadcast: ${broadcastName}`, 'info');
 
         const catalog = await getCatalog(broadcast);
 
         updateStatus('Subscribing to tracks...', 'info');
 
-        const videoTrack = await broadcast.subscribe('video');
+        const videoTrack = broadcast.track('video').subscribe();
         log('Subscribed to video track', 'success');
 
-        const audioTrack = await broadcast.subscribe('audio');
+        const audioTrack = broadcast.track('audio').subscribe();
         log('Subscribed to audio track', 'success');
 
         updateStatus('Starting decoders...', 'info');

@@ -61,13 +61,13 @@ QUIC's multiplexing allows multiple streams over a single connection without hea
 Because the infrastructure model is so simple, it greatly simplifies the networking stack when working with WebCodecs, enabling per-frame level control of video encoding and delivery while completely abstracting away networking details. You don't even really need to manage a server, as CDN relays handle most of the heavy lifting.
 
 
-## Current State (December 2025)
+## Current State (October 2026)
 
-Media over Quic is still in a very early stage, and relies on several components which are still being developed:
+While Media over Quic is still very new, there is real early adoption from developers and companies
 
 
 #### Web Transport
-Along with WebCodecs, Media over Quic relies on [WebTransport](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport) for connections over Quic to scale to millions of concurrent subscribers, but while Chromium browsers support WebTransport, it is still in development in Firefox and Safari.
+Along with WebCodecs, Media over Quic relies on [WebTransport](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport) for connections over Quic to scale to millions of concurrent subscribers. WebTransport became baseline standard (supported by all major browsers) in 2026, however would still require polyfills for older versions of Safari.
 
 
 #### Server/tooling
