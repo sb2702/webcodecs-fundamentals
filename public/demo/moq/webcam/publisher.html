@@ -130,12 +130,13 @@
 
   <script type="module">
     import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
-    import { MoqPublisher, getSampleRate, getBitrate, getCodecString  } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.17/dist/index.js';
+    import { MoqPublisher, Hang, getSampleRate, getBitrate, getCodecString } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.18/dist/index.js';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
-    const broadcastName = params.get('broadcast') || 'my-broadcast';
+    // Hang broadcast names end in .hang so players know which catalog to expect
+    const broadcastName = Hang.broadcastName(params.get('broadcast') || 'my-broadcast');
 
     // UI Elements
     const statusEl = document.getElementById('status');
@@ -236,36 +237,12 @@
         // Get description using the same config
         const description = await MoqPublisher.getDescription(videoTrack, videoConfig);
 
-        const catalogData = {
-          video: {
-            renditions: {
-              video0: {
-                codec: codecString,
-                codedWidth: videoSettings.width,
-                codedHeight: videoSettings.height,
-                description
-              }
-            },
-            priority: 1
-          },
-          audio: {
-            renditions: {
-              audio0: audioConfig
-            },
-            priority: 2
-          }
-        };
-
-        // Publish the catalog as a single group, retained for an hour so late subscribers get it
-        const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Moq.Time.Milli(60 * 60 * 1000) });
-        const catalogGroup = catalogTrack.appendGroup();
-        catalogGroup.writeJson(catalogData);
-        catalogGroup.close();
-        log('Published catalog', 'success');
-
-        // Start MoQ publisher with configs
+        // Creates the catalog, video and audio tracks, then publishes the Hang catalog
         const toTimestamp = (micros) => Moq.Time.Timestamp.fromMicros(micros);
         publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig, toTimestamp);
+        publisher.publishCatalog(description);
+        log('Published catalog', 'success');
+
         await publisher.start();
         log('Publisher started', 'success');
 

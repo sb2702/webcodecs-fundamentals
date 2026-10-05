@@ -542,7 +542,7 @@ See the full code [here](https://github.com/sb2702/webcodecs-examples/blob/main/
 
 ## Streaming video over MoQ
 
-Now that we can covered:
+Now that we've covered:
 
 1. How to send data over a Media over Quic (MoQ) relay
 2. How to grab a stream of encoded audio & video from a webcam
@@ -562,57 +562,94 @@ group.writeFrame({
 group.close();
 ```
 
-Where you create a *group*, and in that *group* you can attach an arbitrary number of frames, each a `Uint8Array` payload plus a timestamp. And as we saw, `EncodedVideoChunk` objects are just binary data + metadata.
+Where you create a *group*, and in that *group* you can attach an arbitrary number of frames, each a `Uint8Array` payload plus a timestamp.
 
 MoQ doesn't provide a specific protocol for how to send video or audio data. A core aspect of MoQ is that it is content agnostic, so you can come up with any schema you want for transmitting encoded chunks, as long as it is packaged as a `Uint8Array`.
 
-This goes well with WebCodecs, in that both technologies gives you much more control over encoding/data-transfer than is possible with WebRTC. 
+This goes well with WebCodecs, in that both technologies give you much more control over encoding/data-transfer than is possible with WebRTC. 
 
-If you just want something that works though, you can use an existing protocol like Hang which both works and is incredibly simple.
+If you want other software to be able to play your stream though, you'll want to use an existing format, and the de-facto one is Hang.
 
-#### Hang Protocol
+#### Hang format
 
-Hang is a protocol for transmitting streaming media via MoQ. There is a [library](https://github.com/moq-dev/moq/tree/main/js/hang) to implement this, but the protocol is simple enough to implement yourself.
+Hang is the media format the MoQ project uses on top of MoQ. It's specified in [draft-lcurley-moq-hang](https://doc.moq.dev/draft/moq-hang) ([overview](https://doc.moq.dev/concept/hang)), it's what the reference players like `<moq-watch>` and the `moq` CLI understand, and it's modeled directly on WebCodecs. This page follows draft -03 (September 2026).
 
+There is a [library](https://github.com/moq-dev/moq/tree/main/js/hang) that implements it, but the parts you need for a WebCodecs publisher and subscriber are simple enough to implement yourself, which is what we'll do here.
+
+A Hang broadcast consists of:
+
+1. A `catalog.json` track describing the media tracks
+2. One track per rendition (e.g. `video` and `audio`), carrying timestamped frames
+
+Broadcast names SHOULD end in `.hang` (e.g. `room123/alice.hang`) so players know which catalog to expect.
 
 ###### Catalog.json
-Hang works by the publisher publishing a track called `'catalog.json'` with the available video and audio tracks to consume with the following structure:
+
+The catalog lists the available video and audio *renditions*. Here's the catalog our demo publishes:
 
 ```json
-
 {
+  "clock": { "wall": 213390311582400, "timescale": 1000000 },
   "video": {
     "renditions": {
-       /*video0 is the name of the video track */
-      "video0": {
+      "video": {
         "codec": "avc1.64001f",
-        "description": "0164001fffe100196764001fac2484014016ec0440000003004000000c23c60c9201000568ee32c8b0",
+        "container": { "kind": "legacy" },
+        "description": "01640c1fffe1000f67640c1fac18d00a00b7403c2211a801000468ce3c80fdf8f800",
         "codedWidth": 1280,
-        "codedHeight": 720
+        "codedHeight": 720,
+        "framerate": 30,
+        "bitrate": 2211840
       }
-    },
-    "priority": 1
+    }
   },
   "audio": {
     "renditions": {
-      /*audio1 is the name of the audio track */
-      "audio1": {
-        "codec": "mp4a.40.2",
-        "sampleRate": 44100,
-        "numberOfChannels": 2,
-        "bitrate": 283637
+      "audio": {
+        "codec": "opus",
+        "container": { "kind": "legacy" },
+        "sampleRate": 48000,
+        "numberOfChannels": 1,
+        "bitrate": 128000
       }
-    },
-    "priority": 2
+    }
   }
 }
-
 ```
 
-Where you specify available 'audio' tracks under 'audio' and video tracks under 'video'. Each available track is listed under `'renditions'`, and you'd specify the track name for each track.
+Each key under `renditions` is the name of the track a subscriber subscribes to, and each value is the WebCodecs `VideoDecoderConfig` or `AudioDecoderConfig` needed to decode it, plus a few Hang fields:
 
-The value for `catalog.video.renditions[trackName]` is the `VideoDecoderConfig` you need to decode the video track, and `catalog.audio.renditions[trackName]` has the config needed for `AudioDecoderConfig`.
+* `container` says how frames are framed. `legacy` is the default, which we'll cover below. A consumer MUST ignore renditions with a container `kind` it doesn't recognize.
+* Byte fields like `description` (the `avcC` box for H.264) are **lowercase hex strings**, not base64. Without a `description`, H.264/H.265 are Annex B with the parameter sets sent before each keyframe, and decoders should handle both.
+* `clock` (optional) gives the wall-clock time of timestamp zero, which we'll come back to.
 
+Building renditions from the configs we already have for the encoders is straightforward:
+
+{/* snippet: src/moq/hang.ts#renditions */}
+```typescript
+export function videoRendition(config: VideoEncoderConfig, description?: Uint8Array): VideoRendition {
+  return {
+    codec: config.codec,
+    container: { kind: 'legacy' },
+    ...(description?.byteLength ? { description: toHex(description) } : {}),
+    codedWidth: config.width,
+    codedHeight: config.height,
+    ...(config.framerate ? { framerate: config.framerate } : {}),
+    ...(config.bitrate ? { bitrate: config.bitrate } : {}),
+  };
+}
+
+export function audioRendition(config: AudioEncoderConfig, description?: Uint8Array): AudioRendition {
+  return {
+    codec: config.codec,
+    container: { kind: 'legacy' },
+    ...(description?.byteLength ? { description: toHex(description) } : {}),
+    sampleRate: config.sampleRate,
+    numberOfChannels: config.numberOfChannels,
+    ...(config.bitrate ? { bitrate: config.bitrate } : {}),
+  };
+}
+```
 
 So to actually connect to a session, and be ready to start sending data, we'd have the publisher publish a broadcast, and have each subscriber subscribe to a broadcast, which provides the namespace.
 
@@ -626,7 +663,7 @@ So to actually connect to a session, and be ready to start sending data, we'd ha
 import * as Moq from "@moq/net";
 const origin = new Moq.Origin.Producer();
 const connection = await Moq.Connection.connect({ url: new URL("https://relay.moq.some-cdn.com"), publish: origin.consume() });
-const broadcast = origin.createBroadcast(Moq.Path.from("my-broadcast"));
+const broadcast = origin.createBroadcast(Moq.Path.from("my-broadcast.hang"));
 broadcast.announce();
 ```
   
@@ -638,22 +675,23 @@ broadcast.announce();
 import * as Moq from "@moq/net";
 const origin = new Moq.Origin.Producer();
 const connection = await Moq.Connection.connect({ url: new URL("https://relay.moq.some-cdn.com"), consume: origin });
-const request = origin.request(Moq.Path.from("my-broadcast"), { announced: true });
+const request = origin.request(Moq.Path.from("my-broadcast.hang"), { announced: true });
 let broadcast = request.active.peek();
 while (!broadcast) broadcast = await request.active.changed();
 ```
   </TabItem>
 </Tabs>
 
-Then, the publisher will publish track info via catalog.json. It's written once as a single group, and given a long `maxAge` so the relay can still hand it to subscribers who join later (the default is 5 seconds).
+The catalog track is made of groups, one per update, where each group holds a single frame of UTF-8 JSON. A catalog may be published once for the whole broadcast, so we give it an unlimited `maxAge` so the relay can still hand it to someone who joins an hour later.
 
 ``` typescript
-const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Moq.Time.Milli(60 * 60 * 1000) });
+const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Number.MAX_SAFE_INTEGER, priority: 100 });
 const group = catalogTrack.appendGroup();
-group.writeJson(catalogData);
+group.writeJson(catalog);
 group.close();
 ```
-Any subscriber can then subscribe to the  `catalog.json` track in the broadcast, and once it receives the catalog, it can start listening for the video and audio tracks, as well as set up the `AudioDecoder` and `VideoDecoder`
+
+Any subscriber can then subscribe to the `catalog.json` track in the broadcast, and once it receives the catalog, it can set up the `AudioDecoder` and `VideoDecoder` and subscribe to the tracks it lists.
 
 ```typescript
 const catalogTrack = broadcast.track('catalog.json').subscribe();
@@ -662,108 +700,281 @@ const catalog = await catalogGroup.readJson();
 // You know what tracks to listen for
 ```
 
+The spec also says a publisher SHOULD serve a DEFLATE-compressed copy as `catalog.json.z`. Consumers read whichever they prefer, and the reference players default to plain `catalog.json`, so we skip it to keep things simple.
 
-###### Streaming chunks
+###### Frames: the legacy container
 
-The catalog has most of the data now needed to decode video or audio chunks, but there's still two key bits of info needed: which chunks are key frames, and the timestamp of each chunk.
+The catalog has most of the data needed to decode video or audio chunks, but there are still two key bits of info needed: the timestamp of each chunk, and which chunks are key frames.
 
-First, to encode the timestamp, we'll actally use a fixed 8-byte header to store the timestamp as an unsigned 8-byte integer.
+In the `legacy` container, each frame is a timestamp in microseconds, followed by the raw `EncodedVideoChunk` / `EncodedAudioChunk` data:
 
-
-
-```typescript
-//EncodedVideoChunk or EncodedAudioChunk
-const timestamp = chunk.timestamp; 
-const header = new Uint8Array(8);
-const view = new DataView(header.buffer, header.byteOffset, 8);
-view.setBigUint64(0, BigInt(timestamp));
+```
+[timestamp: QUIC varint, microseconds] [codec payload]
 ```
 
-Then, to encode the chunk, we'll create a `Uint8Array` which is the size of the encoded chunk + the header byteLength, and then we set the header at position 0, and the chunk data at position 8 (header byteLength).
+The timestamp is a [QUIC variable-length integer](https://www.rfc-editor.org/rfc/rfc9000#section-16): the top 2 bits of the first byte say how long it is (1, 2, 4 or 8 bytes), and the rest of the bits hold the value. A 10 second timestamp takes 4 bytes rather than a fixed 8.
 
+{/* snippet: src/moq/hang.ts#varint */}
 ```typescript
-const data = new Uint8Array(header.byteLength + chunk.byteLength);
-data.set(header, 0);
-chunk.copyTo(data.subarray(header.byteLength));  
+export function encodeVarint(value: number): Uint8Array {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new RangeError(`varint must be a non-negative safe integer: ${value}`);
+  }
+
+  if (value < 2 ** 6) {
+    return new Uint8Array([value]);
+  }
+  if (value < 2 ** 14) {
+    const buf = new Uint8Array(2);
+    new DataView(buf.buffer).setUint16(0, value | 0x4000);
+    return buf;
+  }
+  if (value < 2 ** 30) {
+    const buf = new Uint8Array(4);
+    new DataView(buf.buffer).setUint32(0, (value | 0x80000000) >>> 0);
+    return buf;
+  }
+
+  const buf = new Uint8Array(8);
+  new DataView(buf.buffer).setBigUint64(0, BigInt(value) | 0xc000000000000000n);
+  return buf;
+}
+
+/** Decode a varint from the start of `buf`, returning the value and the bytes after it. */
+export function decodeVarint(buf: Uint8Array): [number, Uint8Array] {
+  if (buf.byteLength === 0) throw new Error('varint: buffer is empty');
+
+  const size = 1 << (buf[0] >> 6); // 1, 2, 4 or 8 bytes
+  if (buf.byteLength < size) throw new Error(`varint: need ${size} bytes, have ${buf.byteLength}`);
+
+  const view = new DataView(buf.buffer, buf.byteOffset, size);
+  let value: number;
+  if (size === 1) value = view.getUint8(0) & 0x3f;
+  else if (size === 2) value = view.getUint16(0) & 0x3fff;
+  else if (size === 4) value = view.getUint32(0) & 0x3fffffff;
+  else value = Number(view.getBigUint64(0) & 0x3fffffffffffffffn);
+
+  return [value, buf.subarray(size)];
+}
 ```
 
+Then, to encode a chunk, we write the timestamp followed by the chunk data, and the receiver does the reverse:
+
+{/* snippet: src/moq/hang.ts#frame */}
+```typescript
+export function encodeFrame(data: Uint8Array | ByteSource, timestamp: number): Uint8Array {
+  const header = encodeVarint(timestamp);
+  const frame = new Uint8Array(header.byteLength + data.byteLength);
+  frame.set(header, 0);
+
+  if (data instanceof Uint8Array) {
+    frame.set(data, header.byteLength);
+  } else {
+    data.copyTo(frame.subarray(header.byteLength));
+  }
+
+  return frame;
+}
+
+export function decodeFrame(frame: Uint8Array): { timestamp: number; data: Uint8Array } {
+  const [timestamp, data] = decodeVarint(frame);
+  return { timestamp, data };
+}
+```
 
 ![](/assets/patterns/livestreaming/hang.svg)
 
+###### Timestamps and the clock
 
+There's a subtle gotcha here: you can't just use the `timestamp` WebCodecs gives you. In Chrome, `MediaStreamTrackProcessor` stamps **video frames on the camera's capture clock** (roughly system uptime, so ~135,000 seconds on a machine that's been up for 37 hours), while **audio is stamped on `performance.now()`**. The two tracks aren't even on the same clock.
 
-The receiver would parse the header to get the timestamp, and rest of the array would be the actual chunk data. 
+Hang timestamps count from the broadcast's "PTS zero". Like the reference publisher, we use the page's clock as PTS zero (the moment `performance.now()` was 0), and give each track its own `MediaClock` which is anchored to `performance.now()` when its first raw frame arrives, before encoding, so encoder latency doesn't skew audio/video sync. The catalog's `clock` then records the wall-clock time of PTS zero, in microseconds since 2020-01-01.
 
-
-This just leaves the question of which chunks are keyFrames. The way we can handle this is by writing chunks in groups
-
+{/* snippet: src/moq/hang.ts#clock */}
 ```typescript
+/** Maps one track's capture timestamps (microseconds) onto PTS. Use one instance per track. */
+export class MediaClock {
+  private offset: number | undefined;
 
-let group: Moq.Group | undefined;
+  /** Call with each raw frame as it's captured: the first one anchors the clock to "now". */
+  observe(captureTimestamp: number, now = performance.now() * 1000): void {
+    if (this.offset === undefined) {
+      this.offset = Math.round(now) - captureTimestamp;
+    }
+  }
 
-const encoder = new VideoEncoder({
-  output: (frame: EncodedVideoChunk) => {
-    if (frame.type === "key") {
-      groupTimestamp = frame.timestamp as Time.Micro;
-      group?.close();
-      group = track.appendGroup();
-    } 
-    const buffer = encodeFrame(frame); // Logic from above
-    group?.writeFrame({ payload: buffer, timestamp: Moq.Time.Timestamp.fromMicros(frame.timestamp) });
-  },
-  error: (err: Error) => {
-    track.close(err);
-    group?.close(err);
-  },
-});
+  toPts(captureTimestamp: number): number {
+    this.observe(captureTimestamp);
+    return captureTimestamp + this.offset!;
+  }
+}
 
+/** A pass-through stream that anchors `clock` on the first raw VideoFrame / AudioData, before encoding. */
+export function anchorClock<T extends { timestamp: number }>(clock: MediaClock): TransformStream<T, T> {
+  return new TransformStream({
+    transform(frame, controller) {
+      clock.observe(frame.timestamp);
+      controller.enqueue(frame);
+    },
+  });
+}
+
+/** The catalog's root `clock`: the wall-clock time of PTS zero, in microseconds since the moq epoch. */
+export function wallClock(): Clock {
+  return { wall: Math.round((performance.timeOrigin - MOQ_EPOCH_UNIX_MS) * 1000), timescale: 1_000_000 };
+}
 ```
 
-Then, when the subscriber listens for new groups in the track, the first frame in the group is always a key frame
+###### Groups and keyframes
+
+This just leaves the question of which chunks are keyframes, and that's handled by groups. While MoQ was built to be content agnostic, one reason for including groups as a core aspect was to enable sending groups of pictures (a key frame and all its subsequent delta frames):
+
+* **Video**: each group is a GoP. It MUST start with a keyframe followed by its delta frames, so a subscriber knows the first frame of every group is a keyframe. A relay can drop a whole group under congestion, and a viewer can join at any group boundary, without the decoder ever seeing a frame whose reference is missing.
+* **End markers**: a frame with an empty payload marks the exclusive end of the frame before it. A video publisher SHOULD end each group with one when it knows that time, which we do when the next keyframe arrives. Consumers MUST skip them and never pass them to a decoder.
+* **Audio**: every audio frame is a keyframe, so a group may hold one or many frames. Like the reference publisher, we put each one in its own group so the relay can forward it immediately.
+
+Media tracks also need a couple of track settings: a **microsecond timescale** (`@moq/net` defaults to milliseconds, which mangles frame durations for consumers like the `moq` CLI), a 30 second retention window, and Hang's priorities (catalog 100, audio 80, video 60). Here are the writers which take encoded chunks and write them to MoQ tracks:
+
+{/* snippet: src/moq/hang-writers.ts */}
+```typescript
+// WritableStreams that write WebCodecs chunks to MoQ tracks using Hang's group rules and legacy container
+import { encodeFrame } from './hang';
+
+// Video: each group is a GoP (a keyframe followed by its delta frames).
+// When the next keyframe arrives we know where the previous group's last frame ends,
+// so we close the group with an empty-payload end marker at that timestamp.
+// `toPts` maps a chunk's capture timestamp onto the broadcast's PTS (see MediaClock)
+export function createVideoWriter(
+  moqTrack: any,
+  toTimestamp: (micros: number) => any,
+  onFrame?: () => void,
+  toPts: (micros: number) => number = (micros) => micros
+): WritableStream<{ chunk: EncodedVideoChunk; meta?: EncodedVideoChunkMetadata }> {
+  let group: any = null;
+
+  const writeFrame = (data: Uint8Array | EncodedVideoChunk, timestamp: number) => {
+    group.writeFrame({ payload: encodeFrame(data, timestamp), timestamp: toTimestamp(timestamp) });
+  };
+
+  return new WritableStream({
+    write({ chunk }) {
+      const pts = toPts(chunk.timestamp);
+
+      if (chunk.type === 'key') {
+        if (group) {
+          writeFrame(new Uint8Array(), pts); // end marker for the previous frame
+          group.close();
+        }
+        group = moqTrack.appendGroup();
+      }
+
+      // A group MUST start with a keyframe
+      if (!group) return;
+
+      writeFrame(chunk, pts);
+      onFrame?.();
+    },
+    close() {
+      group?.close();
+      moqTrack.close();
+    },
+    abort() {
+      group?.close();
+      moqTrack.close();
+    },
+  });
+}
+
+// Audio: every audio frame is a keyframe, so each one gets its own group and the relay
+// can forward it without waiting for a group boundary.
+export function createAudioWriter(
+  moqTrack: any,
+  toTimestamp: (micros: number) => any,
+  onFrame?: () => void,
+  toPts: (micros: number) => number = (micros) => micros
+): WritableStream<EncodedAudioChunk> {
+  return new WritableStream({
+    write(chunk) {
+      const pts = toPts(chunk.timestamp);
+      const group = moqTrack.appendGroup();
+      group.writeFrame({ payload: encodeFrame(chunk, pts), timestamp: toTimestamp(pts) });
+      group.close();
+      onFrame?.();
+    },
+    close() {
+      moqTrack.close();
+    },
+    abort() {
+      moqTrack.close();
+    },
+  });
+}
+```
+
+Then, when the subscriber listens for new groups in the track, the first frame in each group is a keyframe, and it skips the empty end markers:
 
 ```typescript
-
 const track = broadcast.track("video").subscribe();
 
 // Read data as it arrives
 for (;;) {
-	const group = await track.recvGroup();
-	if (!group) break;
+  const group = await track.recvGroup();
+  if (!group) break;
   let keyframe = true; // First is always a key frame
-	for (;;) { 
-		const frame = await group.readFrame(); 
+  for (;;) { 
+    const frame = await group.readFrame(); 
     if (!frame) break;
-    parseFrame(frame.payload, keyframe);
+    const { timestamp, data } = Hang.decodeFrame(frame.payload);
+    if (data.byteLength === 0) continue; // end marker, not media
+    decode(timestamp, data, keyframe);
     keyframe = false;
   }
 }
 ```
 
-While MoQ was built to be content agnostic, one reason for including `groups` as a core aspect was to enable sending groups of pictures (a key frame and all it's subsequent delta frames), to improve streaming stability
+By default a subscription only follows the live edge, so when a new group starts, the relay may abandon the end of the previous one, and `readFrame()` throws. A live player should just skip to the next group (which starts with a keyframe), while a recorder that wants every group in full should subscribe with a `maxAge` covering the retention window.
+
+###### Validating against the spec
+
+Because this is a hand-written implementation, the [examples repo](https://github.com/sb2702/webcodecs-examples) checks it against the reference implementation three ways:
+
+* **Unit tests** (`npm test`) compare our varints, frames, groups, catalog and track settings byte-for-byte with [`@moq/hang`](https://www.npmjs.com/package/@moq/hang), which is used only as a test dependency.
+* **An interop page** (`demos/moq/hang-interop`) plays our publisher in the reference `<moq-watch>` player, and plays the reference `<moq-publish>` publisher in our subscriber.
+* **The `moq` CLI**, an independent Rust implementation, can remux any broadcast to MP4: `moq --connect https://cdn.moq.dev/anon --broadcast my-broadcast.hang export fmp4 > out.mp4`.
 
 #### Browser to Browser Streaming
 
-With the Hang protocol, we now have everything to start streaming WebCodecs audio and video  over MoQ. We'll start by defining a publisher, which takes in the Audio/Video Config, creates the audio/video tracks, and creates audio/video pipelines to stream over MoQ.
+With the Hang format, we now have everything to start streaming WebCodecs audio and video over MoQ. We'll start by defining a publisher, which takes in the Audio/Video Config, creates the catalog and audio/video tracks, publishes the catalog, and creates audio/video pipelines to stream over MoQ.
 
 <details>
 
 <summary>Publisher </summary>
 
+{/* snippet: src/moq/moq-publisher.ts */}
 ```typescript
-import { MediaStreamTrackProcessor, getSampleRate } from 'webcodecs-utils';
-import { VideoEncoderStream } from './video-encoder-stream'; // TransformStream discussed above
-import { AudioEncoderStream } from './audio-encoder-stream'; // TransformStream discussed above
+import { MediaStreamTrackProcessor } from 'webcodecs-utils';
+import { VideoEncoderStream } from './video-encoder-stream';
+import { AudioEncoderStream } from './audio-encoder-stream';
+import {
+  CATALOG_TRACK, VIDEO_TRACK, AUDIO_TRACK, PRIORITY,
+  catalogTrackInfo, mediaTrackInfo, videoRendition, audioRendition, wallClock, MediaClock, anchorClock, type Catalog,
+} from './hang';
+import { createVideoWriter, createAudioWriter } from './hang-writers';
+
+export { VIDEO_TRACK, AUDIO_TRACK };
 
 export class MoqPublisher {
   private videoTrack: MediaStreamTrack;
   private audioTrack: MediaStreamTrack;
-  private broadcast: any;
   private videoConfig: VideoEncoderConfig;
   private audioConfig: AudioEncoderConfig;
   private toTimestamp: (micros: number) => any;
+  readonly catalogMoqTrack: any;
   private videoMoqTrack: any;
   private audioMoqTrack: any;
   private abortController: AbortController | null = null;
+  videoFrameCount = 0;
+  audioFrameCount = 0;
 
   constructor(
     videoTrack: MediaStreamTrack,
@@ -776,14 +987,64 @@ export class MoqPublisher {
   ) {
     this.videoTrack = videoTrack;
     this.audioTrack = audioTrack;
-    this.broadcast = broadcast;
     this.videoConfig = videoConfig;
     this.audioConfig = audioConfig;
     this.toTimestamp = toTimestamp;
 
     // Create tracks up front: @moq/net refuses a subscribe to a track that doesn't exist yet
-    this.videoMoqTrack = broadcast.createTrack('video');
-    this.audioMoqTrack = broadcast.createTrack('audio');
+    this.catalogMoqTrack = broadcast.createTrack(CATALOG_TRACK, catalogTrackInfo());
+    this.videoMoqTrack = broadcast.createTrack(VIDEO_TRACK, mediaTrackInfo(PRIORITY.video));
+    this.audioMoqTrack = broadcast.createTrack(AUDIO_TRACK, mediaTrackInfo(PRIORITY.audio));
+  }
+
+  // Encode one frame to read the encoder's decoderConfig.description (avcC for H.264, none for VP8/VP9)
+  static async getDescription(videoTrack: MediaStreamTrack, config: VideoEncoderConfig): Promise<Uint8Array | undefined> {
+    const processor = new MediaStreamTrackProcessor({ track: videoTrack });
+    const reader = processor.readable.getReader();
+
+    // Read one frame
+    const { value: frame } = await reader.read();
+    reader.releaseLock();
+
+    if (!frame) {
+      return undefined;
+    }
+
+    // Encode the frame to get metadata
+    return new Promise((resolve) => {
+      const encoder = new VideoEncoder({
+        output: (chunk, meta) => {
+          const description = meta?.decoderConfig?.description;
+          resolve(description ? new Uint8Array(description as ArrayBuffer) : undefined);
+        },
+        error: (e) => {
+          console.error('Test encoder error:', e);
+          resolve(undefined);
+        },
+      });
+
+      encoder.configure(config);
+      encoder.encode(frame, { keyFrame: true });
+      encoder.flush().then(() => {
+        encoder.close();
+        frame.close();
+      });
+    });
+  }
+
+  // Publish the Hang catalog: one group holding one frame of UTF-8 JSON
+  publishCatalog(videoDescription?: Uint8Array): Catalog {
+    const catalog: Catalog = {
+      clock: wallClock(),
+      video: { renditions: { [VIDEO_TRACK]: videoRendition(this.videoConfig, videoDescription) } },
+      audio: { renditions: { [AUDIO_TRACK]: audioRendition(this.audioConfig) } },
+    };
+
+    const group = this.catalogMoqTrack.appendGroup();
+    group.writeJson(catalog);
+    group.close();
+
+    return catalog;
   }
 
   async start(): Promise<void> {
@@ -793,13 +1054,18 @@ export class MoqPublisher {
 
     this.abortController = new AbortController();
 
+    // Each track has its own clock: Chrome stamps camera and microphone frames on different clocks
+    const videoClock = new MediaClock();
+    const audioClock = new MediaClock();
+
     // Video pipeline
     const videoProcessor = new MediaStreamTrackProcessor({ track: this.videoTrack });
     const videoEncoderStream = new VideoEncoderStream(this.videoConfig);
 
     videoProcessor.readable
+      .pipeThrough(anchorClock<VideoFrame>(videoClock))
       .pipeThrough(videoEncoderStream)
-      .pipeTo(this.createVideoWriter(this.videoMoqTrack), {
+      .pipeTo(createVideoWriter(this.videoMoqTrack, this.toTimestamp, () => this.videoFrameCount++, (ts) => videoClock.toPts(ts)), {
         signal: this.abortController.signal
       });
 
@@ -808,77 +1074,11 @@ export class MoqPublisher {
     const audioEncoderStream = new AudioEncoderStream(this.audioConfig);
 
     audioProcessor.readable
+      .pipeThrough(anchorClock<AudioData>(audioClock))
       .pipeThrough(audioEncoderStream)
-      .pipeTo(this.createAudioWriter(this.audioMoqTrack), {
+      .pipeTo(createAudioWriter(this.audioMoqTrack, this.toTimestamp, () => this.audioFrameCount++, (ts) => audioClock.toPts(ts)), {
         signal: this.abortController.signal
       });
-  }
-
-  private createVideoWriter(moqTrack: any): WritableStream<{ chunk: EncodedVideoChunk; meta: EncodedVideoChunkMetadata }> {
-    const toTimestamp = this.toTimestamp;
-    let currentGroup: any = null;
-
-    return new WritableStream({
-      async write(value) {
-        // Start new group on keyframe (GOP - group of pictures)
-        if (value.chunk.type === 'key') {
-          if (currentGroup) {
-            currentGroup.close();
-          }
-          currentGroup = moqTrack.appendGroup();
-        }
-
-        if (!currentGroup) {
-          // First chunk must be a keyframe
-          currentGroup = moqTrack.appendGroup();
-        }
-
-        // Hang format: [timestamp (8 bytes)] [data]
-        const chunkData = new Uint8Array(value.chunk.byteLength);
-        value.chunk.copyTo(chunkData);
-
-        const buffer = new Uint8Array(8 + chunkData.byteLength);
-        const view = new DataView(buffer.buffer);
-
-        // Write timestamp as 64-bit integer (microseconds)
-        view.setBigUint64(0, BigInt(value.chunk.timestamp), true);
-
-        // Write chunk data
-        buffer.set(chunkData, 8);
-
-        currentGroup.writeFrame({ payload: buffer, timestamp: toTimestamp(value.chunk.timestamp) });
-      },
-      async close() {
-        if (currentGroup) {
-          currentGroup.close();
-        }
-      }
-    });
-  }
-
-  private createAudioWriter(moqTrack: any): WritableStream<EncodedAudioChunk> {
-    const toTimestamp = this.toTimestamp;
-    return new WritableStream({
-      async write(chunk) {
-        const group = moqTrack.appendGroup();
-
-        // Hang format: [timestamp (8 bytes)] [data]
-        const chunkData = new Uint8Array(chunk.byteLength);
-        chunk.copyTo(chunkData);
-
-        const buffer = new Uint8Array(8 + chunkData.byteLength);
-        const view = new DataView(buffer.buffer);
-
-        // Write timestamp as 64-bit integer (microseconds)
-        view.setBigUint64(0, BigInt(chunk.timestamp), true);
-
-        // Write chunk data
-        buffer.set(chunkData, 8);
-
-        group.writeFrame({ payload: buffer, timestamp: toTimestamp(chunk.timestamp) });
-        group.close();
-      }
-    });
   }
 
   stop(): void {
@@ -887,79 +1087,109 @@ export class MoqPublisher {
       this.abortController = null;
     }
   }
-}
 
+  isPublishing(): boolean {
+    return this.abortController !== null;
+  }
+}
 ```
 </details>
 
-Next we define the subscriber, which will listen for `catalog.json`, and then when it's available, it will parse the catalog, and setup a `VideoDecoder` for the video track, an `AudioDecoder` for the audio track, and then it will start listening for each track, retrieving each group of frames and sending them for decode.
+Next we define the subscriber, which reads `catalog.json`, picks the first video and audio renditions with a container it understands, sets up a `VideoDecoder` and `AudioDecoder` from them, and then subscribes to the tracks the catalog names, retrieving each group of frames and sending them for decode.
 
 <details>
 
 <summary> Subscriber </summary>
 
 
+{/* snippet: src/moq/moq-subscriber.ts */}
 ```typescript
+import {
+  PRIORITY,
+  decodeFrame,
+  firstRendition,
+  videoDecoderConfig,
+  audioDecoderConfig,
+  type Catalog,
+} from './hang';
+
 export interface MoqFrame {
   timestamp: number;
   type?: 'key' | 'delta';
   data: Uint8Array;
 }
 
+// A live group can be reset mid-stream (e.g. dropped by the relay): skip to the next group
+async function readFrame(group: any): Promise<{ payload: Uint8Array } | undefined> {
+  try {
+    return await group.readFrame();
+  } catch (error) {
+    console.warn(`Group ${group.sequence} reset, skipping to the next group:`, (error as Error).message);
+    return undefined;
+  }
+}
+
 export class MoqSubscriber {
-  private videoTrack: any;
-  private audioTrack: any;
+  private broadcast: any;
+  private catalog: Catalog;
   private videoDecoder: VideoDecoder | null = null;
   private audioDecoder: AudioDecoder | null = null;
-  private catalog: any;
+  private subscriptions: any[] = [];
 
-  constructor(catalog: any, videoTrack: any, audioTrack: any) {
+  // `broadcast` is the @moq/net broadcast consumer the catalog came from
+  constructor(catalog: Catalog, broadcast: any) {
     this.catalog = catalog;
-    this.videoTrack = videoTrack;
-    this.audioTrack = audioTrack;
+    this.broadcast = broadcast;
+  }
+
+  // Read the latest catalog: each group holds one frame of UTF-8 JSON
+  static async getCatalog(broadcast: any): Promise<Catalog> {
+    const catalogTrack = broadcast.track('catalog.json').subscribe({ priority: PRIORITY.catalog });
+    const group = await catalogTrack.recvGroup();
+    const catalog = await group.readJson();
+    catalogTrack.close();
+    return catalog as Catalog;
   }
 
   async startVideo(onFrame: (frame: VideoFrame) => void): Promise<void> {
-    // Get video config from catalog
-    const videoRendition = Object.values(this.catalog.video.renditions)[0] as any;
+    // Pick the first rendition with a container we understand; its key is the track name
+    const selected = firstRendition(this.catalog.video?.renditions);
+    if (!selected) throw new Error('No playable video rendition in catalog');
+    const [trackName, rendition] = selected;
 
     this.videoDecoder = new VideoDecoder({
       output: onFrame,
       error: (e) => console.error('Video decoder error:', e),
     });
+    this.videoDecoder.configure(videoDecoderConfig(rendition));
 
-    const config: VideoDecoderConfig = {
-      codec: videoRendition.codec,
-      codedWidth: videoRendition.codedWidth,
-      codedHeight: videoRendition.codedHeight,
-    };
-
-    this.videoDecoder.configure(config);
+    const track = this.broadcast.track(trackName).subscribe({ priority: PRIORITY.video });
+    this.subscriptions.push(track);
 
     // Start reading video frames
     (async () => {
       try {
         while (true) {
-          const group = await this.videoTrack.recvGroup();
+          const group = await track.recvGroup();
           if (!group) break;
 
-          // First frame in group is always a keyframe
+          // Each group is a GoP, so the first frame in a group is always a keyframe
           let isKeyframe = true;
 
-          // Read all frames in the group
           for (;;) {
-            const moqFrame = await group.readFrame();
+            const moqFrame = await readFrame(group);
             if (!moqFrame) break;
 
-            const frame = this.parseVideoFrame(moqFrame.payload, isKeyframe);
+            const frame = this.parseFrame(moqFrame.payload, isKeyframe);
 
-            const chunk = new EncodedVideoChunk({
+            // An empty payload marks where the previous frame ends: never decode it
+            if (frame.data.byteLength === 0) continue;
+
+            this.videoDecoder!.decode(new EncodedVideoChunk({
               timestamp: frame.timestamp,
               type: frame.type!,
               data: frame.data,
-            });
-
-            this.videoDecoder!.decode(chunk);
+            }));
             isKeyframe = false; // Subsequent frames are delta
           }
         }
@@ -970,39 +1200,42 @@ export class MoqSubscriber {
   }
 
   async startAudio(onData: (audioData: AudioData) => void): Promise<void> {
-    // Get audio config from catalog
-    const audioRendition = Object.values(this.catalog.audio.renditions)[0] as any;
+    const selected = firstRendition(this.catalog.audio?.renditions);
+    if (!selected) throw new Error('No playable audio rendition in catalog');
+    const [trackName, rendition] = selected;
 
     this.audioDecoder = new AudioDecoder({
       output: onData,
       error: (e) => console.error('Audio decoder error:', e),
     });
+    this.audioDecoder.configure(audioDecoderConfig(rendition));
 
-    this.audioDecoder.configure({
-      codec: audioRendition.codec,
-      sampleRate: audioRendition.sampleRate,
-      numberOfChannels: audioRendition.numberOfChannels,
-    });
+    const track = this.broadcast.track(trackName).subscribe({ priority: PRIORITY.audio });
+    this.subscriptions.push(track);
 
     // Start reading audio frames
     (async () => {
       try {
         while (true) {
-
-          const group = await this.audioTrack.recvGroup();
+          const group = await track.recvGroup();
           if (!group) break;
 
-          const moqFrame = await group.readFrame();
-          if (!moqFrame) continue;
-          const frame = this.parseAudioFrame(moqFrame.payload);
+          // Every audio frame is a keyframe, and a group may hold one or many of them
+          for (;;) {
+            const moqFrame = await readFrame(group);
+            if (!moqFrame) break;
 
-          const chunk = new EncodedAudioChunk({
-            timestamp: frame.timestamp,
-            type: 'key',
-            data: frame.data,
-          });
+            const frame = this.parseFrame(moqFrame.payload, true);
 
-          this.audioDecoder!.decode(chunk);
+            // An empty payload marks the end of the source audio: never decode it
+            if (frame.data.byteLength === 0) continue;
+
+            this.audioDecoder!.decode(new EncodedAudioChunk({
+              timestamp: frame.timestamp,
+              type: 'key',
+              data: frame.data,
+            }));
+          }
         }
       } catch (error) {
         console.error('Audio read error:', error);
@@ -1010,28 +1243,16 @@ export class MoqSubscriber {
     })();
   }
 
-  private parseVideoFrame(buffer: Uint8Array, isKeyframe: boolean): MoqFrame {
-    // Hang format: [timestamp (8 bytes)] [data]
-    const view = new DataView(buffer.buffer, buffer.byteOffset);
-
-    const timestamp = Number(view.getBigUint64(0, true));
-    const type = isKeyframe ? 'key' : 'delta';
-    const data = buffer.slice(8);
-
-    return { timestamp, type, data };
-  }
-
-  private parseAudioFrame(buffer: Uint8Array): MoqFrame {
-    // Hang format: [timestamp (8 bytes)] [data]
-    const view = new DataView(buffer.buffer, buffer.byteOffset);
-
-    const timestamp = Number(view.getBigUint64(0, true));
-    const data = buffer.slice(8);
-
-    return { timestamp, data };
+  // Hang legacy container: [timestamp varint (microseconds)] [codec payload]
+  private parseFrame(buffer: Uint8Array, isKeyframe: boolean): MoqFrame {
+    const { timestamp, data } = decodeFrame(buffer);
+    return { timestamp, type: isKeyframe ? 'key' : 'delta', data };
   }
 
   stop(): void {
+    for (const track of this.subscriptions) track.close();
+    this.subscriptions = [];
+
     if (this.videoDecoder && this.videoDecoder.state !== 'closed') {
       this.videoDecoder.close();
     }
@@ -1040,7 +1261,6 @@ export class MoqSubscriber {
     }
   }
 }
-
 ```
 
 </details>
@@ -1051,6 +1271,7 @@ We'll render the video frames to a `<canvas>` which is simple enough, but we als
 <summary>Audio Player </summary>
 
 
+{/* snippet: src/moq/audio-player.ts */}
 ```typescript
 export class AudioPlayer {
   private audioContext: AudioContext;
@@ -1106,7 +1327,6 @@ export class AudioPlayer {
     this.audioContext.close();
   }
 }
-
 ```
 
 </details>
@@ -1125,6 +1345,7 @@ Now finally we can add the interface which will load the publisher and subscribe
   <TabItem label="Publisher">
 
 
+{/* snippet: demos/moq/browser-to-browser/publisher.html */}
   ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -1132,6 +1353,101 @@ Now finally we can add the interface which will load the publisher and subscribe
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoQ Publisher</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 15px;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 100%;
+    }
+
+    h3 {
+      margin: 0 0 10px 0;
+      color: #2d3748;
+      font-size: 16px;
+    }
+
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      background: #f7fafc;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .status.connected {
+      background: #c6f6d5;
+      border-color: #9ae6b4;
+      color: #22543d;
+    }
+
+    .status.error {
+      background: #fed7d7;
+      border-color: #fc8181;
+      color: #742a2a;
+    }
+
+    .log {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 10px;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    .log-entry {
+      margin: 3px 0;
+      padding: 3px;
+      border-left: 3px solid transparent;
+      padding-left: 8px;
+    }
+
+    .log-entry.info { border-left-color: #4299e1; }
+    .log-entry.success { border-left-color: #48bb78; }
+    .log-entry.error { border-left-color: #f56565; }
+
+    .log-entry .timestamp {
+      color: #a0aec0;
+      margin-right: 8px;
+      font-size: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #3182ce;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      transition: background-color 0.2s;
+      margin-right: 5px;
+    }
+
+    button:hover {
+      background: #2b6cb0;
+    }
+
+    button:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .controls {
+      margin: 10px 0;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -1150,17 +1466,30 @@ Now finally we can add the interface which will load the publisher and subscribe
 
 
 
+
+
+
   <script type="module">
+
+
+
+
+
+
     import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
-    import { MoqPublisher } from '../../../src/moq/moq-publisher.ts';
+    import { MoqPublisher, Hang } from '../../../src/moq/index.ts';
     import { getSampleRate, getBitrate, getCodecString } from 'webcodecs-utils';
     
+
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
-    const broadcastName = params.get('broadcast') || 'my-broadcast';
+    // Hang broadcast names end in .hang so players know which catalog to expect
+    const broadcastName = Hang.broadcastName(params.get('broadcast') || 'my-broadcast');
 
     // UI Elements
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
     const startWebcamBtn = document.getElementById('startWebcamBtn');
     const startPublishBtn = document.getElementById('startPublishBtn');
     const preview = document.getElementById('preview');
@@ -1173,9 +1502,27 @@ Now finally we can add the interface which will load the publisher and subscribe
     let stream = null;
     let publisher = null;
 
+    // Logging
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      entry.innerHTML = `<span class="timestamp">[${timestamp}]</span>${message}`;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+
+    function updateStatus(message, type = 'info') {
+      statusEl.textContent = message;
+      statusEl.className = 'status';
+      if (type === 'success') statusEl.className = 'status connected';
+      if (type === 'error') statusEl.className = 'status error';
+    }
 
     async function startWebcam() {
       try {
+        updateStatus('Requesting webcam access...', 'info');
 
         stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 1280, height: 720 },
@@ -1187,22 +1534,28 @@ Now finally we can add the interface which will load the publisher and subscribe
 
         preview.srcObject = stream;
 
+        updateStatus('Webcam ready', 'success');
+        log('Webcam started', 'success');
+
         startWebcamBtn.disabled = true;
         startPublishBtn.disabled = false;
       } catch (error) {
- 
-        console.log('Webcam error: ' + error.message, 'error');
+        updateStatus('Failed to get webcam', 'error');
+        log('Webcam error: ' + error.message, 'error');
       }
     }
 
     async function startPublishing() {
       try {
+        updateStatus('Connecting to relay...', 'info');
 
         const origin = new Moq.Origin.Producer();
         connection = await Moq.Connection.connect({ url: new URL(relayUrl), publish: origin.consume() });
         broadcast = origin.createBroadcast(Moq.Path.from(broadcastName));
         broadcast.announce();
 
+        updateStatus('Publishing...', 'success');
+        log('Connected to relay', 'success');
 
         startPublishBtn.disabled = true;
 
@@ -1233,55 +1586,35 @@ Now finally we can add the interface which will load the publisher and subscribe
         // Get description using the same config
         const description = await MoqPublisher.getDescription(videoTrack, videoConfig);
 
-        const catalogData = {
-          video: {
-            renditions: {
-              video0: {
-                codec: codecString,
-                codedWidth: videoSettings.width,
-                codedHeight: videoSettings.height,
-                description
-              }
-            },
-            priority: 1
-          },
-          audio: {
-            renditions: {
-              audio0: audioConfig
-            },
-            priority: 2
-          }
-        };
-
-        // Publish the catalog as a single group, retained for an hour so late subscribers get it
-        const catalogTrack = broadcast.createTrack('catalog.json', { maxAge: Moq.Time.Milli(60 * 60 * 1000) });
-        const catalogGroup = catalogTrack.appendGroup();
-        catalogGroup.writeJson(catalogData);
-        catalogGroup.close();
-
-        // Start MoQ publisher with configs
+        // Creates the catalog, video and audio tracks, then publishes the Hang catalog
         const toTimestamp = (micros) => Moq.Time.Timestamp.fromMicros(micros);
         publisher = new MoqPublisher(videoTrack, audioTrack, broadcast, videoConfig, audioConfig, toTimestamp);
+        publisher.publishCatalog(description);
+        log('Published catalog', 'success');
+
         await publisher.start();
         log('Publisher started', 'success');
 
       } catch (error) {
-        console.log('Error: ' + error.message, 'error');
+        updateStatus('Connection failed', 'error');
+        log('Error: ' + error.message, 'error');
       }
     }
+
     // Event listeners
     startWebcamBtn.addEventListener('click', startWebcam);
     startPublishBtn.addEventListener('click', startPublishing);
+
+    updateStatus('Ready to start', 'info');
   </script>
 </body>
 </html>
-
-
 ```
   
   </TabItem>
 
   <TabItem label="Subscriber">
+{/* snippet: demos/moq/browser-to-browser/subscriber.html */}
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -1289,6 +1622,99 @@ Now finally we can add the interface which will load the publisher and subscribe
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoQ Subscriber</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 15px;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 100%;
+    }
+
+    h3 {
+      margin: 0 0 10px 0;
+      color: #2d3748;
+      font-size: 16px;
+    }
+
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      background: #f7fafc;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .status.connected {
+      background: #c6f6d5;
+      border-color: #9ae6b4;
+      color: #22543d;
+    }
+
+    .status.error {
+      background: #fed7d7;
+      border-color: #fc8181;
+      color: #742a2a;
+    }
+
+    .messages {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      margin: 10px 0;
+    }
+
+    .message {
+      padding: 8px;
+      margin: 5px 0;
+      background: #edf2f7;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .message .time {
+      color: #718096;
+      font-size: 11px;
+      margin-right: 8px;
+    }
+
+    .log {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 10px;
+      border-radius: 4px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    .log-entry {
+      margin: 3px 0;
+      padding: 3px;
+      border-left: 3px solid transparent;
+      padding-left: 8px;
+    }
+
+    .log-entry.info { border-left-color: #4299e1; }
+    .log-entry.success { border-left-color: #48bb78; }
+    .log-entry.error { border-left-color: #f56565; }
+
+    .log-entry .timestamp {
+      color: #a0aec0;
+      margin-right: 8px;
+      font-size: 10px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -1302,12 +1728,12 @@ Now finally we can add the interface which will load the publisher and subscribe
 
   <script type="module">
     import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
-    import { MoqSubscriber, AudioPlayer } from '../../../src/moq/index.ts';
+    import { MoqSubscriber, AudioPlayer, Hang } from '../../../src/moq/index.ts';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
-    const broadcastName = params.get('broadcast') || 'my-broadcast';
+    const broadcastName = Hang.broadcastName(params.get('broadcast') || 'my-broadcast');
 
     // UI Elements
     const statusEl = document.getElementById('status');
@@ -1320,51 +1746,69 @@ Now finally we can add the interface which will load the publisher and subscribe
     let subscriber = null;
     let frameCount = 0;
 
+    // Logging
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      entry.innerHTML = `<span class="timestamp">[${timestamp}]</span>${message}`;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(`[${type.toUpperCase()}] ${message}`);
+    }
 
-    // Resolves once the publisher has announced the broadcast on the relay
+    function updateStatus(message, type = 'info') {
+      statusEl.textContent = message;
+      statusEl.className = 'status';
+      if (type === 'success') statusEl.className = 'status connected';
+      if (type === 'error') statusEl.className = 'status error';
+    }
+
+
+
+
+    // Resolves once the publisher has announced the broadcast on the relay. Without
+    // `announced: true` the request resolves blindly, and subscribing before the
+    // publisher announces is reset with code 54 (Unroutable)
     async function waitForBroadcast(request) {
       let active = request.active.peek();
       while (!active) active = await request.active.changed();
       return active;
     }
 
-    async function getCatalog(broadcast) {
-      const catalogTrack = broadcast.track('catalog.json').subscribe();
-      const catalogGroup = await catalogTrack.recvGroup();
-      return await catalogGroup.readJson();
-    }
-
     async function init() {
       try {
-      
+        updateStatus('Connecting to relay...', 'info');
         const origin = new Moq.Origin.Producer();
         connection = await Moq.Connection.connect({ url: new URL(relayUrl), consume: origin });
+        log('Connected to relay', 'success');
 
-        // Without `announced: true`, subscribing before the publisher announces fails with code 54 (Unroutable)
+        updateStatus('Waiting for broadcast...', 'info');
         const broadcast = await waitForBroadcast(origin.request(Moq.Path.from(broadcastName), { announced: true }));
+        log(`Consuming broadcast: ${broadcastName}`, 'info');
 
-        const catalog = await getCatalog(broadcast);
+        const catalog = await MoqSubscriber.getCatalog(broadcast);
+        log('Received catalog', 'success');
+        console.log('Catalog:', catalog);
 
-        const videoTrack = broadcast.track('video').subscribe();
-        const audioTrack = broadcast.track('audio').subscribe();
+        updateStatus('Starting decoders...', 'info');
 
- 
-
-        // Create audio player
-        const audioRendition = Object.values(catalog.audio.renditions)[0];
+        // Create audio player for the audio rendition the subscriber will pick
+        const [, audioRendition] = Hang.firstRendition(catalog.audio?.renditions);
         const audioPlayer = new AudioPlayer(audioRendition.sampleRate, audioRendition.numberOfChannels);
 
-        subscriber = new MoqSubscriber(catalog, videoTrack, audioTrack);
+        // Subscribes to the tracks named in the catalog
+        subscriber = new MoqSubscriber(catalog, broadcast);
 
         // Start video decoding and rendering
-        subscriber.startVideo((frame) => {
+        await subscriber.startVideo((frame) => {
           ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
           frame.close();
           frameCount++;
         });
 
         // Start audio decoding and playback
-        subscriber.startAudio((audioData) => {
+        await subscriber.startAudio((audioData) => {
           audioPlayer.play(audioData);
           audioData.close();
         });
@@ -1383,7 +1827,6 @@ Now finally we can add the interface which will load the publisher and subscribe
   </script>
 </body>
 </html>
-
 ```
   </TabItem>
 </Tabs>
@@ -1398,7 +1841,7 @@ We can now finally put everything together in a live demo, where it will stream 
 And that's it! That's the basics of streaming audio and video over Media over Quic. You can find the source code for the demo here: ([HTML](https://github.com/sb2702/webcodecs-examples/tree/main/demos/moq/browser-to-browser), [JS](https://github.com/sb2702/webcodecs-examples/tree/main/src/moq)).
 
 
-A lot of this was manually implemented, but you can also use the [hang library](https://github.com/moq-dev/moq/tree/main/js/hang) directly for a more out-of-box experience.
+A lot of this was manually implemented to show the WebCodecs side, but for a more out-of-box experience the MoQ project has [`@moq/publish`](https://github.com/moq-dev/moq/tree/main/js/publish) and [`@moq/watch`](https://github.com/moq-dev/moq/tree/main/js/watch) web components (`<moq-publish>` and `<moq-watch>`), built on the [hang library](https://github.com/moq-dev/moq/tree/main/js/hang).
 
 
 ## Streaming to and from a server
@@ -1436,192 +1879,104 @@ const videoSource = new EncodedVideoPacketSource('avc');
 output.addVideoTrack(videoSource);
 
 // Create audio source
-const audioSource = new EncodedAudioPacketSource('aac' );
+const audioSource = new EncodedAudioPacketSource('opus');
 output.addAudioTrack(audioSource);
 
 ```
 
 
-As you get data from the client, you'd mux frames as so:
+Because the browser publishes in the [Hang format](#hang-format), the server doesn't need any custom serialization: it reads the same catalog and frames as the browser subscriber does. `EncodedVideoChunk` and `EncodedAudioChunk` don't exist in server runtimes, but they don't need to, since Hang frames are just a timestamp and the raw chunk data, and the catalog has the decoder config.
 
-```typescript
-function handleFrame(frame, meta) {
-    if (frame.type === 'video') {
-      const packetType = frame.keyframe ? 'key' : 'delta';
-      const packet = new EncodedPacket(frame.data, packetType, frame.timestamp/1e6, frame.duration/1e6);
-      videoSource.add(packet, meta);
+The server reuses the same hand-written `hang.ts` as the browser demos (Node 22.6+ can import TypeScript directly by stripping the types). It subscribes to the tracks named in the catalog, and decodes each frame. Note that unlike a live player, a recorder subscribes with a `maxAge` covering the retention window, so it receives every group in full rather than just the live edge:
 
-    } else if (frame.type === 'audio){
-      const packet = new EncodedPacket(frame.data, 'key', frame.timestamp/1e6, frame.duration/1e6);
-      audioSource.add(packet, meta);
-    }
-}
-```
-Where `frame` and `meta` are essentially what come out from the `AudioEncoder` and `VideoEncoder`, but because we are transmitting data via binary, and `EncodedVideoChunk` and `EncodedAudioChunk` don't exist in server run timestamp we need to encode it to binary on the client, and decode it from binary on the server and just preserve the data structure of `EncodedVideoChunk`.
+{/* snippet: src/moq-server/subscriber.js#read-video */}
+```javascript
+/**
+ * Process video track from MoQ
+ */
+async function processVideoTrack(videoTrack) {
+  console.log('Processing video track...');
 
+  const [, videoRendition] = Hang.firstRendition(catalog.video.renditions);
 
-<Tabs>
+  // Prepare decoderConfig for MediaBunny (the catalog's description is hex)
+  videoDecoderConfig = Hang.videoDecoderConfig(videoRendition);
 
-  <TabItem label="Browser">
-  ```typescript
-new VideoEncoder({
-  output: (chunk: EncodedVideoChunk, meta: any){
-      const buffer <Uint8Array> encodeBuffer(chunk, meta);
-      //Send this over the network
-  },
- // ...
-})
-```
-  </TabItem>
-  <TabItem label = "Server">
+  console.log('Video decoder config ready');
 
-```typescript
-const {encodedChunk, meta} = decodeBuffer(<Uint8Array> buffer);
-```
+  try {
+    while (true) {
+      const group = await videoTrack.recvGroup();
+      if (!group) break;
 
+      // First frame in group is always a keyframe
+      let isKeyframe = true;
 
-  </TabItem>
-  </Tabs>
+      // Read all frames in the group
+      for (;;) {
+        const moqFrame = await readFrame(group);
+        if (!moqFrame) break;
 
+        // Hang legacy container: [timestamp varint (microseconds)] [codec payload]
+        const { timestamp, data } = Hang.decodeFrame(moqFrame.payload);
 
+        // An empty payload marks where the previous frame ends: it's not media
+        if (data.byteLength === 0) continue;
 
-Here's a full Serialization/Deserialization example
+        const frame = { timestamp, data, type: isKeyframe ? 'key' : 'delta' };
+        await handleVideoFrame(frame, isKeyframe);
 
-<details>
-<summary> Full Serialization / Deserialization</summary>
-<Tabs>
-
-  <TabItem label="Browser">
-
-  ```typescript
-  function encodeFrame(type: 'audio' | 'video', chunk: EncodedVideoChunk | EncodedAudioChunk, isKeyframe = false, meta = null): Uint8Array {
-    const chunkData = new Uint8Array(chunk.byteLength);
-    chunk.copyTo(chunkData);
-
-    let configBytes = new Uint8Array(0);
-    let descriptionBytes = new Uint8Array(0);
-
-    if (meta && meta.decoderConfig) {
-      // Extract description separately
-      const { description, ...configWithoutDesc } = meta.decoderConfig;
-
-      // Serialize config without description
-      const configJson = JSON.stringify({ decoderConfig: configWithoutDesc });
-      configBytes = new TextEncoder().encode(configJson);
-
-      // Keep description as binary
-      if (description) {
-        descriptionBytes = new Uint8Array(description);
+        isKeyframe = false; // Subsequent frames are delta
       }
     }
-
-    const buffer = new Uint8Array(26 + configBytes.byteLength + descriptionBytes.byteLength + chunkData.byteLength);
-    const view = new DataView(buffer.buffer);
-
-    let offset = 0;
-    view.setUint8(offset, type); offset += 1; // 0 = video, 1 = audio
-    view.setBigUint64(offset, BigInt(chunk.timestamp), true); offset += 8;
-    view.setBigUint64(offset, BigInt(chunk.duration || 0), true); offset += 8;
-    view.setUint8(offset, isKeyframe ? 1 : 0); offset += 1;
-    view.setUint32(offset, configBytes.byteLength, true); offset += 4;
-
-    buffer.set(configBytes, offset); offset += configBytes.byteLength;
-
-    view.setUint32(offset, descriptionBytes.byteLength, true); offset += 4;
-    buffer.set(descriptionBytes, offset); offset += descriptionBytes.byteLength;
-    buffer.set(chunkData, offset);
-
-    return buffer;
+  } catch (error) {
+    console.error('Video processing error:', error);
   }
-
-
 ```
 
+Each frame is then muxed with Mediabunny, using the decoder config from the catalog for the first packet:
 
-  </TabItem>
-
-    <TabItem label="Server">
-
-    ```typescript
-
-    /**
- * Parse binary frame format:
- * [type (1 byte)][timestamp (8 bytes)][duration (8 bytes)][keyframe (1 byte)]
- * [configLength (4 bytes)][config JSON][descLength (4 bytes)][description][data]
- * type: 0 = video, 1 = audio, 2 = config
+{/* snippet: src/moq-server/subscriber.js#mux-video */}
+```javascript
+/**
+ * Handle incoming video frame
  */
- 
- function parseFrame(buffer: Uint8Array) {
-    
-    const view = new DataView(buffer.buffer, buffer.byteOffset);
-
-    const type = view.getUint8(0);
-
-    if (type === 2) {
-      // Config message: [type][config JSON]
-      const configJson = buffer.slice(1).toString();
-      return { type: 'config', config: JSON.parse(configJson) };
+async function handleVideoFrame(frame, isKeyframe) {
+  try {
+    // Only write frames if recording
+    if (!currentRecording) {
+      return;
     }
 
-    let offset = 0;
-    offset += 1; // type
-    const timestamp = Number(view.getBigUint64(offset, true)); offset += 8;
-    const duration = Number(view.getBigUint64(offset, true)); offset += 8;
-    const keyframe = view.getUint8(offset) === 1; offset += 1;
-    const configLength = view.getUint32(offset, true); offset += 4;
 
-    let decoderConfig = null;
 
-    if (configLength > 0) {
-      // Parse config JSON
-      const configBytes = buffer.slice(offset, offset + configLength);
-      const configJson = new TextDecoder().decode(configBytes);
-      const meta = JSON.parse(configJson);
-      decoderConfig = meta.decoderConfig || null;
-      offset += configLength;
+    // Set first timestamp on first keyframe
+    if (isKeyframe && currentRecording.firstVideoTimestamp === null) {
+      currentRecording.firstVideoTimestamp = frame.timestamp;
     }
 
-    // Parse description (always present in protocol, even if 0 length)
-    const descLength = view.getUint32(offset, true); offset += 4;
-    if (descLength > 0 && decoderConfig) {
-      const description = buffer.slice(offset, offset + descLength);
-      decoderConfig.description = description;
-      offset += descLength;
+    // Skip frames until we have a keyframe
+    if (currentRecording.firstVideoTimestamp === null) {
+      return;
     }
 
-    const data = buffer.slice(offset);
+    const relativeTimestamp = (frame.timestamp - currentRecording.firstVideoTimestamp) / 1e6;
+    const packet = new EncodedPacket(frame.data, frame.type, relativeTimestamp, 0);
 
-    return {
-        type: type === 0 ? 'video' : 'audio',
-        timestamp,
-        duration,
-        keyframe,
-        decoderConfig,
-        data
-    };
-}
+    // Add decoderConfig on first packet only
+    if (!addedVideoConfig) {
+      currentRecording.videoSource.add(packet, { decoderConfig: videoDecoderConfig });
+      addedVideoConfig = true;
+      console.log('Added video decoderConfig to first packet');
+    } else {
+      currentRecording.videoSource.add(packet);
+    }
 
-
-    ```
-  </TabItem>
-
-</Tabs>
-
-</details>
-
-
-Then, when you start listening on the server for the stream of data, you'd essentially do something like this:
-
-
-```typescript
-
-function onDataFromNetwork(buffer: Uint8Array){
-    const frame = parseFrame(buffer); //parse the frame
-    handleFrame(frame); //Mux it to disk
-}
-
+    currentRecording.videoFrames++;
+  } catch (error) {
+    console.error('Error handling video frame:', error);
+  }
 ```
-
 
 When you're done recording, just call `output.finalize()`
 
@@ -1652,7 +2007,7 @@ For the first time, this demo can't be embedded in the document as it's a server
 git clone https://github.com/sb2702/webcodecs-examples.git
 cd webcodecs-examples/src/moq-server
 npm install
-node subscriber
+npm run subscriber
 ```
 
 And just open up to `http://localhost:3000/upload.html`

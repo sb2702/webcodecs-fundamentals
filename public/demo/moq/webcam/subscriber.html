@@ -94,12 +94,12 @@
 
   <script type="module">
     import * as Moq from 'https://esm.sh/@moq/net@0.4.2';
-    import { MoqSubscriber, AudioPlayer } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.17/dist/index.js';
+    import { MoqSubscriber, AudioPlayer, Hang } from 'https://cdn.jsdelivr.net/npm/webcodecs-examples@0.1.18/dist/index.js';
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const relayUrl = params.get('relay') || 'https://cdn.moq.dev/anon';
-    const broadcastName = params.get('broadcast') || 'my-broadcast';
+    const broadcastName = Hang.broadcastName(params.get('broadcast') || 'my-broadcast');
 
     // UI Elements
     const statusEl = document.getElementById('status');
@@ -139,15 +139,6 @@
       return active;
     }
 
-    async function getCatalog(broadcast) {
-      const catalogTrack = broadcast.track('catalog.json').subscribe();
-      const catalogGroup = await catalogTrack.recvGroup();
-      const catalog = await catalogGroup.readJson();
-      log('Received catalog', 'success');
-      console.log('Catalog:', catalog);
-      return catalog;
-    }
-
     async function init() {
       try {
         updateStatus('Connecting to relay...', 'info');
@@ -159,33 +150,28 @@
         const broadcast = await waitForBroadcast(origin.request(Moq.Path.from(broadcastName), { announced: true }));
         log(`Consuming broadcast: ${broadcastName}`, 'info');
 
-        const catalog = await getCatalog(broadcast);
-
-        updateStatus('Subscribing to tracks...', 'info');
-
-        const videoTrack = broadcast.track('video').subscribe();
-        log('Subscribed to video track', 'success');
-
-        const audioTrack = broadcast.track('audio').subscribe();
-        log('Subscribed to audio track', 'success');
+        const catalog = await MoqSubscriber.getCatalog(broadcast);
+        log('Received catalog', 'success');
+        console.log('Catalog:', catalog);
 
         updateStatus('Starting decoders...', 'info');
 
-        // Create audio player
-        const audioRendition = Object.values(catalog.audio.renditions)[0];
+        // Create audio player for the audio rendition the subscriber will pick
+        const [, audioRendition] = Hang.firstRendition(catalog.audio?.renditions);
         const audioPlayer = new AudioPlayer(audioRendition.sampleRate, audioRendition.numberOfChannels);
 
-        subscriber = new MoqSubscriber(catalog, videoTrack, audioTrack);
+        // Subscribes to the tracks named in the catalog
+        subscriber = new MoqSubscriber(catalog, broadcast);
 
         // Start video decoding and rendering
-        subscriber.startVideo((frame) => {
+        await subscriber.startVideo((frame) => {
           ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
           frame.close();
           frameCount++;
         });
 
         // Start audio decoding and playback
-        subscriber.startAudio((audioData) => {
+        await subscriber.startAudio((audioData) => {
           audioPlayer.play(audioData);
           audioData.close();
         });

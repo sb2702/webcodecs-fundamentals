@@ -37,7 +37,7 @@ This page lists the main sources, references, and resources cited throughout Web
 ### Media Over QUIC (MoQ)
 
 - [moq-dev GitHub](https://github.com/moq-dev/moq)
-- [Hang Protocol Library](https://github.com/moq-dev/moq/tree/main/js/hang)
+- [Hang format spec (draft-lcurley-moq-hang)](https://doc.moq.dev/draft/moq-hang) and [library](https://github.com/moq-dev/moq/tree/main/js/hang)
 - [@moq/lite](https://www.npmjs.com/package/@moq/lite) - JavaScript MoQ client
 
 ### Video Players
