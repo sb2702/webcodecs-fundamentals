@@ -1,11 +1,120 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import starlightLlmsTxt from 'starlight-llms-txt';
+import llmsMarkdown from './src/integrations/llms-markdown.mjs';
+
+const SITE = 'https://webcodecsfundamentals.org';
+const SITE_TITLE = 'WebCodecs Fundamentals';
+const SITE_DESCRIPTION = 'WebCodecs API tutorials, production code patterns, and the world\'s largest codec support dataset. Learn browser-based video encoding, decoding, transcoding, and playback.';
+
+// Shared by Starlight and the llms.md index
+const sidebar = [
+		{
+			label: 'Introduction',
+			items: [
+				{ label: 'What are Codecs?', slug: 'intro/what-are-codecs' },
+				{ label: 'What is WebCodecs?', slug: 'intro/what-is-webcodecs' },
+				{ label: 'Why use WebCodecs?', slug: 'intro/why-use-webcodecs' },
+				{ label: 'Harder than it looks', slug: 'intro/reality-check' },
+			],
+		},
+
+
+
+
+		{
+			label: 'Core Concepts',
+			items: [
+				{ label: 'CPU vs GPU', slug: 'concepts/cpu-vs-gpu' },
+				{ label: 'Offscreen vs Main thread', slug: 'concepts/threading' },
+				{ label: 'Streams', slug: 'concepts/streams' },
+				{ label: 'File Handling', slug: 'concepts/file-handling' },
+			],
+		},
+
+		{
+			label: 'Basics',
+			items: [
+				{ label: 'VideoFrame', slug: 'basics/video-frame' },
+				{ label: 'EncodedVideoChunk', slug: 'basics/encoded-video-chunk' },
+				{ label: 'Muxing', slug: 'basics/muxing' },
+				{ label: 'Codecs', slug: 'basics/codecs' },		
+				{ label: 'Decoder', slug: 'basics/decoder' },
+				{ label: 'Encoder', slug: 'basics/encoder' },
+				{ label: 'Rendering', slug: 'basics/rendering' },
+
+			],
+		},
+
+		{
+			label: 'Audio',
+			items: [
+				{ label: 'Intro', slug: 'audio/intro' },
+				{ label: 'AudioData', slug: 'audio/audio-data' },
+				{ label: 'EncodedAudioChunk', slug: 'audio/encoded-audio-chunk' },
+				{ label: 'Decoding & Encoding', slug: 'audio/decoding-encoding' },
+				{ label: 'Playback', slug: 'audio/web-audio' },
+				{ label: 'MP3', slug: 'audio/mp3' },
+			],
+		},
+
+		{
+			label: 'Design Patterns',
+			items: [
+				{ label: 'Common use cases', slug: 'patterns/use-cases' },
+				{ label: 'Video Player', slug: 'patterns/playback' },
+				{ label: 'Transcoding', slug: 'patterns/transcoding' },
+				{ label: 'Video Editing', slug: 'patterns/editing' },
+				{ label: 'Programmatic Video Generation', slug: 'patterns/generation' },
+				{ label: 'Live Streaming', slug: 'patterns/live-streaming' },
+			],
+		},
+/*
+		{
+			label: 'Mediabunny',
+			items: [
+				{ label: 'Intro', slug: 'media-bunny/intro' },
+				{ label: 'Video Player', slug: 'media-bunny/playback' },
+				{ label: 'Transcoding', slug: 'media-bunny/transcoding' },
+				{ label: 'Video Editing', slug: 'media-bunny/editing' },
+				{ label: 'Live Streaming', slug: 'media-bunny/live-streaming' },
+			],
+		},
+*/
+		{
+			label: 'Datasets',
+			items: [
+				{ label: 'Codec Analysis 2026', slug: 'datasets/codec-analysis-2026' },
+				{ label: 'Codec Support Table', slug: 'datasets/codec-support-table' },
+				{ label: 'Codec Support Dataset', slug: 'datasets/codec-support' },
+
+			],
+		},
+
+		{
+			label: 'Ecosystem',
+			items: [
+				{ label: 'MediaBunny: ffmpeg for the web', slug: 'projects/media-bunny' },
+				{ label: 'Media Over Quic', slug: 'projects/moq' },
+				{ label: 'Remotion', slug: 'projects/remotion' }
+			],
+		},
+
+
+		{
+			label: 'Reference',
+			items: [
+				{ label: 'About', slug: 'reference/about' },
+				{ label: 'Sources', slug: 'reference/sources' },
+				{ label: 'Inside Jokes', slug: 'reference/inside-jokes' },
+				{ label: 'LLM Resources', slug: 'llms' },
+			],
+		},
+	];
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://webcodecsfundamentals.org',
+	site: SITE,
 
 	markdown: {
 		shikiConfig: {
@@ -32,7 +141,6 @@ export default defineConfig({
 	},
 	integrations: [
 		starlight({
-			plugins: [starlightLlmsTxt()],
 			components: {
 				ThemeProvider: './src/components/ThemeProvider.astro',
 			  },
@@ -70,8 +178,8 @@ export default defineConfig({
 					`,
 				},
 			],
-			title: 'WebCodecs Fundamentals',
-			description: 'WebCodecs API tutorials, production code patterns, and the world\'s largest codec support dataset. Learn browser-based video encoding, decoding, transcoding, and playback.',
+			title: SITE_TITLE,
+			description: SITE_DESCRIPTION,
 			tableOfContents: false,
 			customCss: [
 				'./src/styles/custom.css',
@@ -84,109 +192,8 @@ export default defineConfig({
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/sb2702/webcodecs-fundamentals' }
 			],
-			sidebar: [
-				{
-					label: 'Introduction',
-					items: [
-						{ label: 'What are Codecs?', slug: 'intro/what-are-codecs' },
-						{ label: 'What is WebCodecs?', slug: 'intro/what-is-webcodecs' },
-						{ label: 'Why use WebCodecs?', slug: 'intro/why-use-webcodecs' },
-						{ label: 'Harder than it looks', slug: 'intro/reality-check' },
-					],
-				},
-
-
-
-
-				{
-					label: 'Core Concepts',
-					items: [
-						{ label: 'CPU vs GPU', slug: 'concepts/cpu-vs-gpu' },
-						{ label: 'Offscreen vs Main thread', slug: 'concepts/threading' },
-						{ label: 'Streams', slug: 'concepts/streams' },
-						{ label: 'File Handling', slug: 'concepts/file-handling' },
-					],
-				},
-
-				{
-					label: 'Basics',
-					items: [
-						{ label: 'VideoFrame', slug: 'basics/video-frame' },
-						{ label: 'EncodedVideoChunk', slug: 'basics/encoded-video-chunk' },
-						{ label: 'Muxing', slug: 'basics/muxing' },
-						{ label: 'Codecs', slug: 'basics/codecs' },		
-						{ label: 'Decoder', slug: 'basics/decoder' },
-						{ label: 'Encoder', slug: 'basics/encoder' },
-						{ label: 'Rendering', slug: 'basics/rendering' },
-
-					],
-				},
-
-				{
-					label: 'Audio',
-					items: [
-						{ label: 'Intro', slug: 'audio/intro' },
-						{ label: 'AudioData', slug: 'audio/audio-data' },
-						{ label: 'EncodedAudioChunk', slug: 'audio/encoded-audio-chunk' },
-						{ label: 'Decoding & Encoding', slug: 'audio/decoding-encoding' },
-						{ label: 'Playback', slug: 'audio/web-audio' },
-						{ label: 'MP3', slug: 'audio/mp3' },
-					],
-				},
-
-				{
-					label: 'Design Patterns',
-					items: [
-						{ label: 'Common use cases', slug: 'patterns/use-cases' },
-						{ label: 'Video Player', slug: 'patterns/playback' },
-						{ label: 'Transcoding', slug: 'patterns/transcoding' },
-						{ label: 'Video Editing', slug: 'patterns/editing' },
-						{ label: 'Programmatic Video Generation', slug: 'patterns/generation' },
-						{ label: 'Live Streaming', slug: 'patterns/live-streaming' },
-					],
-				},
-/*
-				{
-					label: 'Mediabunny',
-					items: [
-						{ label: 'Intro', slug: 'media-bunny/intro' },
-						{ label: 'Video Player', slug: 'media-bunny/playback' },
-						{ label: 'Transcoding', slug: 'media-bunny/transcoding' },
-						{ label: 'Video Editing', slug: 'media-bunny/editing' },
-						{ label: 'Live Streaming', slug: 'media-bunny/live-streaming' },
-					],
-				},
-*/
-				{
-					label: 'Datasets',
-					items: [
-						{ label: 'Codec Analysis 2026', slug: 'datasets/codec-analysis-2026' },
-						{ label: 'Codec Support Table', slug: 'datasets/codec-support-table' },
-						{ label: 'Codec Support Dataset', slug: 'datasets/codec-support' },
-
-					],
-				},
-
-				{
-					label: 'Ecosystem',
-					items: [
-						{ label: 'MediaBunny: ffmpeg for the web', slug: 'projects/media-bunny' },
-						{ label: 'Media Over Quic', slug: 'projects/moq' },
-						{ label: 'Remotion', slug: 'projects/remotion' }
-					],
-				},
-
-
-				{
-					label: 'Reference',
-					items: [
-						{ label: 'About', slug: 'reference/about' },
-						{ label: 'Sources', slug: 'reference/sources' },
-						{ label: 'Inside Jokes', slug: 'reference/inside-jokes' },
-						{ label: 'LLM Resources', slug: 'llms' },
-					],
-				},
-			],
+			sidebar,
 		}),
+		llmsMarkdown({ site: SITE, title: SITE_TITLE, description: SITE_DESCRIPTION, sidebar }),
 	],
 });

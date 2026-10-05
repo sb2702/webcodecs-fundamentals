@@ -9,32 +9,34 @@ While WebCodecs Fundamentals is proudly human-generated, we want to encourage us
 
 Since WebCodecs is a rapidly evolving API with limited resources in existing training datasets, providing this comprehensive documentation in LLM-friendly formats helps ensure accurate, up-to-date assistance.
 
-## Download Resources
+## Resources
 
-- [**llms.txt**](/llms.txt) - Index of all documentation pages with descriptions
-- [**llms-full.txt**](/llms-full.txt) - Complete documentation in a single file (16,437 lines)
-- [**llms-small.txt**](/llms-small.txt) - Compact version with page structure only (318 lines)
+- [**llms.md**](/llms.md) (also served as [llms.txt](/llms.txt)) - An index of every documentation page, organized by section, with a description of each and a link to its Markdown
+- **Per-page Markdown** - Every page is available as clean Markdown: replace the trailing `/` in a page's URL with `.md` (e.g. [/patterns/live-streaming.md](/patterns/live-streaming.md))
+- [**llms-full.txt**](/llms-full.txt) - Every page in a single file
+
+For most questions, start from the index and fetch only the pages you need.
 
 ## What's Included
 
-The full documentation covers:
+The documentation covers:
 
 - **Introduction** - What WebCodecs is and why to use it
 - **Core Concepts** - CPU vs GPU, threading, streams, file handling
 - **Basics** - VideoFrame, EncodedVideoChunk, encoders, decoders, rendering
 - **Audio** - AudioData, AudioEncoder, AudioDecoder, playback
 - **Design Patterns** - Production patterns for playback, transcoding, editing, streaming
-- **Datasets** - Empirical codec support data from 224k+ user sessions
-- **Ecosystem** - MediaBunny, Media Over QUIC, Remotion
+- **Datasets** - Empirical codec support data from 7.6M+ user sessions
+- **Ecosystem** - MediaBunny, Media Over QUIC
 
-## Usage
+## Format
 
-These files are automatically generated at build time from the same source as the official documentation. They include:
+These files are generated at build time from the same source as the documentation:
 
-- All markdown content from the documentation
-- Code examples and API references
-- Real-world implementation patterns
-- Production-tested best practices
+- Code examples are included verbatim
+- Interactive demos are replaced with links to the demo pages
+- Large data tables (like the 1,087-row codec support table) are replaced with a link to the page and the [codec support dataset](/datasets/codec-support/)
+- Links between pages point to the Markdown versions
 
 ## License
 

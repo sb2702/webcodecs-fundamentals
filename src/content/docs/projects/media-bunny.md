@@ -1,6 +1,6 @@
 ---
 title: Mediabunny - ffmpeg for the web
-description: How Mediabunny helps with this
+description: 'Mediabunny, "ffmpeg for the web": a library built on WebCodecs that handles muxing, demuxing, transcoding and decoding through simple Input and Output objects instead of raw encoders and decoders.'
 ---
 
 Hopefully you are convinced that WebCodecs is [more complex than it looks](../../intro/reality-check), but you can make your life significantly easier by using [Mediabunny](https://mediabunny.dev/), which can be thought of as the "ffmpeg for the web";

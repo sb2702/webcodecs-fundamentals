@@ -1,6 +1,6 @@
 ---
 title: An Intro to Mediabunny
-description: Managing encoder queues and flushing
+description: "An introduction to Mediabunny's API: working with Inputs and Outputs instead of VideoEncoder and VideoDecoder, plus a concrete decoding example."
 ---
 
 WebCodecs gives low-level access to hardware accelerated video encoding and decoding in the browser. [Mediabunny](https://mediabunny.dev/) builds on top of WebCodecs, adding key utilities like muxing/demuxing, simplifying the API, and implementing best practices. The result is a general purpose media processing library for the browser.
